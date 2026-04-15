@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת תשלומי חתונה | מנהל</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Hebrew optimized fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Assistant', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen p-4 md:p-8 flex items-center justify-center">
+    <div class="w-full max-w-2xl">
+        
+        <!-- Header -->
+        <header class="mb-8 text-center md:text-right">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-xl mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900">לוח בקרה ליצירת קישור</h1>
+            <p class="text-gray-500 mt-2 text-sm md:text-base">הזינו את פרטי הבנק שלכם למטה כדי ליצור דף תשלום מאובטח לשיתוף עם האורחים.</p>
+        </header>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6">
+            <form id="generator-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" for="name">שם המוטב(ים)</label>
+                    <input type="text" id="name" required dir="rtl" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-gray-400" placeholder="לדוגמה: ישראל וישראלית ישראלי">
+                    <p class="text-xs text-gray-500 mt-2">זו הכותרת שהאורחים יראו על גבי כרטיס המתנה.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" for="bank">שם הבנק</label>
+                    <input type="text" id="bank" required dir="rtl" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-gray-400" placeholder="לדוגמה: בנק הפועלים">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2" for="branch">מספר סניף</label>
+                        <input type="text" id="branch" required dir="ltr" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-gray-400" placeholder="לדוגמה: 123">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2" for="account">מספר חשבון</label>
+                        <input type="text" id="account" required dir="ltr" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder-gray-400" placeholder="לדוגמה: 987654321">
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-gray-100">
+                    <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-semibold py-3.5 px-4 rounded-xl transition-colors shadow-md hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-gray-900">
+                        צור קישור ציבורי
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Result / Share Box (Hidden by default) -->
+        <div id="result-container" class="hidden bg-blue-50 rounded-2xl shadow-sm border border-blue-200 p-6 md:p-8 animate-fade-in-up">
+            <div class="flex items-start mb-4">
+                <div class="shrink-0 bg-blue-100 text-blue-600 rounded-full p-2 ml-4 mt-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-blue-900">הקישור נוצר בהצלחה</h2>
+                    <p class="text-sm text-blue-800 mt-1">העתיקו את הקישור למטה ושתפו אותו עם האורחים דרך וואטסאפ או אימייל. קישור זה מכיל את הפרטים שלכם בצורה מאובטחת.</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center gap-3">
+                <input type="text" id="generated-link" readonly dir="ltr" class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl text-sm text-gray-600 focus:outline-none shadow-inner text-left">
+                <button type="button" id="copy-btn" class="w-full md:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    העתקת קישור
+                </button>
+            </div>
+            
+            <p id="copy-feedback" class="text-sm text-blue-600 font-semibold mt-3 text-center md:text-left hidden transition-opacity">
+                הועתק ללוח! ✓
+            </p>
+
+            <!-- QR Code Section -->
+            <div id="qr-section" class="mt-8 border-t border-blue-200 pt-6 flex flex-col items-center">
+                <p class="text-sm font-semibold text-blue-900 mb-4">או שתפו באמצעות קוד QR</p>
+                <div class="bg-white p-4 rounded-xl border border-blue-100 shadow-sm mb-4">
+                    <div id="qrcode"></div>
+                </div>
+                <button type="button" id="download-qr-btn" class="text-sm bg-white border border-blue-200 hover:bg-blue-50 text-blue-700 font-medium py-2 px-5 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    הורדת קוד QR
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Generator Script -->
+    <script>
+        document.getElementById('generator-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const bank = document.getElementById('bank').value;
+            const branch = document.getElementById('branch').value;
+            const account = document.getElementById('account').value;
+
+            const params = new URLSearchParams({
+                name: name,
+                bank: bank,
+                branch: branch,
+                account: account
+            });
+
+            let currentPath = window.location.href.split('?')[0]; 
+            let targetPath = '';
+            
+            if (currentPath.endsWith('index.html')) {
+                targetPath = currentPath.replace('index.html', 'payment.html');
+            } else if (currentPath.endsWith('/')) {
+                targetPath = currentPath + 'payment.html';
+            } else {
+                const chunks = currentPath.split('/');
+                chunks[chunks.length - 1] = 'payment.html';
+                targetPath = chunks.join('/');
+            }
+
+            const finalShareableUrl = `${targetPath}?${params.toString()}`;
+
+            const linkInput = document.getElementById('generated-link');
+            linkInput.value = finalShareableUrl;
+            
+            const resultBox = document.getElementById('result-container');
+            resultBox.classList.remove('hidden');
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ''; 
+            
+            new QRCode(qrContainer, {
+                text: finalShareableUrl,
+                width: 180,
+                height: 180,
+                colorDark : "#1e40af", 
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        });
+
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const linkInput = document.getElementById('generated-link');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); 
+
+            const feedback = document.getElementById('copy-feedback');
+
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                showCopiedFeedback(feedback);
+            }).catch(err => {
+                document.execCommand('copy');
+                showCopiedFeedback(feedback);
+            });
+        });
+        
+        function showCopiedFeedback(el) {
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.getElementById('download-qr-btn').addEventListener('click', function() {
+            const qrContainer = document.getElementById('qrcode');
+            const imgElement = qrContainer.querySelector('img');
+            const canvasElement = qrContainer.querySelector('canvas');
+            
+            let downloadUrl = '';
+
+            if (imgElement && imgElement.src && imgElement.src.startsWith('data:image')) {
+                downloadUrl = imgElement.src;
+            } else if (canvasElement) {
+                downloadUrl = canvasElement.toDataURL("image/png");
+            }
+            
+            if (downloadUrl) {
+                const a = document.createElement("a");
+                a.href = downloadUrl;
+                a.download = "wedding-payment-qr.png";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        });
+    </script>
+</body>
+</html>

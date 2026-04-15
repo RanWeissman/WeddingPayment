@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מתנת חתונה | פרטי בנק</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts Optimized for Hebrew -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Theme Settings -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wedding: {
+                            gold: '#D4AF37',
+                            light: '#FAF9F6',
+                            rose: '#F3E5F5',
+                            champagne: '#F7E7CE',
+                            dark: '#2C3E50'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Assistant', 'sans-serif'],
+                        serif: ['Frank Ruhl Libre', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Ambient festive background */
+        body {
+            background-color: #FAF9F6;
+            background-image: radial-gradient(#dfd1d1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Subtle diagonal line pattern for the card interior */
+        .card-pattern {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(212, 175, 55, 0.03) 10px, rgba(212, 175, 55, 0.03) 20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-sans p-4 relative text-gray-800">
+    
+    <!-- Decorative Ambient Background Elements -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-60"></div>
+        <div class="absolute top-1/3 right-0 w-80 h-80 bg-yellow-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 hidden md:block"></div>
+        <div class="absolute -bottom-32 left-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-50"></div>
+    </div>
+
+    <!-- The physical "Card" container -->
+    <div class="relative w-full max-w-lg mt-8 mb-8">
+        <!-- 3D Card Shadow Effect -->
+        <div class="absolute inset-0 bg-gradient-to-tr from-wedding-gold/20 to-yellow-100/50 transform rotate-2 rounded-2xl md:rounded-[2rem] shadow-xl"></div>
+        
+        <!-- Main Card Surface -->
+        <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-wedding-gold/20 card-pattern overflow-hidden">
+            
+            <!-- Metallic Corner Decor -->
+            <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-wedding-gold/30 rounded-tl-lg"></div>
+            <div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-wedding-gold/30 rounded-tr-lg"></div>
+            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-wedding-gold/30 rounded-bl-lg"></div>
+            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-wedding-gold/30 rounded-br-lg"></div>
+
+            <!-- Card Header -->
+            <div class="text-center mb-10">
+                <p class="text-xs uppercase tracking-widest text-wedding-gold font-semibold mb-3">בהוקרה</p>
+                <h1 class="text-4xl font-serif font-bold text-wedding-dark mb-4 drop-shadow-sm">פרטי בנק למתנה</h1>
+                
+                <!-- Separator with Heart -->
+                <div class="flex items-center justify-center gap-4">
+                    <div class="h-[1px] w-16 bg-wedding-gold/40"></div>
+                    <svg class="h-5 w-5 text-wedding-gold" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <div class="h-[1px] w-16 bg-wedding-gold/40"></div>
+                </div>
+            </div>
+
+            <!-- Details Content Container -->
+            <div class="space-y-5 relative z-10">
+                
+                <!-- Beneficiary -->
+                <div class="bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative">
+                    <p class="text-[10px] text-gray-500 tracking-widest mb-1.5 font-semibold">שם המוטב</p>
+                    <div class="flex items-center justify-between">
+                        <p id="display-name" class="font-serif text-2xl text-wedding-dark font-medium italic truncate ml-2">טוען...</p>
+                        <button id="copy-name-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק שם מוטב">
+                            <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bank Info -->
+                <div class="bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative">
+                    <p class="text-[10px] text-gray-500 tracking-widest mb-1.5 font-semibold">שם הבנק</p>
+                    <div class="flex items-center justify-between">
+                        <p id="display-bank" class="text-lg text-wedding-dark font-medium truncate ml-2">טוען...</p>
+                        <button id="copy-bank-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק שם בנק">
+                            <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Branch & Account row -->
+                <div class="flex flex-col sm:flex-row gap-5">
+                    <div class="flex-1 bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative">
+                        <p class="text-[10px] text-gray-500 tracking-widest mb-1.5 font-semibold">מספר סניף</p>
+                        <div class="flex items-center justify-between">
+                            <p id="display-branch" class="text-lg text-wedding-dark font-semibold font-mono tracking-wider truncate ml-2" dir="ltr">---</p>
+                            <button id="copy-branch-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק מספר סניף">
+                                <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-[2] bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative">
+                        <p class="text-[10px] text-gray-500 tracking-widest mb-1.5 font-semibold">מספר חשבון</p>
+                        <div class="flex items-center justify-between">
+                            <p id="display-account" class="text-lg text-wedding-dark font-semibold font-mono tracking-wider truncate ml-2" dir="ltr">---</p>
+                            <button id="copy-account-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק מספר חשבון">
+                                <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Extraction JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            
+            const paramName = urlParams.get('name') || 'לא צוין שם';
+            const paramBank = urlParams.get('bank') || 'לא צוין בנק';
+            const paramBranch = urlParams.get('branch') || '-';
+            const paramAccount = urlParams.get('account') || '-';
+
+            document.getElementById('display-name').textContent = paramName;
+            document.getElementById('display-bank').textContent = paramBank;
+            document.getElementById('display-branch').textContent = paramBranch;
+            document.getElementById('display-account').textContent = paramAccount;
+
+            // Copy Logic for all distinct fields
+            const copyFields = ['name', 'bank', 'branch', 'account'];
+            
+            copyFields.forEach(field => {
+                const btn = document.getElementById(`copy-${field}-btn`);
+                const displayEl = document.getElementById(`display-${field}`);
+                
+                if (btn && displayEl) {
+                    btn.addEventListener('click', function() {
+                        const val = displayEl.textContent;
+                        // Avoid copying empty dashes or loading states in Hebrew
+                        if(val && val !== '-' && !val.includes('טוען') && !val.includes('לא צוין')) {
+                            navigator.clipboard.writeText(val).then(() => {
+                                const originalHTML = btn.innerHTML;
+                                btn.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                                setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+                            }).catch(() => {
+                                console.error('Failed to copy ' + field);
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
