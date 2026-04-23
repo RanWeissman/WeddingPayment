@@ -1,0 +1,66 @@
+name: Deploy Wedding Payment Site
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write  # This is required for requesting the OIDC JWT
+  contents: read   # This is required for actions/checkout
+
+env:
+  AWS_REGION: il-central-1
+  TF_VERSION: '1.5.0'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # After the first manual `terraform apply`, set the resulting github_actions_role_arn as a GitHub Secret
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
+
+      - name: Extract Terraform Outputs
+        working-directory: ./terraform
+        id: tf_outputs
+        run: |
+          echo "S3_BUCKET=$(terraform output -raw website_bucket_name)" >> $GITHUB_ENV
+          echo "CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+
+      - name: Sync Website Files to S3
+        run: |
+          # Exclude infrastructure/git mapping but sync all root website assets (HTML, CSS, JS, Images)
+          aws s3 sync ./ s3://${{ env.S3_BUCKET }} \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "terraform/*" \
+            --exclude "*.md" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --delete
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CLOUDFRONT_ID }} \
+            --paths "/*"
