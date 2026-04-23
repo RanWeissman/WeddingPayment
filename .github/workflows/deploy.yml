@@ -6,8 +6,7 @@ on:
       - main
 
 permissions:
-  id-token: write  # This is required for requesting the OIDC JWT
-  contents: read   # This is required for actions/checkout
+  contents: read
 
 env:
   AWS_REGION: il-central-1
@@ -23,9 +22,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # After the first manual `terraform apply`, set the resulting github_actions_role_arn as a GitHub Secret
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'il-central-1'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -35,7 +34,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
-        run: terraform init
+        run: terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
 
       - name: Terraform Apply
         working-directory: ./terraform
@@ -50,7 +49,6 @@ jobs:
 
       - name: Sync Website Files to S3
         run: |
-          # Exclude infrastructure/git mapping but sync all root website assets (HTML, CSS, JS, Images)
           aws s3 sync ./ s3://${{ env.S3_BUCKET }} \
             --exclude ".git/*" \
             --exclude ".github/*" \
