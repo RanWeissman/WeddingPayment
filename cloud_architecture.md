@@ -33,9 +33,10 @@ CloudFront serves as the Content Delivery Network (CDN), caching the static asse
 * **Security:** Enforces HTTPS connections, providing SSL/TLS encryption for all user traffic.
 * **Routing & Forwarding:** Explicitly configured to **forward query strings** to the origin so that `payment.html` can read URL parameters. It also employs a **Custom Error Response** to securely redirect any 404 Not Found errors back to `index.html`.
 
+ש
 ### 3. Terraform (Infrastructure as Code)
 Terraform is used to define, provision, and manage all AWS resources deterministically.
-* **Resources Managed:** S3 buckets, CloudFront distributions, Origin Access Control settings, and necessary IAM (Identity and Access Management) roles and policies.
+    * **Resources Managed:** S3 buckets, CloudFront distributions, Origin Access Control settings, and necessary IAM (Identity and Access Management) roles and policies.
 * **Advantage:** Ensures the infrastructure is reproducible, version-controlled, and easily reviewable.
 * **Remote State:** Implements an **S3 backend** coupled with a **DynamoDB table** for reliable state locking. This configuration is crucial to maintain state consistency and prevent concurrent deployment conflicts within the CI/CD pipeline.
 
