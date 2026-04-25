@@ -75,8 +75,7 @@
 
             <!-- Card Header -->
             <div class="text-center mb-10">
-                <p class="text-xs uppercase tracking-widest text-wedding-gold font-semibold mb-3">בהוקרה</p>
-                <h1 class="text-4xl font-serif font-bold text-wedding-dark mb-4 drop-shadow-sm">פרטי בנק למתנה</h1>
+                <h1 id="header-title" class="text-4xl font-serif font-bold text-wedding-dark mb-4 drop-shadow-sm">מתנה לחתונה</h1>
                 
                 <!-- Separator with Heart -->
                 <div class="flex items-center justify-center gap-4">
@@ -88,17 +87,22 @@
                 </div>
             </div>
 
-            <!-- Thank You Message -->
-            <div class="text-center px-4 sm:px-8 md:px-10 mb-8 relative z-10 font-sans">
-                <p class="text-xl sm:text-2xl font-semibold text-wedding-dark mb-2">
+            <!-- Thank You Message & Intro -->
+            <div class="text-center px-4 sm:px-8 md:px-10 mb-6 relative z-10 font-sans">
+                <p class="text-xl sm:text-2xl font-semibold text-wedding-dark mb-4">
                     אורחים יקרים שלנו,
                 </p>
-                <p class="text-[1.05rem] sm:text-lg text-gray-700 leading-relaxed mb-4">
-                    תודה רבה על השתתפותכם בשמחתנו.<br/>
-                    במידה ובחרתם להעניק לנו מתנה לכבוד האירוע, נשמח אם תשתמשו באפשרות של העברה בנקאית המופיעה כאן למטה.
-                </p>
-                <p class="text-[1.05rem] sm:text-lg text-wedding-gold font-semibold">
-                    מעריכים ואוהבים 🤍
+
+                <!-- Highlighted Note -->
+                <div class="relative z-10 bg-amber-50 border border-amber-200/80 rounded-xl py-2.5 px-3 sm:py-3 sm:px-5 mb-3 shadow-sm mx-auto w-fit max-w-full">
+                    <div class="text-[0.85rem] sm:text-[0.95rem] text-amber-900 font-medium flex flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap">
+                        <span class="text-base sm:text-xl leading-none">💡</span> 
+                        <span><strong>חשוב לציין:</strong> העברת המתנה היא ללא כל עמלה</span>
+                    </div>
+                </div>
+
+                <p class="text-[1.05rem] sm:text-lg text-gray-700 leading-relaxed border-t border-wedding-gold/20 pt-4">
+                    נשמח אם תשתמשו באחת האפשרויות הבאות:
                 </p>
             </div>
 
@@ -172,6 +176,14 @@
                 </div>
                 
             </div>
+
+            <!-- Sign-off -->
+            <div class="text-center relative z-10 font-sans mt-8 border-t border-wedding-gold/20 pt-6">
+                <p class="text-[1.05rem] sm:text-lg text-wedding-gold font-semibold">
+                    מעריכים ואוהבים 🤍
+                </p>
+                <p id="footer-couple-names" class="text-lg sm:text-xl text-wedding-dark font-medium mt-1"></p>
+            </div>
         </div>
     </div>
 
@@ -182,6 +194,7 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             
+            const paramCoupleNames = urlParams.get('coupleNames') || '';
             const paramName = urlParams.get('name') || 'לא צוין שם';
             const paramBank = urlParams.get('bank') || 'לא צוין בנק';
             const paramBranch = urlParams.get('branch') || '-';
@@ -192,6 +205,13 @@
             const payboxLink1 = urlParams.get('payboxLink1');
             const payboxLink2 = urlParams.get('payboxLink2');
             const payboxLinkOld = urlParams.get('payboxLink');
+
+            if (paramCoupleNames) {
+                document.getElementById('header-title').textContent = `מתנה לחתונה של ${paramCoupleNames}`;
+                document.getElementById('footer-couple-names').textContent = paramCoupleNames;
+            } else {
+                document.getElementById('header-title').textContent = `מתנה לחתונה`;
+            }
 
             document.getElementById('display-name').textContent = paramName;
             document.getElementById('display-bank').textContent = paramBank;
