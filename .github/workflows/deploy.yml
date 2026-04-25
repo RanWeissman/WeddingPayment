@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
+  pull-requests: write
 
 env:
   AWS_REGION: il-central-1
@@ -36,11 +40,45 @@ jobs:
         working-directory: ./terraform
         run: terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
 
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        working-directory: ./terraform
+        id: plan
+        run: |
+          terraform plan -no-color > plan_output.txt
+          
+          echo "PLAN_OUTPUT<<EOF" >> $GITHUB_ENV
+          head -c 60000 plan_output.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Comment PR with Terraform Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `### Terraform Plan 📖
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform
+            ${process.env.PLAN_OUTPUT}
+            \`\`\`
+            </details>`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
       - name: Terraform Apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: ./terraform
         run: terraform apply -auto-approve
 
       - name: Extract Terraform Outputs
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: ./terraform
         id: tf_outputs
         run: |
@@ -48,6 +86,7 @@ jobs:
           echo "CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
 
       - name: Sync Website Files to S3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           aws s3 sync ./ s3://${{ env.S3_BUCKET }} \
             --exclude ".git/*" \
@@ -58,6 +97,7 @@ jobs:
             --delete
 
       - name: Invalidate CloudFront Cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ env.CLOUDFRONT_ID }} \
