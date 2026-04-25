@@ -115,10 +115,13 @@
                     </button>
                     <p id="bit-tooltip" class="hidden text-[0.85rem] text-gray-500 mt-2 text-center px-1">התשלומים מתחלפים בין בני הזוג לאיזון</p>
                 </div>
-                <button id="paybox-pay-btn" class="hidden w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    תשלום ב-PayBox
-                </button>
+                <div id="paybox-wrapper" class="hidden flex-col w-full">
+                    <button id="paybox-pay-btn" class="w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        תשלום ב-PayBox
+                    </button>
+                    <p id="paybox-tooltip" class="hidden text-[0.85rem] text-gray-500 mt-2 text-center px-1">התשלומים מתחלפים בין בני הזוג לאיזון</p>
+                </div>
             </div>
 
             <!-- Details Content Container (Hidden by Default) -->
@@ -186,7 +189,9 @@
             const bitLink1 = urlParams.get('bitLink1');
             const bitLink2 = urlParams.get('bitLink2');
             const bitLinkOld = urlParams.get('bitLink'); // Backward compatibility
-            const payboxLink = urlParams.get('payboxLink');
+            const payboxLink1 = urlParams.get('payboxLink1');
+            const payboxLink2 = urlParams.get('payboxLink2');
+            const payboxLinkOld = urlParams.get('payboxLink');
 
             document.getElementById('display-name').textContent = paramName;
             document.getElementById('display-bank').textContent = paramBank;
@@ -224,13 +229,34 @@
                 }
             }
 
-            if (payboxLink) {
-                const payboxBtn = document.getElementById('paybox-pay-btn');
-                if (payboxBtn) {
-                    payboxBtn.classList.remove('hidden');
-                    payboxBtn.addEventListener('click', function() {
-                        window.open(payboxLink, '_blank');
-                    });
+            const validPayboxLinks = [];
+            if (payboxLink1) validPayboxLinks.push(payboxLink1);
+            if (payboxLink2) validPayboxLinks.push(payboxLink2);
+            if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
+
+            if (validPayboxLinks.length > 0) {
+                const pbWrapper = document.getElementById('paybox-wrapper');
+                const pbBtn = document.getElementById('paybox-pay-btn');
+                const pbTooltip = document.getElementById('paybox-tooltip');
+                
+                if (pbWrapper && pbBtn) {
+                    pbWrapper.classList.remove('hidden');
+                    pbWrapper.classList.add('flex');
+                    
+                    if (validPayboxLinks.length === 2) {
+                        pbTooltip.classList.remove('hidden');
+                        let useFirstPbLink = true;
+                        
+                        pbBtn.addEventListener('click', function() {
+                            const linkToOpen = useFirstPbLink ? validPayboxLinks[0] : validPayboxLinks[1];
+                            useFirstPbLink = !useFirstPbLink;
+                            window.open(linkToOpen, '_blank');
+                        });
+                    } else {
+                        pbBtn.addEventListener('click', function() {
+                            window.open(validPayboxLinks[0], '_blank');
+                        });
+                    }
                 }
             }
 
