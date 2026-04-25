@@ -108,10 +108,13 @@
                     <svg class="w-5 h-5 text-wedding-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     <span class="flex items-center">העברה לחשבון בנק <span class="text-wedding-gold/90 font-bold pr-1.5">(מועדף <span class="text-red-400">❤️</span>)</span></span>
                 </button>
-                <button id="bit-pay-btn" class="hidden w-full bg-[#012f38] hover:bg-[#02434f] text-[#00e5ff] font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
-                    <svg class="w-5 h-5 text-[#00e5ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    תשלום בביט (Bit)
-                </button>
+                <div id="bit-wrapper" class="hidden flex-col w-full">
+                    <button id="bit-pay-btn" class="w-full bg-[#012f38] hover:bg-[#02434f] text-[#00e5ff] font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5 text-[#00e5ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        תשלום בביט (Bit)
+                    </button>
+                    <p id="bit-tooltip" class="hidden text-[0.85rem] text-gray-500 mt-2 text-center px-1">התשלומים מתחלפים בין בני הזוג לאיזון</p>
+                </div>
                 <button id="paybox-pay-btn" class="hidden w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     תשלום ב-PayBox
@@ -180,7 +183,9 @@
             const paramBank = urlParams.get('bank') || 'לא צוין בנק';
             const paramBranch = urlParams.get('branch') || '-';
             const paramAccount = urlParams.get('account') || '-';
-            const bitLink = urlParams.get('bitLink');
+            const bitLink1 = urlParams.get('bitLink1');
+            const bitLink2 = urlParams.get('bitLink2');
+            const bitLinkOld = urlParams.get('bitLink'); // Backward compatibility
             const payboxLink = urlParams.get('payboxLink');
 
             document.getElementById('display-name').textContent = paramName;
@@ -188,13 +193,34 @@
             document.getElementById('display-branch').textContent = paramBranch;
             document.getElementById('display-account').textContent = paramAccount;
 
-            if (bitLink) {
+            const validBitLinks = [];
+            if (bitLink1) validBitLinks.push(bitLink1);
+            if (bitLink2) validBitLinks.push(bitLink2);
+            if (!bitLink1 && !bitLink2 && bitLinkOld) validBitLinks.push(bitLinkOld);
+
+            if (validBitLinks.length > 0) {
+                const bitWrapper = document.getElementById('bit-wrapper');
                 const bitBtn = document.getElementById('bit-pay-btn');
-                if (bitBtn) {
-                    bitBtn.classList.remove('hidden');
-                    bitBtn.addEventListener('click', function() {
-                        window.open(bitLink, '_blank');
-                    });
+                const bitTooltip = document.getElementById('bit-tooltip');
+                
+                if (bitWrapper && bitBtn) {
+                    bitWrapper.classList.remove('hidden');
+                    bitWrapper.classList.add('flex');
+                    
+                    if (validBitLinks.length === 2) {
+                        bitTooltip.classList.remove('hidden');
+                        let useFirstLink = true; // State for toggling
+                        
+                        bitBtn.addEventListener('click', function() {
+                            const linkToOpen = useFirstLink ? validBitLinks[0] : validBitLinks[1];
+                            useFirstLink = !useFirstLink; // Toggle for next click
+                            window.open(linkToOpen, '_blank');
+                        });
+                    } else {
+                        bitBtn.addEventListener('click', function() {
+                            window.open(validBitLinks[0], '_blank');
+                        });
+                    }
                 }
             }
 
