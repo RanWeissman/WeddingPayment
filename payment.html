@@ -112,7 +112,7 @@
                     <svg class="w-5 h-5 text-[#00e5ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     תשלום בביט (Bit)
                 </button>
-                <button onclick="alert('אפשרות זו תתווסף בקרוב!')" class="w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
+                <button id="paybox-pay-btn" class="hidden w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     תשלום ב-PayBox
                 </button>
@@ -181,6 +181,7 @@
             const paramBranch = urlParams.get('branch') || '-';
             const paramAccount = urlParams.get('account') || '-';
             const bitLink = urlParams.get('bitLink');
+            const payboxLink = urlParams.get('payboxLink');
 
             document.getElementById('display-name').textContent = paramName;
             document.getElementById('display-bank').textContent = paramBank;
@@ -193,6 +194,16 @@
                     bitBtn.classList.remove('hidden');
                     bitBtn.addEventListener('click', function() {
                         window.open(bitLink, '_blank');
+                    });
+                }
+            }
+
+            if (payboxLink) {
+                const payboxBtn = document.getElementById('paybox-pay-btn');
+                if (payboxBtn) {
+                    payboxBtn.classList.remove('hidden');
+                    payboxBtn.addEventListener('click', function() {
+                        window.open(payboxLink, '_blank');
                     });
                 }
             }
