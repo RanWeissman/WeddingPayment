@@ -208,6 +208,27 @@
         </div>
     </div>
 
+    <!-- PayBox Confirmation Modal -->
+    <div id="paybox-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-wedding-gold/20 relative" dir="rtl">
+            <button id="paybox-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="text-center mb-8 mt-2">
+                <h3 class="text-xl md:text-2xl font-semibold text-wedding-dark mb-3">שימו לב</h3>
+                <p class="text-lg text-gray-700 font-medium">אנחנו מעדיפים תשלום בחשבון הבנק 🙏🏼</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="pb-modal-bank-btn" class="flex-1 w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center border border-transparent">
+                    מעבר לפרטי חשבון
+                </button>
+                <button id="pb-modal-proceed-btn" class="flex-1 w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center">
+                    תשלום בפייבוקס
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Extraction JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -342,6 +363,62 @@
             if (payboxLink2) validPayboxLinks.push(payboxLink2);
             if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
 
+            // PayBox Modal Logic Variables
+            const pbModal = document.getElementById('paybox-modal');
+            const pbModalBankBtn = document.getElementById('pb-modal-bank-btn');
+            const pbModalProceedBtn = document.getElementById('pb-modal-proceed-btn');
+            const pbModalCloseX = document.getElementById('paybox-modal-close-x');
+            let nextPbLinkToOpen = '';
+
+            const closePbModal = () => {
+                if (pbModal) pbModal.classList.add('hidden');
+            };
+
+            const openPbModal = (link) => {
+                nextPbLinkToOpen = link;
+                if (pbModal) pbModal.classList.remove('hidden');
+            };
+
+            if (pbModal) {
+                // Overlay click
+                pbModal.addEventListener('click', (e) => {
+                    if (e.target === pbModal) closePbModal();
+                });
+
+                // Esc key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !pbModal.classList.contains('hidden')) {
+                        closePbModal();
+                    }
+                });
+
+                if (pbModalCloseX) {
+                    pbModalCloseX.addEventListener('click', closePbModal);
+                }
+
+                if (pbModalBankBtn) {
+                    pbModalBankBtn.addEventListener('click', () => {
+                        closePbModal();
+                        const container = document.getElementById('bank-details');
+                        if (container) {
+                            if (container.classList.contains('hidden')) {
+                                container.classList.remove('hidden');
+                            }
+                            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                }
+
+                if (pbModalProceedBtn) {
+                    pbModalProceedBtn.addEventListener('click', () => {
+                        closePbModal();
+                        if (nextPbLinkToOpen) {
+                            window.open(nextPbLinkToOpen, '_blank');
+                        }
+                    });
+                }
+            }
+
             if (validPayboxLinks.length > 0) {
                 const pbWrapper = document.getElementById('paybox-wrapper');
                 const pbBtn = document.getElementById('paybox-pay-btn');
@@ -356,11 +433,11 @@
                         pbBtn.addEventListener('click', function() {
                             const linkToOpen = useFirstPbLink ? validPayboxLinks[0] : validPayboxLinks[1];
                             useFirstPbLink = !useFirstPbLink;
-                            window.open(linkToOpen, '_blank');
+                            openPbModal(linkToOpen);
                         });
                     } else {
                         pbBtn.addEventListener('click', function() {
-                            window.open(validPayboxLinks[0], '_blank');
+                            openPbModal(validPayboxLinks[0]);
                         });
                     }
                 }
