@@ -178,14 +178,22 @@
             </div>
 
             <!-- Sign-off -->
-            <div class="text-center relative z-10 font-sans mt-8 border-t border-wedding-gold/20 pt-6">
+            <div class="text-center relative z-10 font-sans mt-8 border-t border-wedding-gold/20 pt-6 pb-2">
                 <p class="text-[1.05rem] sm:text-lg text-wedding-gold font-semibold">
                     מעריכים ואוהבים 🤍
                 </p>
                 <p id="footer-couple-names" class="text-lg sm:text-xl text-wedding-dark font-medium mt-1"></p>
             </div>
+
+            <!-- Absolute Waze Button inside Card -->
+            <button id="floating-waze-btn" class="hidden absolute bottom-7 right-8 z-50 bg-[#33CCFF] hover:bg-[#2bb8e6] text-white font-bold py-2 px-4 rounded-full transition-transform hover:scale-105 shadow-lg border border-white/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="text-sm">Waze</span>
+            </button>
         </div>
     </div>
+
+
 
     <!-- Bit Confirmation Modal -->
     <div id="bit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
@@ -440,6 +448,21 @@
                             openPbModal(validPayboxLinks[0]);
                         });
                     }
+                }
+            }
+
+            // Waze Button Logic
+            const wazeLink = urlParams.get('wazeLink');
+            if (wazeLink) {
+                const floatingWazeBtn = document.getElementById('floating-waze-btn');
+                
+                if (floatingWazeBtn) {
+                    floatingWazeBtn.classList.remove('hidden');
+                    floatingWazeBtn.classList.add('flex');
+                    
+                    floatingWazeBtn.addEventListener('click', function() {
+                        window.open(wazeLink, '_blank');
+                    });
                 }
             }
 
