@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מתנת חתונה | פרטי בנק</title>
+    <title>מתנת חתונה</title>
+    <meta property="og:title" content="מתנת חתונה">
+    <meta name="twitter:title" content="מתנת חתונה">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -127,7 +129,7 @@
             </div>
 
             <!-- Details Content Container (Hidden by Default) -->
-            <div id="bank-details-container" class="hidden space-y-5 relative z-10 border-t border-wedding-gold/20 pt-6 mt-4">
+            <div id="bank-details" class="hidden space-y-5 relative z-10 border-t border-wedding-gold/20 pt-6 mt-4">
                 
                 <!-- Beneficiary -->
                 <div class="bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative">
@@ -176,11 +178,61 @@
             </div>
 
             <!-- Sign-off -->
-            <div class="text-center relative z-10 font-sans mt-8 border-t border-wedding-gold/20 pt-6">
+            <div class="text-center relative z-10 font-sans mt-8 border-t border-wedding-gold/20 pt-6 pb-2">
                 <p class="text-[1.05rem] sm:text-lg text-wedding-gold font-semibold">
                     מעריכים ואוהבים 🤍
                 </p>
                 <p id="footer-couple-names" class="text-lg sm:text-xl text-wedding-dark font-medium mt-1"></p>
+            </div>
+
+            <!-- Absolute Waze Button inside Card -->
+            <button id="floating-waze-btn" class="hidden absolute bottom-7 right-8 z-50 bg-[#33CCFF] hover:bg-[#2bb8e6] text-white font-bold py-2 px-4 rounded-full transition-transform hover:scale-105 shadow-lg border border-white/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="text-sm">Waze</span>
+            </button>
+        </div>
+    </div>
+
+
+
+    <!-- Bit Confirmation Modal -->
+    <div id="bit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-wedding-gold/20 relative" dir="rtl">
+            <button id="bit-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="text-center mb-8 mt-2">
+                <h3 class="text-xl md:text-2xl font-semibold text-wedding-dark mb-3">שימו לב</h3>
+                <p class="text-lg text-gray-700 font-medium">אנחנו מעדיפים תשלום בחשבון הבנק 🙏🏼</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="modal-bank-btn" class="flex-1 w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center border border-transparent">
+                    מעבר לפרטי חשבון
+                </button>
+                <button id="modal-bit-proceed-btn" class="flex-1 w-full bg-[#012f38] hover:bg-[#02434f] text-[#00e5ff] font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center">
+                    תשלום בביט בכל זאת
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PayBox Confirmation Modal -->
+    <div id="paybox-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-wedding-gold/20 relative" dir="rtl">
+            <button id="paybox-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="text-center mb-8 mt-2">
+                <h3 class="text-xl md:text-2xl font-semibold text-wedding-dark mb-3">שימו לב</h3>
+                <p class="text-lg text-gray-700 font-medium">אנחנו מעדיפים תשלום בחשבון הבנק 🙏🏼</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="pb-modal-bank-btn" class="flex-1 w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center border border-transparent">
+                    מעבר לפרטי חשבון
+                </button>
+                <button id="pb-modal-proceed-btn" class="flex-1 w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center">
+                    תשלום בפייבוקס
+                </button>
             </div>
         </div>
     </div>
@@ -192,8 +244,21 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             
+            const rawNameParam = urlParams.get('name');
+            const pageTitle = (rawNameParam && rawNameParam.trim() !== '') 
+                ? `מתנת חתונה | ${rawNameParam}` 
+                : 'מתנת חתונה';
+            
+            document.title = pageTitle;
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+            
+            const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+            if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
+
             const paramCoupleNames = urlParams.get('coupleNames') || '';
-            const paramName = urlParams.get('name') || 'לא צוין שם';
+            const paramName = rawNameParam || 'לא צוין שם';
             const paramBank = urlParams.get('bank') || 'לא צוין בנק';
             const paramBranch = urlParams.get('branch') || '-';
             const paramAccount = urlParams.get('account') || '-';
@@ -221,6 +286,62 @@
             if (bitLink2) validBitLinks.push(bitLink2);
             if (!bitLink1 && !bitLink2 && bitLinkOld) validBitLinks.push(bitLinkOld);
 
+            // Modal Logic Variables
+            const bitModal = document.getElementById('bit-modal');
+            const modalBankBtn = document.getElementById('modal-bank-btn');
+            const modalBitProceedBtn = document.getElementById('modal-bit-proceed-btn');
+            const bitModalCloseX = document.getElementById('bit-modal-close-x');
+            let nextBitLinkToOpen = '';
+
+            const closeBitModal = () => {
+                if (bitModal) bitModal.classList.add('hidden');
+            };
+
+            const openBitModal = (link) => {
+                nextBitLinkToOpen = link;
+                if (bitModal) bitModal.classList.remove('hidden');
+            };
+
+            if (bitModal) {
+                // Overlay click
+                bitModal.addEventListener('click', (e) => {
+                    if (e.target === bitModal) closeBitModal();
+                });
+
+                // Esc key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !bitModal.classList.contains('hidden')) {
+                        closeBitModal();
+                    }
+                });
+
+                if (bitModalCloseX) {
+                    bitModalCloseX.addEventListener('click', closeBitModal);
+                }
+
+                if (modalBankBtn) {
+                    modalBankBtn.addEventListener('click', () => {
+                        closeBitModal();
+                        const container = document.getElementById('bank-details');
+                        if (container) {
+                            if (container.classList.contains('hidden')) {
+                                container.classList.remove('hidden');
+                            }
+                            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                }
+
+                if (modalBitProceedBtn) {
+                    modalBitProceedBtn.addEventListener('click', () => {
+                        closeBitModal();
+                        if (nextBitLinkToOpen) {
+                            window.open(nextBitLinkToOpen, '_blank');
+                        }
+                    });
+                }
+            }
+
             if (validBitLinks.length > 0) {
                 const bitWrapper = document.getElementById('bit-wrapper');
                 const bitBtn = document.getElementById('bit-pay-btn');
@@ -235,11 +356,11 @@
                         bitBtn.addEventListener('click', function() {
                             const linkToOpen = useFirstLink ? validBitLinks[0] : validBitLinks[1];
                             useFirstLink = !useFirstLink; // Toggle for next click
-                            window.open(linkToOpen, '_blank');
+                            openBitModal(linkToOpen);
                         });
                     } else {
                         bitBtn.addEventListener('click', function() {
-                            window.open(validBitLinks[0], '_blank');
+                            openBitModal(validBitLinks[0]);
                         });
                     }
                 }
@@ -249,6 +370,62 @@
             if (payboxLink1) validPayboxLinks.push(payboxLink1);
             if (payboxLink2) validPayboxLinks.push(payboxLink2);
             if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
+
+            // PayBox Modal Logic Variables
+            const pbModal = document.getElementById('paybox-modal');
+            const pbModalBankBtn = document.getElementById('pb-modal-bank-btn');
+            const pbModalProceedBtn = document.getElementById('pb-modal-proceed-btn');
+            const pbModalCloseX = document.getElementById('paybox-modal-close-x');
+            let nextPbLinkToOpen = '';
+
+            const closePbModal = () => {
+                if (pbModal) pbModal.classList.add('hidden');
+            };
+
+            const openPbModal = (link) => {
+                nextPbLinkToOpen = link;
+                if (pbModal) pbModal.classList.remove('hidden');
+            };
+
+            if (pbModal) {
+                // Overlay click
+                pbModal.addEventListener('click', (e) => {
+                    if (e.target === pbModal) closePbModal();
+                });
+
+                // Esc key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !pbModal.classList.contains('hidden')) {
+                        closePbModal();
+                    }
+                });
+
+                if (pbModalCloseX) {
+                    pbModalCloseX.addEventListener('click', closePbModal);
+                }
+
+                if (pbModalBankBtn) {
+                    pbModalBankBtn.addEventListener('click', () => {
+                        closePbModal();
+                        const container = document.getElementById('bank-details');
+                        if (container) {
+                            if (container.classList.contains('hidden')) {
+                                container.classList.remove('hidden');
+                            }
+                            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                }
+
+                if (pbModalProceedBtn) {
+                    pbModalProceedBtn.addEventListener('click', () => {
+                        closePbModal();
+                        if (nextPbLinkToOpen) {
+                            window.open(nextPbLinkToOpen, '_blank');
+                        }
+                    });
+                }
+            }
 
             if (validPayboxLinks.length > 0) {
                 const pbWrapper = document.getElementById('paybox-wrapper');
@@ -264,19 +441,34 @@
                         pbBtn.addEventListener('click', function() {
                             const linkToOpen = useFirstPbLink ? validPayboxLinks[0] : validPayboxLinks[1];
                             useFirstPbLink = !useFirstPbLink;
-                            window.open(linkToOpen, '_blank');
+                            openPbModal(linkToOpen);
                         });
                     } else {
                         pbBtn.addEventListener('click', function() {
-                            window.open(validPayboxLinks[0], '_blank');
+                            openPbModal(validPayboxLinks[0]);
                         });
                     }
                 }
             }
 
+            // Waze Button Logic
+            const wazeLink = urlParams.get('wazeLink');
+            if (wazeLink) {
+                const floatingWazeBtn = document.getElementById('floating-waze-btn');
+                
+                if (floatingWazeBtn) {
+                    floatingWazeBtn.classList.remove('hidden');
+                    floatingWazeBtn.classList.add('flex');
+                    
+                    floatingWazeBtn.addEventListener('click', function() {
+                        window.open(wazeLink, '_blank');
+                    });
+                }
+            }
+
             // Toggle Bank Details Logic
             document.getElementById('toggle-bank-btn').addEventListener('click', function() {
-                const container = document.getElementById('bank-details-container');
+                const container = document.getElementById('bank-details');
                 if (container.classList.contains('hidden')) {
                     container.classList.remove('hidden');
                 } else {
