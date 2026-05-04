@@ -119,7 +119,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   aliases = ["gift4event.com", "www.gift4event.com"]
 
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:800762100823:certificate/1961b141-5da7-4b59-b2fe-b1d29b534474"
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:800762100823:certificate/1961b141-5da7-4b59-b2fe-b1d29b953474"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
