@@ -122,7 +122,7 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     viewer_protocol_policy = "redirect-to-https"
     cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
-    origin_request_policy_id = "b689b0a8-53d0-40ab-b392-b9010488f259" # Managed-AllViewer
+    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # Managed-AllViewerExceptHostHeader
   }
 
   ordered_cache_behavior {
@@ -230,7 +230,10 @@ data "aws_iam_policy_document" "github_actions_policy" {
     actions = [
       "s3:*",
       "cloudfront:*",
-      "iam:*"
+      "iam:*",
+      "lambda:*",
+      "apigateway:*",
+      "dynamodb:*"
     ]
     resources = ["*"]
   }
