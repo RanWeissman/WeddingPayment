@@ -59,9 +59,24 @@ exports.handler = async (event) => {
             }
 
             // Generate Slug
-            const baseSlug = transliterate(body.coupleNames);
-            const timestampSuffix = Date.now().toString(36);
-            const slug = `${baseSlug}-${timestampSuffix}`;
+            function sanitizeToKebabCase(text) {
+                if (!text) return 'event';
+                let result = text.toLowerCase();
+                // Replace non-alphanumeric chars (including spaces, underscores) with a single hyphen
+                result = result.replace(/[^a-z0-9]+/g, '-');
+                // Remove consecutive hyphens
+                result = result.replace(/-+/g, '-');
+                // Trim hyphens from beginning and end
+                result = result.replace(/^-|-$/g, '');
+                return result || 'event';
+            }
+
+            let slug;
+            if (body.customSlug && body.customSlug.trim() !== '') {
+                slug = sanitizeToKebabCase(body.customSlug);
+            } else {
+                slug = sanitizeToKebabCase(transliterate(body.coupleNames));
+            }
 
             // Prepare item
             const item = {
@@ -75,10 +90,22 @@ exports.handler = async (event) => {
             };
 
             // Save to DynamoDB
-            await dynamo.send(new PutCommand({
-                TableName: TABLE_NAME,
-                Item: item
-            }));
+            try {
+                await dynamo.send(new PutCommand({
+                    TableName: TABLE_NAME,
+                    Item: item,
+                    ConditionExpression: 'attribute_not_exists(slug)'
+                }));
+            } catch (err) {
+                if (err.name === 'ConditionalCheckFailedException') {
+                    return {
+                        statusCode: 409,
+                        headers,
+                        body: JSON.stringify({ error: 'שם הקישור שבחרתם כבר תפוס. אנא בחרו שם אחר.' })
+                    };
+                }
+                throw err;
+            }
 
             return {
                 statusCode: 201,

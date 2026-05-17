@@ -8,11 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Hebrew optimized fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Varela+Round&display=swap"
         rel="stylesheet">
 
     <script>
@@ -215,6 +217,16 @@
                             class="w-full px-5 py-4 bg-white/60 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder-gray-400 text-gray-800"
                             placeholder="לדוגמה: החתונה של פז וליאור">
                         <p class="text-xs text-indigo-600 mt-2 font-medium">השם שיופיע בכותרת של דף המתנה שלכם.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2" for="customSlug">שם הקישור באנגלית (אופציונלי)</label>
+                        <input type="text" id="customSlug" dir="ltr"
+                            class="w-full px-5 py-4 bg-white/60 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder-gray-400 text-gray-800"
+                            placeholder="paz and lior"
+                            pattern="[A-Za-z0-9 \-]+"
+                            title="רק אותיות באנגלית, מספרים, רווחים או מקפים"
+                            oninput="this.value = this.value.replace(/[^A-Za-z0-9 \-]/g, '')">
+                        <p class="text-xs text-indigo-600 mt-2 font-medium">כדי שהקישור ייראה בדיוק ככה: gift4event.com/paz-and-lior</p>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2" for="wazeLink">קישור לניווט לאירוע
@@ -474,11 +486,11 @@
             </div>
 
             <div
-                class="relative z-10 flex flex-col md:flex-row items-stretch gap-3 bg-white/50 p-2 rounded-2xl border border-white">
+                class="relative z-10 flex flex-col md:flex-row items-stretch gap-3 bg-white/50 p-2 rounded-2xl border border-white w-full">
                 <input type="text" id="generated-link" readonly dir="ltr"
-                    class="w-full px-5 py-4 bg-transparent border-none rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-0 text-left font-medium">
+                    class="w-full flex-1 px-5 py-4 bg-transparent border-none rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-0 text-left font-medium">
                 <button type="button" id="copy-btn"
-                    class="w-full md:w-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap">
+                    class="w-full md:w-56 shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap">
                     <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 00-2-2v-8a2 2 0 00-2 2v8a2 2 0 002 2z">
@@ -495,22 +507,58 @@
             </div>
 
             <!-- QR Code Section -->
-            <div id="qr-section" class="relative z-10 mt-6 pt-8 border-t border-blue-200/50 flex flex-col items-center">
-                <p class="text-base font-semibold text-blue-900 mb-6">רוצים להוסיף קוד QR להזמנה המודפסת?</p>
-                <div class="bg-white p-5 rounded-2xl shadow-md mb-6 hover:shadow-lg transition-shadow">
-                    <div id="qrcode"></div>
+            <div id="qr-section" class="relative z-10 mt-6 pt-8 border-t border-blue-200/50 flex flex-col items-center w-full">
+                <p class="text-base font-semibold text-blue-900 mb-6 text-center w-full">רוצים להוסיף קוד QR להזמנה המודפסת?</p>
+                <div class="flex flex-col md:flex-row items-center gap-3 p-2 w-full">
+                    <div class="w-full flex-1 flex justify-center">
+                        <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
+                            <div id="qrcode"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3 w-full md:w-56 shrink-0">
+                        <button type="button" id="download-qr-btn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap">
+                            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            הורדת ברקוד (PNG)
+                        </button>
+                        <button type="button" id="download-pdf-btn"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg whitespace-nowrap">
+                            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H9v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4"></path>
+                            </svg>
+                            הורדת שלט להדפסה (PDF)
+                        </button>
+                    </div>
                 </div>
-                <button type="button" id="download-qr-btn"
-                    class="text-sm bg-white border border-blue-200 hover:bg-blue-50 hover:border-blue-300 text-blue-800 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
-                    <svg class="w-5 h-5 ml-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    הורדת קוד QR
-                </button>
             </div>
         </div>
 
+    </div>
+
+    <!-- Hidden PDF Template -->
+    <div id="pdf-template" class="absolute left-[-9999px] top-[-9999px] w-[595px] h-[842px] bg-white flex flex-col items-center justify-between p-12" dir="rtl">
+        <!-- Top Right Flower -->
+        <div class="absolute top-0 right-0 w-64 h-64 z-0">
+            <img src="pdf_qr_page/flower-right-up.jpg" class="w-full h-full object-contain">
+        </div>
+        
+        <!-- Bottom Left Flower -->
+        <div class="absolute bottom-0 left-0 w-64 h-64 z-0">
+            <img src="pdf_qr_page/flower-ledt-down.jpg" class="w-full h-full object-contain">
+        </div>
+
+        <div class="flex-1 flex flex-col items-center justify-center gap-12 w-full mt-24 mb-24 relative z-10" style="font-family: 'Varela Round', sans-serif;">
+            <h1 class="text-5xl font-bold text-stone-700">להעברה דיגיטלית</h1>
+            
+            <div class="p-6 bg-white border-2 border-gray-100 rounded-3xl shadow-sm">
+                <div id="pdf-qrcode"></div>
+            </div>
+            
+            <h2 id="pdf-couple-names" class="text-5xl font-bold text-stone-600"></h2>
+        </div>
     </div>
 
     <!-- About Modal -->
@@ -944,6 +992,7 @@
             submitBtn.disabled = true;
 
             const coupleNames = document.getElementById('coupleNames').value;
+            const customSlug = document.getElementById('customSlug').value.trim();
             const wazeLink = document.getElementById('wazeLink') ? document.getElementById('wazeLink').value.trim() : '';
             const name = document.getElementById('name').value;
             const bank = document.getElementById('bank').value;
@@ -952,6 +1001,7 @@
 
             const payload = {
                 coupleNames: coupleNames,
+                customSlug: customSlug,
                 wazeLink: wazeLink,
                 bankDetails: {
                     beneficiaryName: name,
@@ -980,7 +1030,11 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to create configuration');
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 409) {
+                        throw new Error('שם הקישור כבר תפוס. אנא בחרו שם אחר.');
+                    }
+                    throw new Error(errorData.error || 'Failed to create configuration');
                 }
 
                 const data = await response.json();
@@ -1007,13 +1061,33 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
 
+                // Generate QR for PDF
+                const pdfQrContainer = document.getElementById('pdf-qrcode');
+                if (pdfQrContainer) {
+                    pdfQrContainer.innerHTML = '';
+                    new QRCode(pdfQrContainer, {
+                        text: finalShareableUrl,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+                
+                // Update names in PDF
+                const pdfCoupleNames = document.getElementById('pdf-couple-names');
+                if (pdfCoupleNames) {
+                    pdfCoupleNames.innerText = coupleNames;
+                }
+
                 setTimeout(() => {
                     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 }, 100);
 
             } catch (error) {
                 console.error('Error creating link:', error);
-                alert('אירעה שגיאה ביצירת הקישור. אנא נסו שוב.');
+                alert(error.message || 'אירעה שגיאה ביצירת הקישור. אנא נסו שוב.');
             } finally {
                 submitBtn.innerHTML = originalBtnContent;
                 submitBtn.disabled = false;
@@ -1058,11 +1132,52 @@
             if (downloadUrl) {
                 const a = document.createElement("a");
                 a.href = downloadUrl;
-                a.download = "gift-router-qr.png";
+                a.download = "wedding-qr.png";
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
             }
+        });
+
+        document.getElementById('download-pdf-btn').addEventListener('click', async function () {
+            const template = document.getElementById('pdf-template');
+            if (!template) {
+                alert('שגיאה: תבנית ה-PDF לא נמצאה.');
+                return;
+            }
+
+            const btn = this;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>מייצר PDF...</span>
+            `;
+            btn.disabled = true;
+
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(template, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+                    pdf.save('wedding-qr.pdf');
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    alert('אירעה שגיאה ביצירת ה-PDF. אנא נסו שוב.');
+                } finally {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            }, 500);
         });
 
         // About Modal Logic
