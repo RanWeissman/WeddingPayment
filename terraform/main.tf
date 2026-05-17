@@ -86,6 +86,19 @@ resource "aws_cloudfront_distribution" "cdn" {
     origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
 
+  origin {
+    domain_name = "${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com"
+    origin_id   = "api_gateway"
+    origin_path = "/prod"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
@@ -94,6 +107,32 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
     cache_policy_id        = aws_cloudfront_cache_policy.query_strings.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.router.arn
+    }
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/api/create"
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id = "api_gateway"
+
+    viewer_protocol_policy = "redirect-to-https"
+    cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+    origin_request_policy_id = "b689b0a8-53d0-40ab-b392-b9010488f259" # Managed-AllViewer
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/api/config/*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id = "api_gateway"
+
+    viewer_protocol_policy = "redirect-to-https"
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
   }
 
   custom_error_response {

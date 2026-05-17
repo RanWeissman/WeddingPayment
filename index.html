@@ -927,8 +927,21 @@
 
 
 
-        document.getElementById('generator-form').addEventListener('submit', function (e) {
+        document.getElementById('generator-form').addEventListener('submit', async function (e) {
             e.preventDefault();
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnContent = submitBtn.innerHTML;
+            
+            // Show loading state on button
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>מייצר קישור מאובטח...</span>
+            `;
+            submitBtn.disabled = true;
 
             const coupleNames = document.getElementById('coupleNames').value;
             const wazeLink = document.getElementById('wazeLink') ? document.getElementById('wazeLink').value.trim() : '';
@@ -937,69 +950,74 @@
             const branch = document.getElementById('branch').value;
             const account = document.getElementById('account').value;
 
-            const params = new URLSearchParams({
+            const payload = {
                 coupleNames: coupleNames,
-                name: name,
-                bank: bank,
-                branch: branch,
-                account: account
-            });
+                wazeLink: wazeLink,
+                bankDetails: {
+                    beneficiaryName: name,
+                    bankName: bank,
+                    branchNumber: branch,
+                    accountNumber: account
+                },
+                bitLinks: [],
+                payboxLinks: []
+            };
 
-            if (wazeLink) {
-                params.append('wazeLink', wazeLink);
-            }
-
-            if (extractedBitLink1) {
-                params.append('bitLink1', extractedBitLink1);
-            }
-            if (extractedBitLink2) {
-                params.append('bitLink2', extractedBitLink2);
-            }
+            if (extractedBitLink1) payload.bitLinks.push(extractedBitLink1);
+            if (extractedBitLink2) payload.bitLinks.push(extractedBitLink2);
+            
             const payboxLink1Value = document.getElementById('paybox-link-1').value.trim();
-            if (payboxLink1Value) {
-                params.append('payboxLink1', payboxLink1Value);
-            }
+            if (payboxLink1Value) payload.payboxLinks.push(payboxLink1Value);
+            
             const payboxLink2Value = document.getElementById('paybox-link-2').value.trim();
-            if (payboxLink2Value) {
-                params.append('payboxLink2', payboxLink2Value);
+            if (payboxLink2Value) payload.payboxLinks.push(payboxLink2Value);
+
+            try {
+                const response = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create configuration');
+                }
+
+                const data = await response.json();
+                
+                // Fallback for local testing or edge cases if API doesn't return full URL
+                const origin = window.location.origin === 'null' || window.location.origin === 'file://' ? 'https://gift4event.com' : window.location.origin;
+                const finalShareableUrl = data.url || `${origin}/${data.slug}`;
+
+                const linkInput = document.getElementById('generated-link');
+                linkInput.value = finalShareableUrl;
+
+                const resultBox = document.getElementById('result-container');
+                resultBox.classList.remove('hidden');
+
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
+
+                new QRCode(qrContainer, {
+                    text: finalShareableUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#1e3a8a",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                setTimeout(() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 100);
+
+            } catch (error) {
+                console.error('Error creating link:', error);
+                alert('אירעה שגיאה ביצירת הקישור. אנא נסו שוב.');
+            } finally {
+                submitBtn.innerHTML = originalBtnContent;
+                submitBtn.disabled = false;
             }
-
-            let currentPath = window.location.href.split('?')[0];
-            let targetPath = '';
-
-            if (currentPath.endsWith('index.html')) {
-                targetPath = currentPath.replace('index.html', 'payment.html');
-            } else if (currentPath.endsWith('/')) {
-                targetPath = currentPath + 'payment.html';
-            } else {
-                const chunks = currentPath.split('/');
-                chunks[chunks.length - 1] = 'payment.html';
-                targetPath = chunks.join('/');
-            }
-
-            const finalShareableUrl = `${targetPath}?${params.toString()}`;
-
-            const linkInput = document.getElementById('generated-link');
-            linkInput.value = finalShareableUrl;
-
-            const resultBox = document.getElementById('result-container');
-            resultBox.classList.remove('hidden');
-
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-
-            new QRCode(qrContainer, {
-                text: finalShareableUrl,
-                width: 200,
-                height: 200,
-                colorDark: "#1e3a8a",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            setTimeout(() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 100);
         });
 
         document.getElementById('copy-btn').addEventListener('click', function () {
