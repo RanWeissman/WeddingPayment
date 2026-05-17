@@ -109,7 +109,7 @@ resource "aws_api_gateway_integration" "create_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.create.id
   http_method             = aws_api_gateway_method.create_post.http_method
-  integration_type        = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.api_handler.invoke_arn
 }
@@ -125,7 +125,7 @@ resource "aws_api_gateway_integration" "create_options_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.create.id
   http_method             = aws_api_gateway_method.create_options.http_method
-  integration_type        = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.api_handler.invoke_arn
 }
@@ -155,7 +155,7 @@ resource "aws_api_gateway_integration" "config_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.config_slug.id
   http_method             = aws_api_gateway_method.config_get.http_method
-  integration_type        = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.api_handler.invoke_arn
 }
@@ -171,7 +171,7 @@ resource "aws_api_gateway_integration" "config_options_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.config_slug.id
   http_method             = aws_api_gateway_method.config_options.http_method
-  integration_type        = "AWS_PROXY"
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.api_handler.invoke_arn
 }
