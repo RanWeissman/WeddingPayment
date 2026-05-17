@@ -246,12 +246,90 @@
 
     <!-- Extraction JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
+            const path = window.location.pathname.replace(/^\/+/, '');
+            const isSlug = path && !path.includes('.') && path !== 'payment.html';
             
-            const rawNameParam = urlParams.get('name');
+            let config = {};
+            const mainCardContainer = document.querySelector('.relative.w-full.max-w-lg');
+            const originalHTML = mainCardContainer.innerHTML;
+
+            const renderError = (message) => {
+                mainCardContainer.innerHTML = `
+                    <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-red-200 text-center min-h-[300px] flex flex-col items-center justify-center">
+                        <div class="text-red-500 mb-4 bg-red-50 p-4 rounded-full">
+                            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-3">שגיאה</h2>
+                        <p class="text-gray-600 font-medium">${message}</p>
+                    </div>
+                `;
+            };
+
+            if (isSlug) {
+                // Show loading state
+                mainCardContainer.innerHTML = `
+                    <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-wedding-gold/20 text-center flex flex-col items-center justify-center min-h-[400px]">
+                        <div class="w-12 h-12 border-4 border-wedding-gold/30 border-t-wedding-gold rounded-full animate-spin mb-4"></div>
+                        <p class="text-gray-600 font-medium text-lg">טוען פרטי אירוע...</p>
+                    </div>
+                `;
+
+                try {
+                    const response = await fetch(`/api/config/${path}`);
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            renderError('האירוע לא נמצא. ייתכן שהקישור שגוי או הוסר.');
+                        } else {
+                            renderError('אירעה שגיאה בטעינת פרטי האירוע. אנא נסו שוב מאוחר יותר.');
+                        }
+                        return; // Stop execution on error
+                    }
+                    const data = await response.json();
+                    
+                    // Map to expected config structure
+                    config = {
+                        coupleNames: data.coupleNames || '',
+                        name: data.bankDetails?.beneficiaryName || '',
+                        bank: data.bankDetails?.bankName || '',
+                        branch: data.bankDetails?.branchNumber || '',
+                        account: data.bankDetails?.accountNumber || '',
+                        bitLink1: data.bitLinks?.[0] || '',
+                        bitLink2: data.bitLinks?.[1] || '',
+                        payboxLink1: data.payboxLinks?.[0] || '',
+                        payboxLink2: data.payboxLinks?.[1] || '',
+                        wazeLink: data.wazeLink || ''
+                    };
+                    
+                    // Restore HTML for hydration
+                    mainCardContainer.innerHTML = originalHTML;
+                    
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    renderError('אירעה שגיאה בחיבור לשרת.');
+                    return;
+                }
+            } else {
+                // Fallback to query parameters for backward compatibility
+                const urlParams = new URLSearchParams(window.location.search);
+                config = {
+                    coupleNames: urlParams.get('coupleNames') || '',
+                    name: urlParams.get('name') || '',
+                    bank: urlParams.get('bank') || '',
+                    branch: urlParams.get('branch') || '',
+                    account: urlParams.get('account') || '',
+                    bitLink1: urlParams.get('bitLink1'),
+                    bitLink2: urlParams.get('bitLink2'),
+                    bitLinkOld: urlParams.get('bitLink'),
+                    payboxLink1: urlParams.get('payboxLink1'),
+                    payboxLink2: urlParams.get('payboxLink2'),
+                    payboxLinkOld: urlParams.get('payboxLink'),
+                    wazeLink: urlParams.get('wazeLink')
+                };
+            }
+
+            const rawNameParam = config.name;
             const pageTitle = (rawNameParam && rawNameParam.trim() !== '') 
                 ? `השתתפות בשמחה | ${rawNameParam}` 
                 : 'השתתפות בשמחה';
@@ -264,17 +342,17 @@
             const twitterTitle = document.querySelector('meta[name="twitter:title"]');
             if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
 
-            const paramCoupleNames = urlParams.get('coupleNames') || '';
-            const paramName = rawNameParam || 'לא צוין שם';
-            const paramBank = urlParams.get('bank') || 'לא צוין בנק';
-            const paramBranch = urlParams.get('branch') || '-';
-            const paramAccount = urlParams.get('account') || '-';
-            const bitLink1 = urlParams.get('bitLink1');
-            const bitLink2 = urlParams.get('bitLink2');
-            const bitLinkOld = urlParams.get('bitLink'); // Backward compatibility
-            const payboxLink1 = urlParams.get('payboxLink1');
-            const payboxLink2 = urlParams.get('payboxLink2');
-            const payboxLinkOld = urlParams.get('payboxLink');
+            const paramCoupleNames = config.coupleNames || '';
+            const paramName = config.name || 'לא צוין שם';
+            const paramBank = config.bank || 'לא צוין בנק';
+            const paramBranch = config.branch || '-';
+            const paramAccount = config.account || '-';
+            const bitLink1 = config.bitLink1;
+            const bitLink2 = config.bitLink2;
+            const bitLinkOld = config.bitLinkOld; 
+            const payboxLink1 = config.payboxLink1;
+            const payboxLink2 = config.payboxLink2;
+            const payboxLinkOld = config.payboxLinkOld;
 
             if (paramCoupleNames) {
                 document.getElementById('couple-names').textContent = paramCoupleNames;
@@ -463,7 +541,7 @@
             }
 
             // Waze Button Logic
-            const wazeLink = urlParams.get('wazeLink');
+            const wazeLink = config.wazeLink;
             if (wazeLink) {
                 const wazeContainer = document.getElementById('waze-btn-container');
                 const topWazeBtn = document.getElementById('top-waze-btn');
