@@ -104,6 +104,24 @@
                     למה Gift4Event?
                 </button>
 
+                <!-- How it Works Button -->
+                <button type="button" onclick="openHowItWorksModal()"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>איך זה עובד?</span>
+                </button>
+
+                <!-- Live Example Button -->
+                <button type="button" onclick="openLiveExampleModal()"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    <span>דוגמא לקישור</span>
+                </button>
+
                 <!-- Who Are We Button -->
                 <button type="button" onclick="openWhoAreWeModal()"
                     class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -115,6 +133,8 @@
                     מי אנחנו?
                 </button>
             </div>
+
+
 
             <!-- Trust & Security Microcopy -->
             <div
@@ -136,59 +156,7 @@
             </div>
         </header>
 
-        <!-- How it Works (3 Steps) -->
-        <div class="mb-12">
-            <h2 class="text-center text-xl font-bold text-gray-800 mb-6">איך זה עובד? פשוט וקל:</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-                <!-- Connective Line (Desktop only) -->
-                <div class="hidden md:block absolute top-1/2 left-8 right-8 h-0.5 bg-indigo-100 -translate-y-1/2 z-0">
-                </div>
 
-                <!-- Step 1 -->
-                <div
-                    class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
-                    <div
-                        class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">הזנת פרטים</h3>
-                    <p class="text-gray-600 text-sm">ממלאים את פרטי הבנק והאפליקציות שישמשו לקבלת הסכום.</p>
-                </div>
-
-                <!-- Step 2 -->
-                <div
-                    class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
-                    <div
-                        class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">יצירת קישור מאובטח</h3>
-                    <p class="text-gray-600 text-sm">המערכת מחוללת עבורכם דף מתנה אישי ומעוצב בלחיצת כפתור.</p>
-                </div>
-
-                <!-- Step 3 -->
-                <div
-                    class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
-                    <div
-                        class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">שיתוף עם האורחים</h3>
-                    <p class="text-gray-600 text-sm">שולחים את הקישור לאורחים בוואטסאפ או מצרפים להזמנה כ-QR.</p>
-                </div>
-            </div>
-        </div>
 
         <!-- Main Form Wrapper -->
         <form id="generator-form" class="space-y-8 mb-12">
@@ -542,12 +510,12 @@
     <div id="pdf-template" class="absolute left-[-9999px] top-[-9999px] w-[595px] h-[842px] bg-white flex flex-col items-center justify-between p-12" dir="rtl">
         <!-- Top Right Flower -->
         <div class="absolute top-0 right-0 w-64 h-64 z-0">
-            <img src="pdf_qr_page/flower-right-up.jpg" class="w-full h-full object-contain">
+            <img src="assets/flower-right-up.jpg" class="w-full h-full object-contain">
         </div>
         
         <!-- Bottom Left Flower -->
         <div class="absolute bottom-0 left-0 w-64 h-64 z-0">
-            <img src="pdf_qr_page/flower-ledt-down.jpg" class="w-full h-full object-contain">
+            <img src="assets/flower-ledt-down.jpg" class="w-full h-full object-contain">
         </div>
 
         <div class="flex-1 flex flex-col items-center justify-center gap-12 w-full mt-24 mb-24 relative z-10" style="font-family: 'Varela Round', sans-serif;">
@@ -924,6 +892,117 @@
         </div>
     </div>
 
+    <!-- How it Works Modal -->
+    <div id="how-it-works-modal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeHowItWorksModal()"></div>
+
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300"
+            id="how-it-works-content" dir="rtl">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+                <h3 class="text-2xl font-extrabold text-indigo-900">איך זה עובד?</h3>
+                <button type="button" onclick="closeHowItWorksModal()"
+                    class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto text-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                    <!-- Connective Line (Desktop only) -->
+                    <div class="hidden md:block absolute top-1/2 left-8 right-8 h-0.5 bg-indigo-100 -translate-y-1/2 z-0">
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">הזנת פרטים</h3>
+                        <p class="text-gray-600 text-sm">ממלאים את פרטי הבנק והאפליקציות שישמשו לקבלת הסכום.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">יצירת קישור מאובטח</h3>
+                        <p class="text-gray-600 text-sm">המערכת מחוללת עבורכם דף מתנה אישי ומעוצב בלחיצת כפתור.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="glass-card rounded-2xl p-6 text-center relative z-10 hover:-translate-y-1 transition-transform duration-300">
+                        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">שיתוף עם האורחים</h3>
+                        <p class="text-gray-600 text-sm">שולחים את הקישור לאורחים בוואטסאפ או מצרפים להזמנה כ-QR.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl shrink-0">
+                <button type="button" onclick="closeHowItWorksModal()"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-sm">
+                    הבנתי, תודה!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Example Modal -->
+    <div id="live-example-modal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeLiveExampleModal()"></div>
+
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300"
+            id="live-example-content" dir="rtl">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+                <h3 class="text-2xl font-extrabold text-indigo-900">דוגמא לקישור</h3>
+                <button type="button" onclick="closeLiveExampleModal()"
+                    class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto text-gray-700 flex flex-col gap-4">
+                <p class="text-center text-lg text-gray-700 leading-relaxed mb-2 font-medium">בעת יצירת דף מתנה תקבלו עם הפרטים שלכם את הקבצים הבאים:</p>
+                
+                <!-- Button A -->
+                <a href="https://gift4event.com/roni-and-ran-KOZL" target="_blank"
+                    class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    לדף האירוע לדוגמה (דיגיטלי)
+                </a>
+
+                <!-- Button B -->
+                <a href="assets/qr_page_example.pdf" target="_blank"
+                    class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-center flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    להורדת דף אירוע מעוצב (להדפסה - PDF)
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Generator Script -->
     <script>
         let extractedBitLink1 = null;
@@ -1114,6 +1193,50 @@
             setTimeout(() => {
                 el.classList.add('hidden');
             }, 3000);
+        }
+
+        function openHowItWorksModal() {
+            const modal = document.getElementById('how-it-works-modal');
+            const content = document.getElementById('how-it-works-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeHowItWorksModal() {
+            const modal = document.getElementById('how-it-works-modal');
+            const content = document.getElementById('how-it-works-content');
+            
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openLiveExampleModal() {
+            const modal = document.getElementById('live-example-modal');
+            const content = document.getElementById('live-example-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeLiveExampleModal() {
+            const modal = document.getElementById('live-example-modal');
+            const content = document.getElementById('live-example-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         document.getElementById('download-qr-btn').addEventListener('click', function () {
