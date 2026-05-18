@@ -71,12 +71,16 @@ exports.handler = async (event) => {
                 return result || 'event';
             }
 
-            let slug;
+            let baseSlug;
             if (body.customSlug && body.customSlug.trim() !== '') {
-                slug = sanitizeToKebabCase(body.customSlug);
+                baseSlug = sanitizeToKebabCase(body.customSlug);
             } else {
-                slug = sanitizeToKebabCase(transliterate(body.coupleNames));
+                baseSlug = sanitizeToKebabCase(transliterate(body.coupleNames));
             }
+
+            // Generate 4-character uppercase random suffix to prevent collisions
+            const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const slug = `${baseSlug}-${suffix}`;
 
             // Prepare item
             const item = {
