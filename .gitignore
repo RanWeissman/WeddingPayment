@@ -1,5 +1,5 @@
 # Custom local rules
-my_self/
+local_folder/
 local_db.json
 local_server.py
 
