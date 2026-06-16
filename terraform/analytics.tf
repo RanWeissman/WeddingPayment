@@ -85,7 +85,7 @@ resource "aws_lambda_function_url" "analytics_url" {
   cors {
     allow_credentials = false
     allow_origins     = ["*"]
-    allow_methods     = ["POST", "OPTIONS"]
+    allow_methods     = ["*"]
     allow_headers     = ["content-type"]
     max_age           = 86400
   }
