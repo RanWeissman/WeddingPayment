@@ -127,7 +127,7 @@ resource "aws_glue_catalog_table" "analytics_table" {
     input_format  = "org.apache.hadoop.mapred.TextInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
 
-    serde_info {
+    ser_de_info {
       serialization_library = "org.openx.data.jsonserde.JsonSerDe"
       parameters = {
         "paths" = "action_type,event_id,timestamp"
