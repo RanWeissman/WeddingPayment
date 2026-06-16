@@ -73,7 +73,8 @@ resource "aws_lambda_function" "api_handler" {
 
   environment {
     variables = {
-      TABLE_NAME = aws_dynamodb_table.config_table.name
+      TABLE_NAME    = aws_dynamodb_table.config_table.name
+      ANALYTICS_URL = aws_lambda_function_url.analytics_url.function_url
     }
   }
 }
