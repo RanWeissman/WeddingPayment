@@ -74,7 +74,7 @@ resource "aws_lambda_function" "api_handler" {
   environment {
     variables = {
       TABLE_NAME    = aws_dynamodb_table.config_table.name
-      ANALYTICS_URL = aws_lambda_function_url.analytics_url.function_url
+      ANALYTICS_URL = "/api/analytics"
     }
   }
 }
@@ -185,6 +185,54 @@ resource "aws_lambda_permission" "apigw" {
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
+# /api/analytics
+resource "aws_api_gateway_resource" "analytics" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.api_base.id
+  path_part   = "analytics"
+}
+
+resource "aws_api_gateway_method" "analytics_post" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.analytics.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "analytics_lambda" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.analytics.id
+  http_method             = aws_api_gateway_method.analytics_post.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.analytics_handler.invoke_arn
+}
+
+resource "aws_api_gateway_method" "analytics_options" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.analytics.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "analytics_options_lambda" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.analytics.id
+  http_method             = aws_api_gateway_method.analytics_options.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.analytics_handler.invoke_arn
+}
+
+resource "aws_lambda_permission" "apigw_analytics" {
+  statement_id  = "AllowAPIGatewayInvokeAnalytics"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.analytics_handler.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
+
+
 resource "aws_api_gateway_deployment" "api_deploy" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 
@@ -195,7 +243,10 @@ resource "aws_api_gateway_deployment" "api_deploy" {
       aws_api_gateway_integration.create_lambda.id,
       aws_api_gateway_resource.config_slug.id,
       aws_api_gateway_method.config_get.id,
-      aws_api_gateway_integration.config_lambda.id
+      aws_api_gateway_integration.config_lambda.id,
+      aws_api_gateway_resource.analytics.id,
+      aws_api_gateway_method.analytics_post.id,
+      aws_api_gateway_integration.analytics_lambda.id
     ]))
   }
 

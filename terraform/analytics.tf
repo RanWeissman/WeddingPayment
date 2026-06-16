@@ -78,18 +78,6 @@ resource "aws_lambda_function" "analytics_handler" {
   }
 }
 
-resource "aws_lambda_function_url" "analytics_url" {
-  function_name      = aws_lambda_function.analytics_handler.function_name
-  authorization_type = "NONE"
-
-  cors {
-    allow_credentials = false
-    allow_origins     = ["*"]
-    allow_methods     = ["*"]
-    allow_headers     = ["content-type"]
-    max_age           = 86400
-  }
-}
 
 # ----------------------------------------------------
 # AWS Glue Catalog (for Athena)
