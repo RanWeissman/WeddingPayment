@@ -233,7 +233,10 @@ data "aws_iam_policy_document" "github_actions_policy" {
       "iam:*",
       "lambda:*",
       "apigateway:*",
-      "dynamodb:*"
+      "dynamodb:*",
+      "glue:*",
+      "athena:*",
+      "logs:*"
     ]
     resources = ["*"]
   }

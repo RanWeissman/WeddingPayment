@@ -146,10 +146,15 @@ exports.handler = async (event) => {
             // Set Cache-Control header for CloudFront to cache aggressively
             headers['Cache-Control'] = 'public, max-age=31536000'; // Cache for 1 year
 
+            const returnData = {
+                ...response.Item,
+                analyticsUrl: process.env.ANALYTICS_URL || null
+            };
+
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify(response.Item)
+                body: JSON.stringify(returnData)
             };
         }
 

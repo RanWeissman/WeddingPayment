@@ -299,7 +299,8 @@
                         bitLink2: data.bitLinks?.[1] || '',
                         payboxLink1: data.payboxLinks?.[0] || '',
                         payboxLink2: data.payboxLinks?.[1] || '',
-                        wazeLink: data.wazeLink || ''
+                        wazeLink: data.wazeLink || '',
+                        analyticsUrl: data.analyticsUrl || null
                     };
                     
                     // Restore HTML for hydration
@@ -325,7 +326,8 @@
                     payboxLink1: urlParams.get('payboxLink1'),
                     payboxLink2: urlParams.get('payboxLink2'),
                     payboxLinkOld: urlParams.get('payboxLink'),
-                    wazeLink: urlParams.get('wazeLink')
+                    wazeLink: urlParams.get('wazeLink'),
+                    analyticsUrl: urlParams.get('analyticsUrl') || null
                 };
             }
 
@@ -353,6 +355,23 @@
             const payboxLink1 = config.payboxLink1;
             const payboxLink2 = config.payboxLink2;
             const payboxLinkOld = config.payboxLinkOld;
+            const analyticsUrl = config.analyticsUrl;
+
+            const currentEventId = path && path.trim() !== '' ? path : 'unknown-event';
+
+            function trackEvent(actionType) {
+                if (!analyticsUrl) return; // Silent abort if not configured
+                fetch(analyticsUrl, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event_id: currentEventId, 
+                        action_type: actionType
+                    }),
+                    keepalive: true 
+                }).catch(e => console.error("Telemetry failed silently", e));
+            }
 
             if (paramCoupleNames) {
                 document.getElementById('couple-names').textContent = paramCoupleNames;
@@ -406,6 +425,7 @@
 
                 if (modalBankBtn) {
                     modalBankBtn.addEventListener('click', () => {
+                        trackEvent('bit_bank_click');
                         closeBitModal();
                         const container = document.getElementById('bank-details');
                         if (container) {
@@ -421,6 +441,7 @@
 
                 if (modalBitProceedBtn) {
                     modalBitProceedBtn.addEventListener('click', () => {
+                        trackEvent('bit_click');
                         closeBitModal();
                         if (nextBitLinkToOpen) {
                             window.open(nextBitLinkToOpen, '_blank');
@@ -493,6 +514,7 @@
 
                 if (pbModalBankBtn) {
                     pbModalBankBtn.addEventListener('click', () => {
+                        trackEvent('paybox_bank_click');
                         closePbModal();
                         const container = document.getElementById('bank-details');
                         if (container) {
@@ -508,6 +530,7 @@
 
                 if (pbModalProceedBtn) {
                     pbModalProceedBtn.addEventListener('click', () => {
+                        trackEvent('paybox_click');
                         closePbModal();
                         if (nextPbLinkToOpen) {
                             window.open(nextPbLinkToOpen, '_blank');
@@ -551,6 +574,7 @@
                     wazeContainer.classList.add('flex');
                     
                     topWazeBtn.addEventListener('click', function() {
+                        trackEvent('waze_click');
                         window.open(wazeLink, '_blank');
                     });
                 }
@@ -581,6 +605,9 @@
                         const val = displayEl.textContent;
                         // Avoid copying empty dashes or loading states in Hebrew
                         if(val && val !== '-' && !val.includes('טוען') && !val.includes('לא צוין')) {
+                            if (field === 'bank' || field === 'account' || field === 'branch') {
+                                trackEvent('bank_copy');
+                            }
                             navigator.clipboard.writeText(val).then(() => {
                                 const originalHTML = btn.innerHTML;
                                 btn.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';

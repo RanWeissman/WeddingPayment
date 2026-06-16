@@ -17,3 +17,8 @@ output "github_actions_role_arn" {
   description = "The ARN of the GitHub Actions IAM Role (configure this in GHA secrets)"
   value       = aws_iam_role.github_actions.arn
 }
+
+output "analytics_lambda_url" {
+  description = "The HTTPS endpoint for the Analytics Ingestion Lambda"
+  value       = aws_lambda_function_url.analytics_url.function_url
+}
