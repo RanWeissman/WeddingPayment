@@ -68,3 +68,6 @@ crash.*.log
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+# Node.js
+node_modules/
