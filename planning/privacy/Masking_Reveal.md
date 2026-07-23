@@ -31,8 +31,9 @@ Fetching data client-side introduces network latency and the possibility of requ
 3. **Resolved State (Revealed):** 
    - Upon a successful `fetch()` response, JavaScript replaces the masked text in the DOM with the unmasked bank account number.
    - The "Reveal" button transitions into a "Copy to Clipboard" utility.
-4. **Handling Failures (Error State):**
-   - If the `fetch()` fails (e.g., 500 Server Error, 429 Too Many Requests, or a network timeout), JavaScript catches the error.
+4. **Handling Failures (Error State & Strict Timeouts):**
+   - **Strict Timeout:** The `fetch()` request must implement a strict time limit (e.g., 3-5 seconds) using an `AbortController`. If the server does not respond within this window, the request is actively aborted to prevent the user from waiting indefinitely.
+   - If the `fetch()` fails (e.g., 500 Server Error, 429 Too Many Requests, or the aforementioned timeout), JavaScript catches the error.
    - A clear, non-technical error message is injected into the DOM (e.g., "Unable to load details. Please try again.").
    - Crucially, the "Reveal" button is reinstated as a "Retry" button, providing an immediate recovery path for the user.
 
