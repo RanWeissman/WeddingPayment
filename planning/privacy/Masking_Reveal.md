@@ -60,3 +60,8 @@ This solution is specifically designed to neutralize **Passive Web Scraping** an
 
 ### The Trade-off Justification
 While this approach introduces a minor UX friction point—specifically the network latency of a secondary API call and the theoretical risk of that call failing—this is an acceptable and highly favorable trade-off. An exposed bank account poses a severe, permanent security and privacy risk to the couple. Conversely, an API failure is a temporary inconvenience that is easily mitigated by providing clear feedback, loading spinners, and an immediate "Retry" button for the user using lightweight Vanilla JavaScript.
+
+---
+
+## 5. Scope Statement (Relation to privacy_high_level.md)
+*Note:* This detailed implementation design fully covers and connects **both Section 1 (Masking & "Click to Reveal" Frontend)** and **Section 2 (API Separation Backend)** of the `privacy_high_level.md` document. It defines how the frontend interaction behaves (Section 1), while strictly relying on the backend architectural requirement that the initial page load is masked and the real data sits securely behind an isolated API endpoint (Section 2).
