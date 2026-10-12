@@ -151,10 +151,57 @@ exports.handler = async (event) => {
                 analyticsUrl: process.env.ANALYTICS_URL || null
             };
 
+            // Mask bank account number on initial configuration fetch
+            if (returnData.bankDetails && returnData.bankDetails.accountNumber) {
+                const rawAcc = String(returnData.bankDetails.accountNumber);
+                const maskedAcc = rawAcc.length > 3 ? '••••' + rawAcc.slice(-3) : '••••';
+                returnData.bankDetails = {
+                    ...returnData.bankDetails,
+                    accountNumber: maskedAcc,
+                    isMasked: true
+                };
+            }
+
             return {
                 statusCode: 200,
                 headers,
                 body: JSON.stringify(returnData)
+            };
+        }
+
+        if (method === 'GET' && path.includes('/api/payment-details')) {
+            const slug = event.pathParameters?.slug;
+            
+            if (!slug) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'slug is required' })
+                };
+            }
+
+            // Fetch from DynamoDB
+            const response = await dynamo.send(new GetCommand({
+                TableName: TABLE_NAME,
+                Key: { slug: slug }
+            }));
+
+            if (!response.Item) {
+                return {
+                    statusCode: 404,
+                    headers,
+                    body: JSON.stringify({ error: 'Configuration not found' })
+                };
+            }
+
+            // Do not cache sensitive payment details
+            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
+
+            const rawAccount = response.Item.bankDetails?.accountNumber || '';
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({ accountNumber: String(rawAccount) })
             };
         }
 
