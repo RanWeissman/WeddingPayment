@@ -23,14 +23,16 @@ The DOM and simple JavaScript variables will manage the asynchronous states of f
 Fetching data client-side introduces network latency and the possibility of request failure. The UX design must proactively manage these drawbacks so the user feels in control.
 
 ### Interaction Flow
-1. **Initial State (Idle):** The user sees the masked bank account number alongside a clear, actionable "Click to Reveal" `<button>`.
+1. **Initial State (Idle):** 
+   - The user sees the masked bank account number (e.g., `••••567`) in `#display-account`.
+   - Directly adjacent to it, the action button displays an **Eye icon 👁️** ("הצג מספר חשבון") in place of the default copy button, preserving the exact layout of the bank details card in `payment.html`.
 2. **Action & Latency Mitigation (Loading):** 
-   - Upon clicking, JavaScript instantly updates the button to a "Loading..." state (e.g., toggling Tailwind classes to show a visual CSS spinner).
+   - Upon clicking, JavaScript instantly updates the button to a "Loading..." state, replacing the eye icon with an inline animated CSS/SVG spinner.
    - The button is disabled (`disabled=true`) to prevent duplicate network requests.
-   - The UI dimensions are preserved to prevent layout shift (Cumulative Layout Shift - CLS).
+   - The UI dimensions and card height are strictly preserved to prevent layout shift (Cumulative Layout Shift - CLS).
 3. **Resolved State (Revealed):** 
-   - Upon a successful `fetch()` response, JavaScript replaces the masked text in the DOM with the unmasked bank account number.
-   - The "Reveal" button transitions into a "Copy to Clipboard" utility.
+   - Upon a successful `fetch()` response, JavaScript smoothly replaces the masked text in `#display-account` with the full unmasked bank account number.
+   - The button seamlessly transitions into the familiar **Copy icon 📋** ("העתק מספר חשבון"). Clicking it now copies the full account number to the clipboard with the standard feedback animation.
 4. **Handling Failures (Error State & Strict Timeouts):**
    - **Strict Timeout:** The `fetch()` request must implement a strict time limit (e.g., 3-5 seconds) using an `AbortController`. If the server does not respond within this window, the request is actively aborted to prevent the user from waiting indefinitely.
    - If the `fetch()` fails (e.g., 500 Server Error, 429 Too Many Requests, or the aforementioned timeout), JavaScript catches the error.
