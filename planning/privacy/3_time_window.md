@@ -11,7 +11,9 @@ This specification is directly aligned with **Section 3 ("Time-Windowing")** of 
 
 The architecture enforces a strict temporal boundary on data accessibility using passive, stateless validation rules.
 
-* **User Input Logic:** During the event page creation flow, it is a **mandatory requirement** that the user inputs the exact date of their wedding or event ($T_{event}$). This timestamp serves as the immutable anchor for the expiration calculation.
+* **User Input Logic & UI Context:** During the event page creation flow in `index.html`, it is a **mandatory requirement** that the user inputs the exact date of their wedding or event ($T_{event}$). Directly below or adjacent to the date picker, a concise one-line explanation is displayed:
+  > *"האפשרות להעברת מתנה תהיה פתוחה עד שבוע ימים לאחר תאריך האירוע, ולאחר מכן תיחסם מטעמי פרטיות ואבטחה."*
+  This ensures couples clearly understand why the date is required and sets transparent expectations.
 * **Grace Period Calculation:** The expiration threshold is explicitly defined as a 7-day grace period following the event date. The boundary is calculated as: $T_{event} + 7 \text{ days}$.
 * **Access Boundary Enforcement:** Once the 7-day grace period elapses, the system guarantees that bank account details, IBANs, or direct financial credentials can no longer be accessed under any circumstances. Post-expiration, the data is logically sealed from both the client interface and the data delivery layer through strict date comparisons ($T_{current} \le T_{event} + 7 \text{ days}$). 
 
@@ -21,16 +23,20 @@ The architecture enforces a strict temporal boundary on data accessibility using
 
 ### Frontend Routing & Component Hydration
 Within our Vanilla HTML/JS architecture, the application relies on a Config-Driven UI and state hydration upon page load.
-* **Dynamic State Evaluation:** During the initial client-side hydration phase, the JavaScript payload evaluates the configuration data (which includes the event date, but *never* the sensitive payment details).
-* **Conditional Rendering:** The client calculates the time-window state locally. If the current date exceeds the expiration threshold ($T_{event} + 7 \text{ days}$), the frontend logic actively **omits and strips** the bank details "Click to Reveal" element from the DOM entirely.
-* **Result:** The UI completely removes the affordance to request sensitive data if the window has closed, preventing user confusion and eliminating unnecessary network requests from the browser.
+* **Dynamic State Evaluation:** During the initial client-side hydration phase, the JavaScript payload evaluates the configuration data (which includes the event date, but *never* sensitive payment details).
+* **Complete UI Replacement (Expired / Thank You Card):** If the current date exceeds the expiration threshold ($T_{current} > T_{event} + 7 \text{ days}$):
+  * The frontend **does not render the payment portal at all**. All payment options (Direct Bank Transfer, Bit buttons, Paybox buttons, Waze link) are completely bypassed and hidden.
+  * In their place, the main container renders an elegant, dedicated **Concluded Event Card**:
+    * **Header/Notice:** *"חלון הזמן להעברת מתנה הסתיים"*
+    * **Gratitude Message:** *"תודה רבה על שהייתם חלק מהשמחה והתרגשתם איתנו! 🤍"*
+    * **Couple Names:** Prominently displays the couple's names (e.g., *"אוהבים, פז וליאור"*).
+  * **Result:** Zero financial PII or payment affordances exist in the DOM for concluded events. Guests receive a respectful, warm closure message without confusing or broken payment interfaces.
 
 ### Backend Data Flow & API Security
 The backend acts as the ultimate source of truth and enforces the access boundary regardless of the frontend state.
-* **Request/Response Pipeline:** When a client attempts to fetch the sensitive payment payload (e.g., via the dedicated payment details API endpoint), the request is intercepted by the backend validation layer.
-* **Timestamp Validation Check:** Before querying the database or decrypting any sensitive PII, the backend executes a strict timestamp comparison. It retrieves the event date associated with the requested resource and compares it to the current server time.
-* **Enforcement:** If $T_{current} > T_{event} + 7 \text{ days}$, the backend immediately aborts the pipeline and returns a strong HTTP rejection (e.g., `403 Forbidden` or `410 Gone`). The sensitive payment payload is fundamentally unreachable, holding the access boundary intact.
-* **Strict Server-Side UTC Enforcement:** The expiration check ($T_{current} \le T_{event} + 7 \text{ days}$) must use the backend server's UTC clock exclusively. The system must never trust or evaluate timestamps provided by the client's browser, as a malicious actor could easily alter their local machine time to bypass the boundary. Additionally, the event date ($T_{event}$) saved in the database and all calculation boundaries must be strictly standardized to UTC to eliminate vulnerabilities related to time zone differences.
+* **Data Sanitization on Config Read (`/api/config`):** If $T_{current} > T_{event} + 7 \text{ days}$, the config endpoint marks `isExpired: true` and completely strips payment fields (`bankDetails: null`, `bitLinks: []`, `payboxLinks: []`), returning strictly the couple names and event metadata.
+* **Payment Details Route Rejection (`/api/payment-details`):** When a client attempts to fetch the sensitive payment payload, the backend validates $T_{current} \le T_{event} + 7 \text{ days}$ using the server's UTC clock. If expired, the request is terminated with HTTP `403 Forbidden` or `410 Gone`. Sensitive data is fundamentally unreachable.
+* **Strict Server-Side UTC Enforcement:** The expiration check must use the backend server's UTC clock exclusively. The system must never trust or evaluate timestamps provided by the client's browser, as a malicious actor could easily alter their local machine time to bypass the boundary. Additionally, the event date ($T_{event}$) saved in the database and all calculation boundaries must be strictly standardized to UTC to eliminate vulnerabilities related to time zone differences.
 
 ## 4. Why This Solution is Ideal
 
