@@ -287,7 +287,38 @@
                         return; // Stop execution on error
                     }
                     const data = await response.json();
-                    
+
+                    // ── TIME WINDOW CHECK ──────────────────────────────────────────
+                    // Server signals expiry by returning isExpired:true
+                    if (data.isExpired) {
+                        const coupleNames = data.coupleNames || '';
+                        mainCardContainer.innerHTML = `
+                            <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-14 border border-pink-100 text-center flex flex-col items-center justify-center min-h-[420px] gap-6">
+                                <!-- Heart icon -->
+                                <div class="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center">
+                                    <span class="text-4xl">💝</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                                        תקופת העברת המתנות הסתיימה
+                                    </h2>
+                                    <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-sm mx-auto">
+                                        תודה רבה על הרצון לשמח אותנו ולהיות חלק מהשמחה שלנו!
+                                    </p>
+                                    <p class="text-gray-500 text-sm md:text-base">
+                                        אפשרות העברת המתנות לאירוע הסתיימה.
+                                    </p>
+                                </div>
+                                <div class="border-t border-gray-100 pt-6 w-full space-y-1">
+                                    <p class="text-gray-600 font-semibold">באהבה ובהערכה,</p>
+                                    <p class="text-xl font-bold text-rose-600">${coupleNames ? coupleNames : ''} ❤️</p>
+                                </div>
+                            </div>
+                        `;
+                        return; // Stop — do not hydrate the payment form
+                    }
+                    // ──────────────────────────────────────────────────────────────
+
                     // Map to expected config structure
                     config = {
                         coupleNames: data.coupleNames || '',
