@@ -29,6 +29,18 @@ function transliterate(text) {
     return result || 'event';
 }
 
+/**
+ * Returns true if the event date + 7 days is in the past (UTC).
+ * @param {string} eventDateStr - ISO date string 'YYYY-MM-DD'
+ */
+function isEventExpired(eventDateStr) {
+    if (!eventDateStr) return false;
+    const eventDate = new Date(eventDateStr + 'T00:00:00Z');
+    if (isNaN(eventDate.getTime())) return false;
+    const expiry = new Date(eventDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return Date.now() > expiry.getTime();
+}
+
 exports.handler = async (event) => {
     console.log('Event:', JSON.stringify(event));
 
@@ -55,6 +67,33 @@ exports.handler = async (event) => {
                     statusCode: 400,
                     headers,
                     body: JSON.stringify({ error: 'coupleNames is required' })
+                };
+            }
+
+            // Validate eventDate — required and must not be in the past
+            const eventDateStr = (body.eventDate || '').trim();
+            if (!eventDateStr) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'תאריך האירוע הוא שדה חובה.' })
+                };
+            }
+            const eventDateObj = new Date(eventDateStr + 'T00:00:00Z');
+            if (isNaN(eventDateObj.getTime())) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'פורמט תאריך האירוע שגוי.' })
+                };
+            }
+            const todayUTC = new Date();
+            todayUTC.setUTCHours(0, 0, 0, 0);
+            if (eventDateObj < todayUTC) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'לא ניתן ליצור דף תשלום עבור אירוע שכבר עבר. אנא בחרו תאריך עתידי.' })
                 };
             }
 
@@ -86,6 +125,7 @@ exports.handler = async (event) => {
             const item = {
                 slug: slug,
                 coupleNames: body.coupleNames,
+                eventDate: eventDateStr,
                 wazeLink: body.wazeLink || '',
                 bankDetails: body.bankDetails || {},
                 bitLinks: body.bitLinks || [],
@@ -146,8 +186,35 @@ exports.handler = async (event) => {
             // Set Cache-Control header for CloudFront to cache aggressively
             headers['Cache-Control'] = 'public, max-age=31536000'; // Cache for 1 year
 
+            const item = response.Item;
+
+            // ── TIME WINDOW CHECK ───────────────────────────────────────────────
+            if (isEventExpired(item.eventDate)) {
+                // Strip all payment data; only expose couple names and expiry flag
+                const expiredPayload = {
+                    slug: item.slug,
+                    coupleNames: item.coupleNames || '',
+                    eventDate: item.eventDate || '',
+                    isExpired: true,
+                    bankDetails: null,
+                    bitLinks: [],
+                    payboxLinks: [],
+                    wazeLink: '',
+                    analyticsUrl: process.env.ANALYTICS_URL || null
+                };
+                // Expired responses must not be cached
+                headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify(expiredPayload)
+                };
+            }
+            // ────────────────────────────────────────────────────────────────────
+
             const returnData = {
-                ...response.Item,
+                ...item,
+                isExpired: false,
                 analyticsUrl: process.env.ANALYTICS_URL || null
             };
 
@@ -161,6 +228,9 @@ exports.handler = async (event) => {
                     isMasked: true
                 };
             }
+
+            // Cache active (non-expired) configs aggressively
+            headers['Cache-Control'] = 'public, max-age=31536000';
 
             return {
                 statusCode: 200,
@@ -196,6 +266,16 @@ exports.handler = async (event) => {
 
             // Do not cache sensitive payment details
             headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
+
+            // ── TIME WINDOW ENFORCEMENT (server-side, UTC clock) ─────────────────
+            if (isEventExpired(response.Item.eventDate)) {
+                return {
+                    statusCode: 403,
+                    headers,
+                    body: JSON.stringify({ error: 'חלון הזמן לגישה לפרטי התשלום הסתיים.' })
+                };
+            }
+            // ────────────────────────────────────────────────────────────────────
 
             const rawAccount = response.Item.bankDetails?.accountNumber || '';
             return {
