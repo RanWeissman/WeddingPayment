@@ -67,3 +67,29 @@ Decryption occurs exclusively inside the secure backend API pipeline immediately
 
 ### Trade-off Justification
 Application-level encryption via Node's native `crypto` module is the optimal choice for this lightweight architecture. It eliminates the latency, cost, and overhead associated with heavy external Key Management Services (KMS) for individual encrypt/decrypt operations. Furthermore, it avoids the necessity for complex database-level extensions (such as TDE or pgcrypto). This approach ensures the solution remains highly portable, exceptionally fast, and perfectly aligned with a lean, Config-Driven UI pattern supported by Vanilla HTML/JS and a secure Node backend.
+
+---
+
+## 5. Resolved Design Decisions
+
+### 5.1 — Key Management: Terraform env var via SSM Parameter Store
+
+The Master Key will be stored as an **AWS SSM Parameter Store SecureString**, encrypted at rest with KMS. Terraform will read the parameter at deploy time and inject it into the Lambda function as an environment variable (`ENCRYPTION_KEY`). This approach is:
+- Free (within AWS free tier limits), simple to manage, and natively encrypted.
+- Avoids the overhead and cost of AWS Secrets Manager for a project of this scale.
+- The key is **never committed to source control** — it lives only in SSM and in the Lambda runtime environment.
+
+### 5.2 — Local Development: Encrypt in local_server.py too
+
+The `local_server.py` mock server will **also perform AES-256-GCM encryption and decryption**, using Python's `cryptography` library. The local Master Key will be read from a `.env` file (added to `.gitignore`). This ensures:
+- The local environment is a faithful replica of production — bugs in the encryption logic surface during local testing, not after deploy.
+- No divergence between what is tested locally and what runs in the Lambda.
+
+### 5.3 — Migration: One-time migration script
+
+A dedicated one-time script (`scripts/migrate_encrypt_db.py`) will be written and run **once before the feature is deployed to production**. The script will:
+1. Scan all existing DynamoDB records.
+2. For each record with a plain-text `accountNumber`, encrypt it using the Master Key.
+3. Write the encrypted value back to DynamoDB in the `iv:tag:ciphertext` format.
+
+After the script completes and is verified, the Lambda will be deployed with encryption enforcement active. No graceful fallback for plain-text values will exist in production — this keeps the code clean and avoids permanently leaving a plain-text escape hatch open.
