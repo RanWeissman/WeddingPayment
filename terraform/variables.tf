@@ -21,3 +21,9 @@ variable "website_bucket_name" {
   type        = string
   default     = "wedding-payment-site-ran-2026"
 }
+
+variable "encryption_key_ssm_path" {
+  description = "SSM Parameter Store path for the AES-256 encryption key (SecureString)"
+  type        = string
+  default     = "/gift4event/encryption_key"
+}
