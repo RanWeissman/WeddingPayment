@@ -1,9 +1,57 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
+const crypto = require('crypto');
 
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.TABLE_NAME || 'Gift4Event-Configurations';
+
+// ── AES-256-GCM Field Encryption ─────────────────────────────────────────────
+// Storage format: "v1:<ivHex>:<tagHex>:<ciphertextHex>"
+const CIPHER_ALGORITHM = 'aes-256-gcm';
+const KEY_VERSION = 'v1';
+
+function getEncryptionKey() {
+    const keyHex = process.env.ENCRYPTION_KEY || '';
+    if (keyHex.length !== 64) {
+        throw new Error('ENCRYPTION_KEY must be a 64-character hex string (32 bytes).');
+    }
+    return Buffer.from(keyHex, 'hex');
+}
+
+function encryptField(plaintext) {
+    const key = getEncryptionKey();
+    const iv = crypto.randomBytes(12); // 96-bit IV — unique per encryption
+    const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, key, iv);
+    const encrypted = Buffer.concat([
+        cipher.update(String(plaintext), 'utf8'),
+        cipher.final()
+    ]);
+    const tag = cipher.getAuthTag(); // 16-byte GCM auth tag
+    return `${KEY_VERSION}:${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
+}
+
+function decryptField(stored) {
+    const parts = stored.split(':');
+    if (parts.length !== 4 || parts[0] !== KEY_VERSION) {
+        throw new Error('Invalid ciphertext format — expected v1:iv:tag:cipher');
+    }
+    const [, ivHex, tagHex, dataHex] = parts;
+    const key = getEncryptionKey();
+    const decipher = crypto.createDecipheriv(
+        CIPHER_ALGORITHM,
+        key,
+        Buffer.from(ivHex, 'hex')
+    );
+    decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+    return decipher.update(Buffer.from(dataHex, 'hex'), undefined, 'utf8') + decipher.final('utf8');
+}
+
+/** Returns true if a stored value is already ciphertext (not plain-text). */
+function isEncrypted(value) {
+    return typeof value === 'string' && value.startsWith(`${KEY_VERSION}:`);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Basic Hebrew to English transliteration map
 const hebrewToEnglish = {
@@ -101,11 +149,8 @@ exports.handler = async (event) => {
             function sanitizeToKebabCase(text) {
                 if (!text) return 'event';
                 let result = text.toLowerCase();
-                // Replace non-alphanumeric chars (including spaces, underscores) with a single hyphen
                 result = result.replace(/[^a-z0-9]+/g, '-');
-                // Remove consecutive hyphens
                 result = result.replace(/-+/g, '-');
-                // Trim hyphens from beginning and end
                 result = result.replace(/^-|-$/g, '');
                 return result || 'event';
             }
@@ -121,13 +166,20 @@ exports.handler = async (event) => {
             const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
             const slug = `${baseSlug}-${suffix}`;
 
+            // ── Encrypt sensitive bankDetails fields before DB storage ──────────
+            const bankDetails = { ...(body.bankDetails || {}) };
+            if (bankDetails.accountNumber) {
+                bankDetails.accountNumber = encryptField(String(bankDetails.accountNumber));
+            }
+            // ───────────────────────────────────────────────────────────────────
+
             // Prepare item
             const item = {
                 slug: slug,
                 coupleNames: body.coupleNames,
                 eventDate: eventDateStr,
                 wazeLink: body.wazeLink || '',
-                bankDetails: body.bankDetails || {},
+                bankDetails: bankDetails,
                 bitLinks: body.bitLinks || [],
                 payboxLinks: body.payboxLinks || [],
                 createdAt: new Date().toISOString()
@@ -183,14 +235,10 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Set Cache-Control header for CloudFront to cache aggressively
-            headers['Cache-Control'] = 'public, max-age=31536000'; // Cache for 1 year
-
             const item = response.Item;
 
-            // ── TIME WINDOW CHECK ───────────────────────────────────────────────
+            // ── TIME WINDOW CHECK ────────────────────────────────────────────────
             if (isEventExpired(item.eventDate)) {
-                // Strip all payment data; only expose couple names and expiry flag
                 const expiredPayload = {
                     slug: item.slug,
                     coupleNames: item.coupleNames || '',
@@ -202,7 +250,6 @@ exports.handler = async (event) => {
                     wazeLink: '',
                     analyticsUrl: process.env.ANALYTICS_URL || null
                 };
-                // Expired responses must not be cached
                 headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
                 return {
                     statusCode: 200,
@@ -218,9 +265,12 @@ exports.handler = async (event) => {
                 analyticsUrl: process.env.ANALYTICS_URL || null
             };
 
-            // Mask bank account number on initial configuration fetch
+            // ── Decrypt → then mask accountNumber for the public config response ─
             if (returnData.bankDetails && returnData.bankDetails.accountNumber) {
-                const rawAcc = String(returnData.bankDetails.accountNumber);
+                let rawAcc = String(returnData.bankDetails.accountNumber);
+                if (isEncrypted(rawAcc)) {
+                    rawAcc = decryptField(rawAcc);
+                }
                 const maskedAcc = rawAcc.length > 3 ? '••••' + rawAcc.slice(-3) : '••••';
                 returnData.bankDetails = {
                     ...returnData.bankDetails,
@@ -228,8 +278,8 @@ exports.handler = async (event) => {
                     isMasked: true
                 };
             }
+            // ────────────────────────────────────────────────────────────────────
 
-            // Cache active (non-expired) configs aggressively
             headers['Cache-Control'] = 'public, max-age=31536000';
 
             return {
@@ -264,7 +314,6 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Do not cache sensitive payment details
             headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
 
             // ── TIME WINDOW ENFORCEMENT (server-side, UTC clock) ─────────────────
@@ -277,11 +326,17 @@ exports.handler = async (event) => {
             }
             // ────────────────────────────────────────────────────────────────────
 
-            const rawAccount = response.Item.bankDetails?.accountNumber || '';
+            // ── Decrypt accountNumber before returning to client ──────────────────
+            let rawAccount = String(response.Item.bankDetails?.accountNumber || '');
+            if (isEncrypted(rawAccount)) {
+                rawAccount = decryptField(rawAccount);
+            }
+            // ────────────────────────────────────────────────────────────────────
+
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify({ accountNumber: String(rawAccount) })
+                body: JSON.stringify({ accountNumber: rawAccount })
             };
         }
 
