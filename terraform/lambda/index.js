@@ -6,6 +6,72 @@ const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.TABLE_NAME || 'Gift4Event-Configurations';
 
+// ── Rate Limiting Constants (Section 6) ───────────────────────────────────────
+const RATE_LIMIT_MAX = 30;               // 30 requests per IP per hour (Wi-Fi / CGNAT safe)
+const RATE_LIMIT_WINDOW_SECONDS = 3600;  // 1 hour window
+const RATE_LIMIT_PREFIX = 'ratelimit#';
+
+/**
+ * Extracts client IP safely behind CloudFront + API Gateway.
+ * CloudFront places the real viewer IP first in X-Forwarded-For.
+ */
+function getClientIp(event) {
+    const xff = event.headers?.['x-forwarded-for'] || event.headers?.['X-Forwarded-For'];
+    if (xff) {
+        const firstIp = xff.split(',')[0].trim();
+        if (firstIp) return firstIp;
+    }
+    return event.requestContext?.identity?.sourceIp || 'unknown';
+}
+
+/**
+ * Checks and updates the per-IP rate limit counter in the existing DynamoDB table.
+ * Fail-Open: if any unexpected DB error occurs, logs a warning and returns false (not blocked).
+ * @returns {Promise<boolean>} true if rate limit is exceeded (should block with 429)
+ */
+async function isRateLimited(clientIp) {
+    try {
+        const nowSec = Math.floor(Date.now() / 1000);
+        const keySlug = `${RATE_LIMIT_PREFIX}${clientIp}`;
+
+        const res = await dynamo.send(new GetCommand({
+            TableName: TABLE_NAME,
+            Key: { slug: keySlug }
+        }));
+
+        const existing = res.Item;
+        if (existing && typeof existing.ttl === 'number' && nowSec < existing.ttl) {
+            if ((existing.count || 0) >= RATE_LIMIT_MAX) {
+                return true; // Quota exceeded within active window
+            }
+            await dynamo.send(new PutCommand({
+                TableName: TABLE_NAME,
+                Item: {
+                    slug: keySlug,
+                    count: (existing.count || 0) + 1,
+                    ttl: existing.ttl
+                }
+            }));
+            return false;
+        }
+
+        // Start a fresh 1-hour window
+        await dynamo.send(new PutCommand({
+            TableName: TABLE_NAME,
+            Item: {
+                slug: keySlug,
+                count: 1,
+                ttl: nowSec + RATE_LIMIT_WINDOW_SECONDS
+            }
+        }));
+        return false;
+    } catch (err) {
+        console.warn('Rate-limit check failed (Fail-Open triggered):', err);
+        return false;
+    }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ── AES-256-GCM Field Encryption ─────────────────────────────────────────────
 // Storage format: "v1:<ivHex>:<tagHex>:<ciphertextHex>"
 const CIPHER_ALGORITHM = 'aes-256-gcm';
@@ -300,6 +366,22 @@ exports.handler = async (event) => {
                 };
             }
 
+            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
+
+            // ── RATE LIMIT CHECK (before reading event or decrypting PII) ────────
+            const clientIp = getClientIp(event);
+            if (await isRateLimited(clientIp)) {
+                headers['Retry-After'] = String(RATE_LIMIT_WINDOW_SECONDS);
+                return {
+                    statusCode: 429,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'נרשמו יותר מדי ניסיונות צפייה מכתובת זו. אנא נסו שוב מאוחר יותר.'
+                    })
+                };
+            }
+            // ────────────────────────────────────────────────────────────────────
+
             // Fetch from DynamoDB
             const response = await dynamo.send(new GetCommand({
                 TableName: TABLE_NAME,
@@ -313,8 +395,6 @@ exports.handler = async (event) => {
                     body: JSON.stringify({ error: 'Configuration not found' })
                 };
             }
-
-            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
 
             // ── TIME WINDOW ENFORCEMENT (server-side, UTC clock) ─────────────────
             if (isEventExpired(response.Item.eventDate)) {

@@ -6,6 +6,11 @@ resource "aws_dynamodb_table" "config_table" {
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "slug"
 
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
   attribute {
     name = "slug"
     type = "S"

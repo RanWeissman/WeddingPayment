@@ -180,6 +180,7 @@
                     <div class="flex-[2] bg-wedding-light/80 p-4 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative text-center">
                         <p class="text-[10px] text-gray-500 tracking-widest mb-1.5 font-semibold">מספר חשבון</p>
                         <div class="flex items-center justify-center gap-2">
+                        <p id="account-rate-limit-msg" class="hidden text-xs text-red-600 mt-1.5 font-medium"></p>
                             <p id="display-account" class="text-lg text-wedding-dark font-semibold font-mono tracking-wider truncate" dir="ltr">---</p>
                             <button id="copy-account-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="הצג מספר חשבון" aria-label="הצג מספר חשבון">
                                 <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -721,6 +722,20 @@
                         clearTimeout(timeoutId);
 
                         if (!res.ok) {
+                            if (res.status === 429) {
+                                const rlMsgEl = document.getElementById('account-rate-limit-msg');
+                                const rlText = 'נרשמו יותר מדי ניסיונות צפייה מכתובת זו. אנא נסו שוב מאוחר יותר.';
+                                if (rlMsgEl) {
+                                    rlMsgEl.textContent = rlText;
+                                    rlMsgEl.classList.remove('hidden');
+                                }
+                                accountBtn.disabled = true;
+                                accountBtn.innerHTML = iconEye;
+                                accountBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                                accountBtn.title = rlText;
+                                accountBtn.setAttribute('aria-label', rlText);
+                                return;
+                            }
                             throw new Error(`Server returned ${res.status}`);
                         }
 
