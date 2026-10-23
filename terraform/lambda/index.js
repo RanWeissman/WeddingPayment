@@ -11,6 +11,13 @@ const RATE_LIMIT_MAX = 30;               // 30 requests per IP per hour (Wi-Fi /
 const RATE_LIMIT_WINDOW_SECONDS = 3600;  // 1 hour window
 const RATE_LIMIT_PREFIX = 'ratelimit#';
 
+// ── Brute Force Protection Constants (Section 7) ──────────────────────────────
+const BF_MAX_404_ERRORS = 15;            // 15 missing-slug (404) errors per IP within 60s
+const BF_WINDOW_SECONDS = 60;            // 60-second detection window
+const BF_QUARANTINE_SECONDS = 900;       // 15-minute (900s) quarantine duration
+const BF_PREFIX = 'bruteforce#';
+const blockedIpsCache = new Map();       // Tier-1 in-memory cache: ip -> blockedUntilEpoch
+
 /**
  * Extracts client IP safely behind CloudFront + API Gateway.
  * CloudFront places the real viewer IP first in X-Forwarded-For.
@@ -22,6 +29,94 @@ function getClientIp(event) {
         if (firstIp) return firstIp;
     }
     return event.requestContext?.identity?.sourceIp || 'unknown';
+}
+
+/**
+ * Tier-1 Fast Path (0ms, 0 DynamoDB reads):
+ * Checks if the client IP is currently quarantined in the Lambda instance memory.
+ */
+function isIpQuarantinedInMemory(clientIp) {
+    const blockedUntil = blockedIpsCache.get(clientIp);
+    if (!blockedUntil) return false;
+    const nowSec = Math.floor(Date.now() / 1000);
+    if (nowSec < blockedUntil) {
+        return true;
+    }
+    blockedIpsCache.delete(clientIp);
+    return false;
+}
+
+/**
+ * Tier-3 On-404 Handler (only called when a requested event slug does NOT exist):
+ * Records a 404 miss for clientIp in DynamoDB and returns true if the IP is now quarantined.
+ * Fail-Open: returns false on any unexpected DB error.
+ */
+async function record404AndCheckQuarantine(clientIp) {
+    try {
+        const nowSec = Math.floor(Date.now() / 1000);
+        const keySlug = `${BF_PREFIX}${clientIp}`;
+
+        const res = await dynamo.send(new GetCommand({
+            TableName: TABLE_NAME,
+            Key: { slug: keySlug }
+        }));
+
+        const existing = res.Item;
+
+        // If already quarantined in DB, sync to in-memory cache and block
+        if (existing && typeof existing.blockedUntil === 'number' && nowSec < existing.blockedUntil) {
+            blockedIpsCache.set(clientIp, existing.blockedUntil);
+            return true;
+        }
+
+        // If within active 60s counting window, increment count
+        if (existing && typeof existing.windowEnd === 'number' && nowSec < existing.windowEnd) {
+            const newCount = (existing.count || 0) + 1;
+            if (newCount >= BF_MAX_404_ERRORS) {
+                const blockedUntil = nowSec + BF_QUARANTINE_SECONDS;
+                await dynamo.send(new PutCommand({
+                    TableName: TABLE_NAME,
+                    Item: {
+                        slug: keySlug,
+                        count: newCount,
+                        windowEnd: existing.windowEnd,
+                        blockedUntil: blockedUntil,
+                        ttl: blockedUntil
+                    }
+                }));
+                blockedIpsCache.set(clientIp, blockedUntil);
+                console.warn(`Quarantined IP ${clientIp} for ${BF_QUARANTINE_SECONDS}s after ${newCount} 404 errors.`);
+                return true;
+            }
+
+            await dynamo.send(new PutCommand({
+                TableName: TABLE_NAME,
+                Item: {
+                    slug: keySlug,
+                    count: newCount,
+                    windowEnd: existing.windowEnd,
+                    ttl: existing.windowEnd
+                }
+            }));
+            return false;
+        }
+
+        // Start a fresh 60s counting window
+        const windowEnd = nowSec + BF_WINDOW_SECONDS;
+        await dynamo.send(new PutCommand({
+            TableName: TABLE_NAME,
+            Item: {
+                slug: keySlug,
+                count: 1,
+                windowEnd: windowEnd,
+                ttl: windowEnd
+            }
+        }));
+        return false;
+    } catch (err) {
+        console.warn('Brute-force 404 tracking failed (Fail-Open triggered):', err);
+        return false;
+    }
 }
 
 /**
@@ -69,6 +164,10 @@ async function isRateLimited(clientIp) {
         console.warn('Rate-limit check failed (Fail-Open triggered):', err);
         return false;
     }
+}
+
+function isInternalKey(slug) {
+    return !slug || slug.startsWith(RATE_LIMIT_PREFIX) || slug.startsWith(BF_PREFIX);
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -287,13 +386,39 @@ exports.handler = async (event) => {
                 };
             }
 
-            // Fetch from DynamoDB
-            const response = await dynamo.send(new GetCommand({
-                TableName: TABLE_NAME,
-                Key: { slug: slug }
-            }));
+            const clientIp = getClientIp(event);
+
+            // ── Tier-1 Fast Path: Check in-memory quarantine (0 DB reads) ─────
+            if (isIpQuarantinedInMemory(clientIp)) {
+                return {
+                    statusCode: 403,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר.'
+                    })
+                };
+            }
+
+            // Fetch from DynamoDB (only if slug is not an internal key)
+            let response = { Item: null };
+            if (!isInternalKey(slug)) {
+                response = await dynamo.send(new GetCommand({
+                    TableName: TABLE_NAME,
+                    Key: { slug: slug }
+                }));
+            }
 
             if (!response.Item) {
+                // ── Tier-3 On-404 Only: Record 404 & check quarantine in DB ───
+                if (await record404AndCheckQuarantine(clientIp)) {
+                    return {
+                        statusCode: 403,
+                        headers,
+                        body: JSON.stringify({
+                            error: 'הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר.'
+                        })
+                    };
+                }
                 return {
                     statusCode: 404,
                     headers,
@@ -367,9 +492,20 @@ exports.handler = async (event) => {
             }
 
             headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
+            const clientIp = getClientIp(event);
+
+            // ── Tier-1 Fast Path: Check in-memory quarantine (0 DB reads) ─────
+            if (isIpQuarantinedInMemory(clientIp)) {
+                return {
+                    statusCode: 403,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר.'
+                    })
+                };
+            }
 
             // ── RATE LIMIT CHECK (before reading event or decrypting PII) ────────
-            const clientIp = getClientIp(event);
             if (await isRateLimited(clientIp)) {
                 headers['Retry-After'] = String(RATE_LIMIT_WINDOW_SECONDS);
                 return {
@@ -383,12 +519,24 @@ exports.handler = async (event) => {
             // ────────────────────────────────────────────────────────────────────
 
             // Fetch from DynamoDB
-            const response = await dynamo.send(new GetCommand({
-                TableName: TABLE_NAME,
-                Key: { slug: slug }
-            }));
+            let response = { Item: null };
+            if (!isInternalKey(slug)) {
+                response = await dynamo.send(new GetCommand({
+                    TableName: TABLE_NAME,
+                    Key: { slug: slug }
+                }));
+            }
 
             if (!response.Item) {
+                if (await record404AndCheckQuarantine(clientIp)) {
+                    return {
+                        statusCode: 403,
+                        headers,
+                        body: JSON.stringify({
+                            error: 'הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר.'
+                        })
+                    };
+                }
                 return {
                     statusCode: 404,
                     headers,
