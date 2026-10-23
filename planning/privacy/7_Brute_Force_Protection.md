@@ -2,9 +2,12 @@
 
 ## 1. Section Reference & Alignment
 
-This architectural design document maps directly to **Section 7 ("Rate Limiting for URL Errors / Brute Force Protection")** of the `1_privacy_high_level.md` guide. Its primary objective is to detect and block automated brute-force / enumeration attacks that systematically guess event slugs (e.g., `/avi-and-avia-A1B2` or `/event-mp9hnfd0`), while maintaining **$0.00 operational cost**, **zero new database tables**, and **zero impact on legitimate wedding guests**.
+This architectural design document maps directly to **Section 7 ("Rate Limiting for URL Errors / Brute Force Protection")** of the `1_privacy_high_level.md` guide. Its primary objective is to detect and block automated brute-force / enumeration attacks that systematically guess event slugs (e.g., `/avi-and-avia-A1B2` or `/event-mp9hnfd0`), while maintaining:
+- **$0.00 operational cost** (no paid AWS WAF, no extra DynamoDB reads on valid requests, no DynamoDB reads for already-blocked bots hitting warm Lambda instances).
+- **Zero new database tables** (reuses `Gift4Event-Configurations` with TTL).
+- **Zero impact or latency for legitimate wedding guests**.
 
-The specification applies identically to the production **AWS Serverless Architecture** (CloudFront, API Gateway, Lambda, DynamoDB) and the local development simulation (`local_server.py` + `local_db.json`).
+The specification applies to both the production **AWS Serverless Architecture** (CloudFront, API Gateway, Lambda, DynamoDB) and the local development simulation (`local_server.py` + `local_db.json`).
 
 ---
 
@@ -22,60 +25,64 @@ A legitimate guest clicking an invitation link gets `200 OK` (0 errors), or at m
 
 ---
 
-## 3. Lean Cloud & Local Storage Strategy ($0 Cost, Single-Table, Fail-Open)
+## 3. Zero-Overhead Cloud & Local Architecture
 
-### 3.1 Production Cloud Architecture (Existing DynamoDB Table + TTL)
-To avoid paid AWS WAF fees and avoid creating extra DynamoDB tables:
-- **Single-Table Reuse (`Gift4Event-Configurations`):**
-  - Brute-force tracking records are stored in the **existing** `Gift4Event-Configurations` table using the reserved Partition Key format:
-    - `slug = "bruteforce#<clientIp>"`
-    *(Guaranteed never to collide with real event slugs, which only allow `[a-z0-9-]`).*
-  - **Attributes:**
-    - `slug` (String): `"bruteforce#<clientIp>"`
-    - `count` (Number): Number of `404` errors from this IP during the active 60-second detection window.
-    - `windowEnd` (Number): Unix epoch timestamp (`now + 60`) marking the end of the current 60-second counting window.
-    - `blockedUntil` (Number, optional): Unix epoch timestamp (`now + 900`) set when `count >= 15`.
-    - `ttl` (Number): Unix epoch timestamp used by DynamoDB native TTL to automatically delete expired records at **$0.00 cost**.
-- **Zero Writes on Valid Requests:**
-  - When a guest visits a valid event link (`200 OK`), **no write** is made to the brute-force record. Writes only happen when a request actually results in a `404 Not Found`.
-- **Accurate Client IP Behind CloudFront:**
-  - Reuses `getClientIp(event)` (reading the first IP from `X-Forwarded-For` before falling back to `sourceIp`).
-- **Fail-Open Safety Guarantee:**
-  - Both the quarantine check and the 404 counter increment are wrapped in `try / catch` blocks. Any unexpected database error logs a warning and **Fails Open** so legitimate traffic is never disrupted.
+### 3.1 Two-Tier Quarantine Check (In-Memory Fast Path + DynamoDB on `404` Only)
+To guarantee **0 extra DynamoDB reads** for legitimate guests (`200 OK`) and **0 DynamoDB reads** when a blocked bot continues flooding a warm Lambda instance:
 
-### 3.2 Local Cloud Simulation (`local_server.py` + `local_db.json`)
-To mirror production DynamoDB behavior 1:1 during local testing:
-- `local_server.py` stores `"bruteforce#<clientIp>"` records in `local_db.json` with the exact same fields (`slug`, `count`, `windowEnd`, `blockedUntil`, `ttl`).
+1. **Tier 1 — In-Memory Quarantine Cache (`blockedIpsCache` Map in Lambda / `local_server.py`):**
+   - Before touching DynamoDB, the handler checks an in-memory map (`ip -> blockedUntilEpoch`).
+   - If `now < blockedUntil`, the request is rejected immediately in **0ms and $0.00 DB cost** with HTTP `403 Forbidden`.
+2. **Tier 2 — Normal Event Lookup (`GetCommand(slug)`):**
+   - The server fetches the requested event `slug` from `Gift4Event-Configurations`.
+   - **If the event exists (`200 OK`)**: The response is returned immediately. **Zero brute-force DB reads or writes occur.**
+3. **Tier 3 — On `404 Not Found` Only (`handle404BruteForce(clientIp)`):**
+   - Only when the requested `slug` does **not** exist (`404`) does the server read/update the brute-force record `slug = "bruteforce#<clientIp>"` in `Gift4Event-Configurations` (and `local_db.json` locally):
+     - **If already quarantined in DB (`now < blockedUntil`)**: Caches `blockedUntil` in the in-memory `blockedIpsCache` and returns `403 Forbidden`.
+     - **If no active 60s window (`now >= windowEnd`)**: Writes `count = 1`, `windowEnd = now + 60`, `ttl = now + 60`, and returns `404 Not Found`.
+     - **If within active 60s window**: Increments `count`.
+       - When `count >= 15`: Sets `blockedUntil = now + 900` and `ttl = now + 900` in DB, stores `blockedUntil` in `blockedIpsCache`, and returns `403 Forbidden`.
 
----
+### 3.2 Single-Table Record Format (`Gift4Event-Configurations` & `local_db.json`)
+```json
+{
+  "slug": "bruteforce#198.51.100.42",
+  "count": 15,
+  "windowEnd": 1761133260,
+  "blockedUntil": 1761134100,
+  "ttl": 1761134100
+}
+```
+- **Automatic Cleanup:** DynamoDB native TTL on the `ttl` attribute automatically deletes expired records at **$0.00 cost**.
 
-## 4. Request Lifecycle & Execution Flow
+### 3.3 CloudFront Header Forwarding (`terraform/main.tf`)
+- Update the `/api/config/*` ordered cache behavior in `terraform/main.tf` to forward viewer headers (`Managed-AllViewerExceptHostHeader` with `Managed-CachingDisabled`) so `X-Forwarded-For` is always available to Lambda when a `404` occurs (and so 7-day event expiration is evaluated in real time).
 
-1. **Incoming Lookup Request (`GET /api/config/{slug}` or `GET /api/payment-details/{slug}`):**
-   - Extract `clientIp`.
-2. **Step 1 — Quarantine Pre-Check (`isIpQuarantined(clientIp)`):**
-   - Fetch `"bruteforce#<clientIp>"`.
-   - If `blockedUntil` is present and `now < blockedUntil`, immediately reject the request with **HTTP `403 Forbidden`** (without querying the event or decrypting data):
-     ```http
-     HTTP/1.1 403 Forbidden
-     Content-Type: application/json
-
-     {"error": "הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר."}
-     ```
-3. **Step 2 — Event Lookup:**
-   - Query the event `slug` as usual.
-   - **If found (`200 OK`)**: Proceed normally. No brute-force counter is incremented.
-   - **If missing (`404 Not Found`)**: Call `record404Error(clientIp)`:
-     - If no active window exists (`now >= windowEnd`), start a new window: `count = 1`, `windowEnd = now + 60`, `ttl = now + 60`.
-     - If within the active 60-second window, increment `count`.
-     - If `count >= 15`, quarantine the IP: set `blockedUntil = now + 900` and `ttl = now + 900`.
-     - Return the `404 Not Found` response. (Any subsequent request from this IP during the next 15 minutes will be stopped at Step 1 with `403 Forbidden`).
+### 3.4 Fail-Open Safety Guarantee
+- All brute-force checks and updates are wrapped in `try / catch`. If any unexpected error occurs, a warning is logged and the server **Fails Open** (never crashing the request pipeline).
 
 ---
 
-## 5. Summary of Resolved Decisions
-1. **15 Errors in 60s → 15m Quarantine:** Impossible for a normal guest to trigger accidentally, while immediately stopping automated slug scanners.
-2. **Zero Cost & Zero New Tables:** Uses the existing `Gift4Event-Configurations` table (`slug = "bruteforce#<ip>"`) with native DynamoDB `TTL`.
-3. **Zero Overhead for Valid Guests:** Only `404` misses write to the counter; valid wedding links (`200 OK`) incur no extra writes.
-4. **Fail-Open Resilience:** Any unexpected error in the brute-force check logs a warning and allows normal operation.
-5. **1:1 Local Parity:** Identical `bruteforce#<ip>` record structure and logic in `local_server.py` + `local_db.json`.
+## 4. HTTP Responses
+
+- **Below Threshold (`count < 15` on missing slug):**
+  Returns standard `404 Not Found`:
+  ```json
+  {"error": "Configuration not found"}
+  ```
+- **Threshold Reached (`count >= 15`) or Active Quarantine (`now < blockedUntil`):**
+  Returns `403 Forbidden`:
+  ```json
+  {"error": "הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר."}
+  ```
+
+---
+
+## 5. Summary of Cost & Performance Guarantees
+
+| Scenario | Extra DynamoDB Reads | Extra DynamoDB Writes | Result |
+|---|---|---|---|
+| **Legitimate guest opens valid event (`200 OK`)** | **0** | **0** | Zero overhead, zero extra cost |
+| **Bot hits missing slug (`404`, attempt 1–14)** | 1 | 1 | Counted in `bruteforce#<ip>` (auto-deleted after 60s via TTL) |
+| **Bot hits 15th missing slug (`404` → `403`)** | 1 | 1 | Quarantined for 15m in DB + in-memory cache |
+| **Quarantined bot keeps flooding warm server** | **0** | **0** | Blocked instantly from in-memory cache (`403 Forbidden`) |
