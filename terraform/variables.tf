@@ -22,8 +22,9 @@ variable "website_bucket_name" {
   default     = "wedding-payment-site-ran-2026"
 }
 
-variable "encryption_key_ssm_path" {
-  description = "SSM Parameter Store path for the AES-256 encryption key (SecureString)"
+variable "encryption_key" {
+  description = "Optional override for AES-256 encryption key (64-char hex). If empty, Terraform generates and persists a 256-bit key in encrypted S3 state."
   type        = string
-  default     = "/gift4event/encryption_key"
+  default     = ""
+  sensitive   = true
 }

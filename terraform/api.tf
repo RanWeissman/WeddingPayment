@@ -26,13 +26,10 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda.zip"
 }
 
-# Read the AES-256 encryption key from SSM Parameter Store (SecureString)
-# The key must be created manually before running terraform apply:
-#   aws ssm put-parameter --name "/gift4event/encryption_key" \
-#     --value "<64-char-hex>" --type SecureString --region il-central-1
-data "aws_ssm_parameter" "encryption_key" {
-  name            = var.encryption_key_ssm_path
-  with_decryption = true
+# Automatically generates and persists a 256-bit (32-byte = 64-hex-char) key
+# in the encrypted S3 Terraform state backend (zero manual SSM or IAM steps).
+resource "random_id" "encryption_key" {
+  byte_length = 32
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -87,9 +84,9 @@ resource "aws_lambda_function" "api_handler" {
 
   environment {
     variables = {
-      TABLE_NAME      = aws_dynamodb_table.config_table.name
-      ANALYTICS_URL   = "/api/analytics"
-      ENCRYPTION_KEY  = data.aws_ssm_parameter.encryption_key.value
+      TABLE_NAME     = aws_dynamodb_table.config_table.name
+      ANALYTICS_URL  = "/api/analytics"
+      ENCRYPTION_KEY = var.encryption_key != "" ? var.encryption_key : random_id.encryption_key.hex
     }
   }
 }

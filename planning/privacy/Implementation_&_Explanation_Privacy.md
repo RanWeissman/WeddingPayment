@@ -67,7 +67,7 @@ This document provides a complete summary of all privacy and security layers imp
 
 ### How We Implemented It
 - **Key Management (`terraform/api.tf`, `terraform/variables.tf`, `.env`):**
-  - **Production:** A 256-bit (64-hex-char) master key is stored in AWS SSM Parameter Store (`/gift4event/encryption_key` as a `SecureString`) and injected into the Lambda environment as `ENCRYPTION_KEY`.
+  - **Production:** Terraform automatically generates and persists a 256-bit (64-hex-char) master key (`random_id.encryption_key.hex`) inside the encrypted S3 Terraform state backend (`wedding-tf-state-ran-2026`, `encrypt = true`) and injects it into the Lambda environment as `ENCRYPTION_KEY`.
   - **Local:** Loaded from a gitignored `.env` file.
 - **Encryption / Decryption (`terraform/lambda/index.js` & `local_server.py`):**
   - Uses Node's built-in `crypto` module (`aes-256-gcm`) in Lambda and Python's `cryptography` (`AESGCM`) library locally.
