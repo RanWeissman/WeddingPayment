@@ -120,8 +120,8 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = "api_gateway"
 
-    viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # Managed-AllViewerExceptHostHeader
   }
 
@@ -131,8 +131,8 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = "api_gateway"
 
-    viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # Managed-AllViewerExceptHostHeader
   }
 
@@ -142,7 +142,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = "api_gateway"
 
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # Managed-AllViewerExceptHostHeader
   }
@@ -156,20 +156,6 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy   = "redirect-to-https"
     cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
     origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # Managed-AllViewerExceptHostHeader
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_page_path    = "/index.html"
-    response_code         = 200
-    error_caching_min_ttl = 300
-  }
-  
-  custom_error_response {
-    error_code            = 403
-    response_page_path    = "/index.html"
-    response_code         = 200
-    error_caching_min_ttl = 300
   }
 
   restrictions {
