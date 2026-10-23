@@ -2,6 +2,7 @@
 local_folder/
 local_db.json
 local_server.py
+.env
 
 # OS-specific files
 .DS_Store

@@ -6,6 +6,11 @@ resource "aws_dynamodb_table" "config_table" {
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "slug"
 
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
   attribute {
     name = "slug"
     type = "S"
@@ -19,6 +24,12 @@ data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "${path.module}/lambda"
   output_path = "${path.module}/lambda.zip"
+}
+
+# Automatically generates and persists a 256-bit (32-byte = 64-hex-char) key
+# in the encrypted S3 Terraform state backend (zero manual SSM or IAM steps).
+resource "random_id" "encryption_key" {
+  byte_length = 32
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -73,8 +84,9 @@ resource "aws_lambda_function" "api_handler" {
 
   environment {
     variables = {
-      TABLE_NAME    = aws_dynamodb_table.config_table.name
-      ANALYTICS_URL = "/api/analytics"
+      TABLE_NAME     = aws_dynamodb_table.config_table.name
+      ANALYTICS_URL  = "/api/analytics"
+      ENCRYPTION_KEY = var.encryption_key != "" ? var.encryption_key : random_id.encryption_key.hex
     }
   }
 }
@@ -232,6 +244,51 @@ resource "aws_lambda_permission" "apigw_analytics" {
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
+# /api/payment-details
+resource "aws_api_gateway_resource" "payment_details" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.api_base.id
+  path_part   = "payment-details"
+}
+
+# /api/payment-details/{slug}
+resource "aws_api_gateway_resource" "payment_details_slug" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_resource.payment_details.id
+  path_part   = "{slug}"
+}
+
+resource "aws_api_gateway_method" "payment_details_get" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.payment_details_slug.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "payment_details_lambda" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.payment_details_slug.id
+  http_method             = aws_api_gateway_method.payment_details_get.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.api_handler.invoke_arn
+}
+
+resource "aws_api_gateway_method" "payment_details_options" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.payment_details_slug.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "payment_details_options_lambda" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.payment_details_slug.id
+  http_method             = aws_api_gateway_method.payment_details_options.http_method
+  type                    = "AWS_PROXY"
+  integration_http_method = "POST"
+  uri                     = aws_lambda_function.api_handler.invoke_arn
+}
 
 resource "aws_api_gateway_deployment" "api_deploy" {
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -244,6 +301,9 @@ resource "aws_api_gateway_deployment" "api_deploy" {
       aws_api_gateway_resource.config_slug.id,
       aws_api_gateway_method.config_get.id,
       aws_api_gateway_integration.config_lambda.id,
+      aws_api_gateway_resource.payment_details_slug.id,
+      aws_api_gateway_method.payment_details_get.id,
+      aws_api_gateway_integration.payment_details_lambda.id,
       aws_api_gateway_resource.analytics.id,
       aws_api_gateway_method.analytics_post.id,
       aws_api_gateway_integration.analytics_lambda.id
