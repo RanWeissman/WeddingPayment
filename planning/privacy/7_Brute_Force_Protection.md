@@ -2,82 +2,80 @@
 
 ## 1. Section Reference & Alignment
 
-This architectural design document maps directly to **Section 7 ("Rate Limiting for URL Errors / Brute Force Protection")** of the `privacy_high_level.md` guide. Its primary objective is to detect, monitor, and neutralize automated brute-force attacks aimed at systematically guessing valid event slugs (e.g., `paz-and-lior-A1B2` or `event-mp9hnfd0`) through high-frequency enumeration attempts.
+This architectural design document maps directly to **Section 7 ("Rate Limiting for URL Errors / Brute Force Protection")** of the `1_privacy_high_level.md` guide. Its primary objective is to detect and block automated brute-force / enumeration attacks that systematically guess event slugs (e.g., `/avi-and-avia-A1B2` or `/event-mp9hnfd0`), while maintaining **$0.00 operational cost**, **zero new database tables**, and **zero impact on legitimate wedding guests**.
 
-By monitoring the accumulation of failed URL requests (`404 Not Found`), the system detects adversarial reconnaissance and temporarily isolates the offending IP address before any valid link can be compromised.
-
----
-
-## 2. Core Requirements & Architectural Design
-
-### The Enumeration Threat Model
-Although event slugs feature high entropy and randomized alphanumeric identifiers, automated bot nets can iterate through thousands of permutations per minute. If left unmonitored, an attacker could discover active event pages and map couples to payment portals. 
-
-### Detection Threshold & Sliding Window
-A legitimate user will rarely generate more than 1 or 2 `404` errors (typically caused by an accidental typo in a shared URL). Conversely, a bot systematically scanning URLs generates a rapid flurry of misses:
-* **Detection Window ($\Delta t$):** 60 seconds.
-* **Error Threshold ($E_{max}$):** 15 failed requests (`404 Not Found`).
-* **Quarantine Duration ($T_{quarantine}$):** 15 minutes (900 seconds).
-* **Mathematical Condition:**
-  $$\sum_{t \in \text{Errors}(IP)} \mathbb{I}(t \ge T_{now} - 60\text{s}) > 15 \implies \text{Quarantine}(IP, T_{now} + 900\text{s})$$
-
-### Distributed Architecture & State Enforcement
-
-#### 1. Production Architecture (AWS Edge & Serverless)
-* **AWS WAF Rate-Based & Custom Rules:**
-  * WAF inspects response status codes from the CloudFront distribution and API Gateway.
-  * When an IP address exceeds the 404 error threshold within a rolling evaluation window, AWS WAF automatically adds the IP to a temporary IP Set Blocklist for 15 minutes.
-  * Any subsequent request from that IP is terminated directly at the CloudFront Edge with an immediate `403 Forbidden` response, consuming zero Lambda executions and zero database reads.
-* **Fallback Serverless Quarantine Table (DynamoDB with TTL):**
-  * In the absence of an active WAF rule, a lightweight table (`Gift4Event-IPQuarantine`) records quarantined IPs:
-    * **Partition Key:** `ClientIP` (string).
-    * **Attributes:** `BlockedUntil` (epoch timestamp), `TTL` (epoch timestamp matching expiration).
-    * Fast single-key lookup during the edge routing phase.
-
-#### 2. Local Environment (`local_server.py`)
-* A rolling error counter dictionary (`ip_404_history = {ip: [timestamps]}`) and an active quarantine map (`ip_blocked = {ip: unblock_timestamp}`).
-* When a 404 occurs on `/api/config/*` or route rewriting, the timestamp is logged.
-* Once the count exceeds 15 within 60 seconds, the IP is added to `ip_blocked` for 15 minutes, rejecting all subsequent requests with HTTP `403 Forbidden`.
+The specification applies identically to the production **AWS Serverless Architecture** (CloudFront, API Gateway, Lambda, DynamoDB) and the local development simulation (`local_server.py` + `local_db.json`).
 
 ---
 
-## 3. Integration & Flow Guidelines
+## 2. Core Requirements & Detection Thresholds
 
-### Request Lifecycle & Enforcement Pipeline
+### Enumeration Threat Model
+Although event slugs include a randomized suffix, automated bots can attempt hundreds of slug guesses per minute against `/api/config/{slug}` or `/api/payment-details/{slug}`.
+A legitimate guest clicking an invitation link gets `200 OK` (0 errors), or at most 1–2 `404` errors if they manually mistype a URL. A scanning bot generates a rapid burst of `404 Not Found` responses.
 
-1. **Incoming Request:** Client sends a request to an event URL (e.g., `/event-unknown123`).
-2. **Quarantine Check:** 
-   * If the IP is currently on the active quarantine list ($T_{now} < \text{BlockedUntil}$), the request is rejected immediately with **HTTP `403 Forbidden`**:
+### Threshold & Quarantine Parameters
+- **Detection Window (`BF_WINDOW_SECONDS`):** **60 seconds (1 minute)**.
+- **Error Threshold (`BF_MAX_404_ERRORS`):** **15 failed requests (`404 Not Found`)** per IP within the 60-second window.
+- **Quarantine Duration (`BF_QUARANTINE_SECONDS`):** **15 minutes (900 seconds)**.
+- **Configurable Constants:** Defined at the top of `lambda/index.js` and `local_server.py`.
+
+---
+
+## 3. Lean Cloud & Local Storage Strategy ($0 Cost, Single-Table, Fail-Open)
+
+### 3.1 Production Cloud Architecture (Existing DynamoDB Table + TTL)
+To avoid paid AWS WAF fees and avoid creating extra DynamoDB tables:
+- **Single-Table Reuse (`Gift4Event-Configurations`):**
+  - Brute-force tracking records are stored in the **existing** `Gift4Event-Configurations` table using the reserved Partition Key format:
+    - `slug = "bruteforce#<clientIp>"`
+    *(Guaranteed never to collide with real event slugs, which only allow `[a-z0-9-]`).*
+  - **Attributes:**
+    - `slug` (String): `"bruteforce#<clientIp>"`
+    - `count` (Number): Number of `404` errors from this IP during the active 60-second detection window.
+    - `windowEnd` (Number): Unix epoch timestamp (`now + 60`) marking the end of the current 60-second counting window.
+    - `blockedUntil` (Number, optional): Unix epoch timestamp (`now + 900`) set when `count >= 15`.
+    - `ttl` (Number): Unix epoch timestamp used by DynamoDB native TTL to automatically delete expired records at **$0.00 cost**.
+- **Zero Writes on Valid Requests:**
+  - When a guest visits a valid event link (`200 OK`), **no write** is made to the brute-force record. Writes only happen when a request actually results in a `404 Not Found`.
+- **Accurate Client IP Behind CloudFront:**
+  - Reuses `getClientIp(event)` (reading the first IP from `X-Forwarded-For` before falling back to `sourceIp`).
+- **Fail-Open Safety Guarantee:**
+  - Both the quarantine check and the 404 counter increment are wrapped in `try / catch` blocks. Any unexpected database error logs a warning and **Fails Open** so legitimate traffic is never disrupted.
+
+### 3.2 Local Cloud Simulation (`local_server.py` + `local_db.json`)
+To mirror production DynamoDB behavior 1:1 during local testing:
+- `local_server.py` stores `"bruteforce#<clientIp>"` records in `local_db.json` with the exact same fields (`slug`, `count`, `windowEnd`, `blockedUntil`, `ttl`).
+
+---
+
+## 4. Request Lifecycle & Execution Flow
+
+1. **Incoming Lookup Request (`GET /api/config/{slug}` or `GET /api/payment-details/{slug}`):**
+   - Extract `clientIp`.
+2. **Step 1 — Quarantine Pre-Check (`isIpQuarantined(clientIp)`):**
+   - Fetch `"bruteforce#<clientIp>"`.
+   - If `blockedUntil` is present and `now < blockedUntil`, immediately reject the request with **HTTP `403 Forbidden`** (without querying the event or decrypting data):
      ```http
      HTTP/1.1 403 Forbidden
      Content-Type: application/json
 
-     {"error": "Access temporarily restricted due to suspicious activity. Try again later."}
+     {"error": "הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר."}
      ```
-3. **Route Lookup & Execution:**
-   * If the event exists, the request proceeds normally.
-   * If the event does not exist, the server records a `404 Not Found` event against the IP.
-4. **Threshold Evaluation:**
-   * The server calculates the number of 404s recorded for that IP over the past 60 seconds.
-   * If $\text{Errors} > 15$, the IP is immediately transitioned into the `QUARANTINED` state for 15 minutes.
-   * A security warning is logged for monitoring.
-
-### Handling False Positives
-* **High Threshold Safety Margin:** Setting the trigger at 15 errors in 60 seconds provides complete protection against false positives. No legitimate wedding guest ever encounters 15 broken links in under a minute.
-* **Automatic Expiration:** Quarantines automatically expire after 15 minutes, ensuring that dynamic IP pools (e.g., cellular network NAT gateways) are not permanently penalized.
+3. **Step 2 — Event Lookup:**
+   - Query the event `slug` as usual.
+   - **If found (`200 OK`)**: Proceed normally. No brute-force counter is incremented.
+   - **If missing (`404 Not Found`)**: Call `record404Error(clientIp)`:
+     - If no active window exists (`now >= windowEnd`), start a new window: `count = 1`, `windowEnd = now + 60`, `ttl = now + 60`.
+     - If within the active 60-second window, increment `count`.
+     - If `count >= 15`, quarantine the IP: set `blockedUntil = now + 900` and `ttl = now + 900`.
+     - Return the `404 Not Found` response. (Any subsequent request from this IP during the next 15 minutes will be stopped at Step 1 with `403 Forbidden`).
 
 ---
 
-## 4. Why This Solution is Ideal
-
-### Security Vulnerabilities Mitigated
-* **Systematic URL Enumeration & Dictionary Attacks:** Prevents attackers from brute-forcing random or custom slugs.
-* **OSINT & Reconnaissance:** Shuts down scrapers before they can catalog valid wedding links.
-* **Serverless Cost Amplification (Denial of Wallet):** Drops malicious crawler traffic at the edge before it invokes backend compute or DynamoDB reads.
-
-### Defense-in-Depth Advantage
-1. **Zero Impact on Valid Links:** Guests following valid links or scanning invitation QR codes hit `200 OK` responses and never touch the 404 counting logic.
-2. **Edge-Level Termination:** By dropping blocked requests early (via WAF or edge middleware), the backend is completely shielded from high-volume scanning storms.
-
-### Trade-off Justification
-This solution provides robust brute-force protection with virtually zero overhead. Legitimate wedding attendees will never trigger 15 consecutive missing page errors, while attackers running automated discovery scripts will be swiftly blocked. By utilizing TTL-based automatic expiration, the system requires no manual administration or complex unblock portals.
+## 5. Summary of Resolved Decisions
+1. **15 Errors in 60s → 15m Quarantine:** Impossible for a normal guest to trigger accidentally, while immediately stopping automated slug scanners.
+2. **Zero Cost & Zero New Tables:** Uses the existing `Gift4Event-Configurations` table (`slug = "bruteforce#<ip>"`) with native DynamoDB `TTL`.
+3. **Zero Overhead for Valid Guests:** Only `404` misses write to the counter; valid wedding links (`200 OK`) incur no extra writes.
+4. **Fail-Open Resilience:** Any unexpected error in the brute-force check logs a warning and allows normal operation.
+5. **1:1 Local Parity:** Identical `bruteforce#<ip>` record structure and logic in `local_server.py` + `local_db.json`.
