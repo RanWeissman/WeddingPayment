@@ -471,7 +471,7 @@ exports.handler = async (event) => {
             }
             // ────────────────────────────────────────────────────────────────────
 
-            headers['Cache-Control'] = 'public, max-age=31536000';
+            headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private';
 
             return {
                 statusCode: 200,
