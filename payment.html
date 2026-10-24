@@ -280,7 +280,7 @@
                 `;
 
                 try {
-                    const response = await fetch(`/api/config/${path}`);
+                    const response = await fetch(`/api/config/${path}`, { cache: 'no-store' });
                     if (!response.ok) {
                         if (response.status === 404) {
                             renderError('האירוע לא נמצא. ייתכן שהקישור שגוי או הוסר.');
