@@ -1,0 +1,504 @@
+// Guest Payment Page Logic for Gift4Event (payment.html)
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const path = window.location.pathname.replace(/^\/+/, '');
+    const isSlug = path && !path.includes('.') && path !== 'payment.html';
+
+    let config = {};
+    const mainCardContainer = document.querySelector('.relative.w-full.max-w-lg');
+    const originalHTML = mainCardContainer.innerHTML;
+
+    const renderError = (message) => {
+        mainCardContainer.innerHTML = `
+            <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-red-200 text-center min-h-[300px] flex flex-col items-center justify-center">
+                <div class="text-red-500 mb-4 bg-red-50 p-4 rounded-full">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">שגיאה</h2>
+                <p class="text-gray-600 font-medium">${message}</p>
+            </div>
+        `;
+    };
+
+    if (isSlug) {
+        // Show loading state
+        mainCardContainer.innerHTML = `
+            <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-wedding-gold/20 text-center flex flex-col items-center justify-center min-h-[400px]">
+                <div class="w-12 h-12 border-4 border-wedding-gold/30 border-t-wedding-gold rounded-full animate-spin mb-4"></div>
+                <p class="text-gray-600 font-medium text-lg">טוען פרטי אירוע...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/api/config/${path}`, { cache: 'no-store' });
+            if (!response.ok) {
+                if (response.status === 404) {
+                    renderError('האירוע לא נמצא. ייתכן שהקישור שגוי או הוסר.');
+                } else {
+                    renderError('אירעה שגיאה בטעינת פרטי האירוע. אנא נסו שוב מאוחר יותר.');
+                }
+                return; // Stop execution on error
+            }
+            const data = await response.json();
+
+            // ── TIME WINDOW CHECK ──────────────────────────────────────────
+            // Server signals expiry by returning isExpired:true
+            if (data.isExpired) {
+                const coupleNames = data.coupleNames || '';
+                mainCardContainer.innerHTML = `
+                    <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-14 border border-pink-100 text-center flex flex-col items-center justify-center min-h-[420px] gap-6">
+                        <!-- Heart icon -->
+                        <div class="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center">
+                            <span class="text-4xl">💝</span>
+                        </div>
+                        <div class="space-y-3">
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                                תקופת העברת המתנות הסתיימה
+                            </h2>
+                            <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-sm mx-auto">
+                                תודה רבה על הרצון לשמח אותנו ולהיות חלק מהשמחה שלנו!
+                            </p>
+                            <p class="text-gray-500 text-sm md:text-base">
+                                אפשרות העברת המתנות לאירוע הסתיימה.
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-100 pt-6 w-full space-y-1">
+                            <p class="text-gray-600 font-semibold">באהבה ובהערכה,</p>
+                            <p class="text-xl font-bold text-rose-600">${coupleNames ? coupleNames : ''} ❤️</p>
+                        </div>
+                    </div>
+                `;
+                return; // Stop — do not hydrate the payment form
+            }
+            // ──────────────────────────────────────────────────────────────
+
+            // Map to expected config structure
+            config = {
+                coupleNames: data.coupleNames || '',
+                name: data.bankDetails?.beneficiaryName || '',
+                bank: data.bankDetails?.bankName || '',
+                branch: data.bankDetails?.branchNumber || '',
+                account: data.bankDetails?.accountNumber || '',
+                isMasked: !!data.bankDetails?.isMasked,
+                bitLink1: data.bitLinks?.[0] || '',
+                bitLink2: data.bitLinks?.[1] || '',
+                payboxLink1: data.payboxLinks?.[0] || '',
+                payboxLink2: data.payboxLinks?.[1] || '',
+                wazeLink: data.wazeLink || '',
+                analyticsUrl: data.analyticsUrl || null
+            };
+
+            // Restore HTML for hydration
+            mainCardContainer.innerHTML = originalHTML;
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            renderError('אירעה שגיאה בחיבור לשרת.');
+            return;
+        }
+    } else {
+        // Fallback to query parameters for backward compatibility
+        const urlParams = new URLSearchParams(window.location.search);
+        config = {
+            coupleNames: urlParams.get('coupleNames') || '',
+            name: urlParams.get('name') || '',
+            bank: urlParams.get('bank') || '',
+            branch: urlParams.get('branch') || '',
+            account: urlParams.get('account') || '',
+            isMasked: false,
+            bitLink1: urlParams.get('bitLink1'),
+            bitLink2: urlParams.get('bitLink2'),
+            bitLinkOld: urlParams.get('bitLink'),
+            payboxLink1: urlParams.get('payboxLink1'),
+            payboxLink2: urlParams.get('payboxLink2'),
+            payboxLinkOld: urlParams.get('payboxLink'),
+            wazeLink: urlParams.get('wazeLink'),
+            analyticsUrl: urlParams.get('analyticsUrl') || null
+        };
+    }
+
+    const rawNameParam = config.name;
+    const pageTitle = (rawNameParam && rawNameParam.trim() !== '')
+        ? `השתתפות בשמחה | ${rawNameParam}`
+        : 'השתתפות בשמחה';
+
+    document.title = pageTitle;
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
+
+    const paramCoupleNames = config.coupleNames || '';
+    const paramName = config.name || 'לא צוין שם';
+    const paramBank = config.bank || 'לא צוין בנק';
+    const paramBranch = config.branch || '-';
+    const paramAccount = config.account || '-';
+    const bitLink1 = config.bitLink1;
+    const bitLink2 = config.bitLink2;
+    const bitLinkOld = config.bitLinkOld;
+    const payboxLink1 = config.payboxLink1;
+    const payboxLink2 = config.payboxLink2;
+    const payboxLinkOld = config.payboxLinkOld;
+    const analyticsUrl = config.analyticsUrl;
+
+    const currentEventId = path && path.trim() !== '' ? path : 'unknown-event';
+
+    function trackEvent(actionType) {
+        if (!analyticsUrl) return; // Silent abort if not configured
+        fetch(analyticsUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                event_id: currentEventId,
+                action_type: actionType
+            }),
+            keepalive: true
+        }).catch(e => console.error("Telemetry failed silently", e));
+    }
+
+    if (paramCoupleNames) {
+        document.getElementById('couple-names').textContent = paramCoupleNames;
+        document.getElementById('footer-couple-names').textContent = paramCoupleNames;
+    } else {
+        document.getElementById('couple-names').textContent = `השנה`;
+    }
+
+    document.getElementById('display-name').textContent = paramName;
+    document.getElementById('display-bank').textContent = paramBank;
+    document.getElementById('display-branch').textContent = paramBranch;
+    document.getElementById('display-account').textContent = paramAccount;
+
+    const validBitLinks = [];
+    if (bitLink1) validBitLinks.push(bitLink1);
+    if (bitLink2) validBitLinks.push(bitLink2);
+    if (!bitLink1 && !bitLink2 && bitLinkOld) validBitLinks.push(bitLinkOld);
+
+    // Modal Logic Variables
+    const bitModal = document.getElementById('bit-modal');
+    const modalBankBtn = document.getElementById('modal-bank-btn');
+    const modalBitProceedBtn = document.getElementById('modal-bit-proceed-btn');
+    const bitModalCloseX = document.getElementById('bit-modal-close-x');
+    let nextBitLinkToOpen = '';
+
+    const closeBitModal = () => {
+        if (bitModal) bitModal.classList.add('hidden');
+    };
+
+    const openBitModal = (link) => {
+        nextBitLinkToOpen = link;
+        if (bitModal) bitModal.classList.remove('hidden');
+    };
+
+    if (bitModal) {
+        bitModal.addEventListener('click', (e) => {
+            if (e.target === bitModal) closeBitModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !bitModal.classList.contains('hidden')) {
+                closeBitModal();
+            }
+        });
+
+        if (bitModalCloseX) {
+            bitModalCloseX.addEventListener('click', closeBitModal);
+        }
+
+        if (modalBankBtn) {
+            modalBankBtn.addEventListener('click', () => {
+                trackEvent('bit_bank_click');
+                closeBitModal();
+                const container = document.getElementById('bank-details');
+                if (container) {
+                    if (container.classList.contains('hidden')) {
+                        container.classList.remove('hidden');
+                    }
+                    setTimeout(() => {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                }
+            });
+        }
+
+        if (modalBitProceedBtn) {
+            modalBitProceedBtn.addEventListener('click', () => {
+                trackEvent('bit_click');
+                closeBitModal();
+                if (nextBitLinkToOpen) {
+                    window.open(nextBitLinkToOpen, '_blank');
+                }
+            });
+        }
+    }
+
+    if (validBitLinks.length > 0) {
+        const bitWrapper = document.getElementById('bit-wrapper');
+        const bitBtn = document.getElementById('bit-pay-btn');
+
+        if (bitWrapper && bitBtn) {
+            bitWrapper.classList.remove('hidden');
+            bitWrapper.classList.add('flex');
+
+            if (validBitLinks.length === 2) {
+                let useFirstLink = Math.random() < 0.5;
+
+                bitBtn.addEventListener('click', function () {
+                    const linkToOpen = useFirstLink ? validBitLinks[0] : validBitLinks[1];
+                    useFirstLink = !useFirstLink;
+                    openBitModal(linkToOpen);
+                });
+            } else {
+                bitBtn.addEventListener('click', function () {
+                    openBitModal(validBitLinks[0]);
+                });
+            }
+        }
+    }
+
+    const validPayboxLinks = [];
+    if (payboxLink1) validPayboxLinks.push(payboxLink1);
+    if (payboxLink2) validPayboxLinks.push(payboxLink2);
+    if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
+
+    // PayBox Modal Logic Variables
+    const pbModal = document.getElementById('paybox-modal');
+    const pbModalBankBtn = document.getElementById('pb-modal-bank-btn');
+    const pbModalProceedBtn = document.getElementById('pb-modal-proceed-btn');
+    const pbModalCloseX = document.getElementById('paybox-modal-close-x');
+    let nextPbLinkToOpen = '';
+
+    const closePbModal = () => {
+        if (pbModal) pbModal.classList.add('hidden');
+    };
+
+    const openPbModal = (link) => {
+        nextPbLinkToOpen = link;
+        if (pbModal) pbModal.classList.remove('hidden');
+    };
+
+    if (pbModal) {
+        pbModal.addEventListener('click', (e) => {
+            if (e.target === pbModal) closePbModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !pbModal.classList.contains('hidden')) {
+                closePbModal();
+            }
+        });
+
+        if (pbModalCloseX) {
+            pbModalCloseX.addEventListener('click', closePbModal);
+        }
+
+        if (pbModalBankBtn) {
+            pbModalBankBtn.addEventListener('click', () => {
+                trackEvent('paybox_bank_click');
+                closePbModal();
+                const container = document.getElementById('bank-details');
+                if (container) {
+                    if (container.classList.contains('hidden')) {
+                        container.classList.remove('hidden');
+                    }
+                    setTimeout(() => {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                }
+            });
+        }
+
+        if (pbModalProceedBtn) {
+            pbModalProceedBtn.addEventListener('click', () => {
+                trackEvent('paybox_click');
+                closePbModal();
+                if (nextPbLinkToOpen) {
+                    window.open(nextPbLinkToOpen, '_blank');
+                }
+            });
+        }
+    }
+
+    if (validPayboxLinks.length > 0) {
+        const pbWrapper = document.getElementById('paybox-wrapper');
+        const pbBtn = document.getElementById('paybox-pay-btn');
+
+        if (pbWrapper && pbBtn) {
+            pbWrapper.classList.remove('hidden');
+            pbWrapper.classList.add('flex');
+
+            if (validPayboxLinks.length === 2) {
+                let useFirstPbLink = Math.random() < 0.5;
+
+                pbBtn.addEventListener('click', function () {
+                    const linkToOpen = useFirstPbLink ? validPayboxLinks[0] : validPayboxLinks[1];
+                    useFirstPbLink = !useFirstPbLink;
+                    openPbModal(linkToOpen);
+                });
+            } else {
+                pbBtn.addEventListener('click', function () {
+                    openPbModal(validPayboxLinks[0]);
+                });
+            }
+        }
+    }
+
+    // Waze Button Logic
+    const wazeLink = config.wazeLink;
+    if (wazeLink) {
+        const wazeContainer = document.getElementById('waze-btn-container');
+        const topWazeBtn = document.getElementById('top-waze-btn');
+
+        if (wazeContainer && topWazeBtn) {
+            wazeContainer.classList.remove('hidden');
+            wazeContainer.classList.add('flex');
+
+            topWazeBtn.addEventListener('click', function () {
+                trackEvent('waze_click');
+                window.open(wazeLink, '_blank');
+            });
+        }
+    }
+
+    // Toggle Bank Details Logic
+    document.getElementById('toggle-bank-btn').addEventListener('click', function () {
+        const container = document.getElementById('bank-details');
+        if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+        } else {
+            container.classList.add('hidden');
+        }
+    });
+
+    // Copy Logic for non-sensitive fields
+    const copyFields = ['name', 'bank', 'branch'];
+
+    copyFields.forEach(field => {
+        const btn = document.getElementById(`copy-${field}-btn`);
+        const displayEl = document.getElementById(`display-${field}`);
+
+        if (btn && displayEl) {
+            btn.addEventListener('click', function () {
+                const val = displayEl.textContent;
+                if (val && val !== '-' && !val.includes('טוען') && !val.includes('לא צוין')) {
+                    if (field === 'bank' || field === 'branch') {
+                        trackEvent('bank_copy');
+                    }
+                    navigator.clipboard.writeText(val).then(() => {
+                        const originalHTML = btn.innerHTML;
+                        btn.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                        setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+                    }).catch(() => {
+                        console.error('Failed to copy ' + field);
+                    });
+                }
+            });
+        }
+    });
+
+    // Bank Account Masking & Reveal State Machine
+    const accountBtn = document.getElementById('copy-account-btn');
+    const displayAccountEl = document.getElementById('display-account');
+
+    let isAccountRevealed = !(config.isMasked || (paramAccount && (paramAccount.includes('•') || paramAccount.includes('*'))));
+    let unmaskedAccountNumber = isAccountRevealed ? paramAccount : null;
+
+    const iconEye = '<svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>';
+    const iconSpinner = '<svg class="w-5 h-5 animate-spin pointer-events-none text-wedding-gold" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+    const iconCopy = '<svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
+    const iconCheck = '<svg class="w-5 h-5 text-green-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+    const iconRetry = '<svg class="w-5 h-5 text-amber-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+
+    function updateAccountBtnUI() {
+        if (!accountBtn) return;
+        if (isAccountRevealed) {
+            accountBtn.innerHTML = iconCopy;
+            accountBtn.title = "העתק מספר חשבון";
+            accountBtn.setAttribute('aria-label', "העתק מספר חשבון");
+            accountBtn.disabled = false;
+        } else {
+            accountBtn.innerHTML = iconEye;
+            accountBtn.title = "הצג מספר חשבון";
+            accountBtn.setAttribute('aria-label', "הצג מספר חשבון");
+            accountBtn.disabled = false;
+        }
+    }
+
+    updateAccountBtnUI();
+
+    if (accountBtn && displayAccountEl) {
+        accountBtn.addEventListener('click', async function () {
+            if (isAccountRevealed) {
+                const valToCopy = unmaskedAccountNumber || displayAccountEl.textContent;
+                if (valToCopy && valToCopy !== '-' && !valToCopy.includes('•') && !valToCopy.includes('*')) {
+                    trackEvent('bank_copy');
+                    navigator.clipboard.writeText(valToCopy).then(() => {
+                        accountBtn.innerHTML = iconCheck;
+                        setTimeout(() => {
+                            accountBtn.innerHTML = iconCopy;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy account number:', err);
+                    });
+                }
+                return;
+            }
+
+            accountBtn.disabled = true;
+            accountBtn.innerHTML = iconSpinner;
+            accountBtn.title = "טוען פרטים...";
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            try {
+                const eventSlug = currentEventId;
+                const res = await fetch(`/api/payment-details/${eventSlug}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!res.ok) {
+                    if (res.status === 429) {
+                        const rlMsgEl = document.getElementById('account-rate-limit-msg');
+                        const rlText = 'נרשמו יותר מדי ניסיונות צפייה מכתובת זו. אנא נסו שוב מאוחר יותר.';
+                        if (rlMsgEl) {
+                            rlMsgEl.textContent = rlText;
+                            rlMsgEl.classList.remove('hidden');
+                        }
+                        accountBtn.disabled = true;
+                        accountBtn.innerHTML = iconEye;
+                        accountBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                        accountBtn.title = rlText;
+                        accountBtn.setAttribute('aria-label', rlText);
+                        return;
+                    }
+                    throw new Error(`Server returned ${res.status}`);
+                }
+
+                const details = await res.json();
+                if (details && details.accountNumber) {
+                    unmaskedAccountNumber = String(details.accountNumber);
+                    isAccountRevealed = true;
+                    displayAccountEl.textContent = unmaskedAccountNumber;
+                    updateAccountBtnUI();
+                    trackEvent('bank_reveal');
+                } else {
+                    throw new Error('Invalid response structure');
+                }
+            } catch (error) {
+                clearTimeout(timeoutId);
+                console.error('Failed to reveal bank account:', error);
+                accountBtn.disabled = false;
+                accountBtn.innerHTML = iconRetry;
+                accountBtn.title = "אירעה שגיאה. לחצו לניסיון חוזר";
+                accountBtn.setAttribute('aria-label', "אירעה שגיאה. לחצו לניסיון חוזר");
+            }
+        });
+    }
+});

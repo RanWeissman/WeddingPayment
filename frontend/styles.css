@@ -1,0 +1,50 @@
+/* Shared Stylesheet for Gift4Event (index.html & payment.html) */
+
+body {
+    font-family: 'Assistant', sans-serif;
+}
+
+/* Custom scrollbar for better UI */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c7c7cc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1aa;
+}
+
+/* Frosted glass card style (Landing & Generator Page) */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+}
+
+/* Ambient festive background (Guest Payment Page) */
+.payment-body {
+    background-color: #FAF9F6;
+    background-image: radial-gradient(#dfd1d1 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* Subtle diagonal line pattern for the payment card interior */
+.card-pattern {
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(212, 175, 55, 0.03) 10px,
+        rgba(212, 175, 55, 0.03) 20px
+    );
+}
