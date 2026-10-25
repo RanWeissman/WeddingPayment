@@ -104,9 +104,10 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = aws_s3_bucket.website.id
 
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-    cache_policy_id        = aws_cloudfront_cache_policy.query_strings.id
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    cache_policy_id            = aws_cloudfront_cache_policy.query_strings.id
+    response_headers_policy_id = "67f7725c-6f97-4210-82d7-5512b31e9d03" # Managed-SecurityHeadersPolicy
 
     function_association {
       event_type   = "viewer-request"
