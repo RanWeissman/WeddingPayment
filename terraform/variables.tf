@@ -28,10 +28,3 @@ variable "encryption_key" {
   default     = ""
   sensitive   = true
 }
-
-variable "alert_email" {
-  description = "Optional email address to receive AWS SNS security alerts (leave empty to configure later)"
-  type        = string
-  default     = ""
-  sensitive   = true
-}

@@ -50,7 +50,7 @@ resource "aws_iam_role_policy" "analytics_lambda_policy" {
           "logs:PutLogEvents"
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.project_name}-analytics:*"
+        Resource = "arn:aws:logs:*:*:*"
       },
       {
         Action = [
