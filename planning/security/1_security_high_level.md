@@ -38,3 +38,8 @@ This document outlines the core security solutions we will implement to harden t
 **What it is:** Verifying in the AWS Management Console that the AWS Root User has Multi-Factor Authentication (`MFA`) enabled and zero active `Access Keys`.
 **Why it's needed:** The Root user has unrestricted control over the entire AWS account; securing it with MFA and removing static keys is the most critical account-level safeguard.
 **Implementation Approach:** Perform a one-time manual verification in the AWS Console IAM Dashboard.
+
+### 8. Terms of Use, Privacy Consent & Liability Disclaimer (`Clickwrap`)
+**What it is:** Requiring an explicit user consent checkbox (`Clickwrap`) before event creation, linked to a comprehensive Terms of Use & Privacy Policy modal (`frontend/terms-modal.js`).
+**Why it's needed:** Protects the site owner from liability for user typos in bank/Bit/PayBox details, clarifies that Gift4Event is a technical display tool (`AS-IS`) rather than a financial intermediary, and fulfills informed-consent requirements under Israeli Privacy Protection Law (Amendment 13).
+**Implementation Approach:** Create `frontend/terms-modal.js` with full legal terms, add the `#terms-consent` checkbox and `#terms-consent-error` alert banner above the submit button in `index.html`, and enforce custom validation in `frontend/app.js`.
