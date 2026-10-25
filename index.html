@@ -430,6 +430,36 @@
                 </div>
             </div>
 
+            <!-- Terms & Privacy Consent (Clickwrap) -->
+            <div class="pt-2">
+                <div id="terms-consent-wrapper"
+                    class="bg-white/80 border border-indigo-100 rounded-2xl p-4 md:p-5 shadow-sm transition-all">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="terms-consent"
+                            class="mt-1 w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0">
+                        <div class="text-sm md:text-base text-gray-700 leading-relaxed">
+                            <label for="terms-consent" class="cursor-pointer font-medium text-gray-800">
+                                וידאתי כי פרטי החשבון והקישורים שהזנתי נכונים, ואני מאשר/ת את
+                            </label>
+                            <button type="button" onclick="openTermsModal()"
+                                class="font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-4 transition-colors mx-1">
+                                תנאי השימוש ומדיניות הפרטיות
+                            </button>
+                            <span class="text-red-500 font-bold">*</span>
+                        </div>
+                    </div>
+                    <div id="terms-consent-error"
+                        class="hidden mt-3 flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-medium">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                        <span>יש לסמן אישור לתנאי השימוש ומדיניות הפרטיות ולנכונות הפרטים לפני יצירת הדף.</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Button -->
             <div class="pt-4">
                 <button type="submit"
@@ -524,6 +554,7 @@
     <!-- Frontend Scripts -->
     <script src="frontend/info-modals.js"></script>
     <script src="frontend/guide-modals.js"></script>
+    <script src="frontend/terms-modal.js"></script>
     <script src="frontend/pdf-sign.js"></script>
     <script src="frontend/app.js"></script>
 </body>

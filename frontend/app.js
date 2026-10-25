@@ -78,6 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => extractedBitLink1 = val);
     setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => extractedBitLink2 = val);
 
+    const termsCheckbox = document.getElementById('terms-consent');
+    const termsError = document.getElementById('terms-consent-error');
+    const termsWrapper = document.getElementById('terms-consent-wrapper');
+    if (termsCheckbox) {
+        termsCheckbox.addEventListener('change', () => {
+            if (termsCheckbox.checked) {
+                if (termsError) termsError.classList.add('hidden');
+                if (termsWrapper) {
+                    termsWrapper.classList.remove('border-red-300', 'bg-red-50/60');
+                    termsWrapper.classList.add('border-indigo-100', 'bg-white/80');
+                }
+            }
+        });
+    }
+
     const generatorForm = document.getElementById('generator-form');
     if (generatorForm) {
         generatorForm.addEventListener('submit', async function (e) {
@@ -118,6 +133,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             } else {
                 eventDateError.classList.add('hidden');
+            }
+
+            // Client-side Terms & Privacy Clickwrap consent validation
+            if (!termsCheckbox || !termsCheckbox.checked) {
+                if (termsError) termsError.classList.remove('hidden');
+                if (termsWrapper) {
+                    termsWrapper.classList.remove('border-indigo-100', 'bg-white/80');
+                    termsWrapper.classList.add('border-red-300', 'bg-red-50/60');
+                    termsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                submitBtn.innerHTML = originalBtnContent;
+                submitBtn.disabled = false;
+                return;
+            } else {
+                if (termsError) termsError.classList.add('hidden');
             }
 
             const payload = {
