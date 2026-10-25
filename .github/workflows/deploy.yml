@@ -38,7 +38,9 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
-        run: terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+        run: |
+          terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+          terraform state rm aws_sns_topic.security_alerts || true
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'

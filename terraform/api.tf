@@ -338,7 +338,9 @@ resource "aws_cloudfront_function" "router" {
 
 # ----------------------------------------------------
 # Security Monitoring & SNS Alerts (Security Section 6)
+# Uncomment when ready to configure alert_email and SNS/CloudWatch permissions for github-deployer
 # ----------------------------------------------------
+/*
 resource "aws_sns_topic" "security_alerts" {
   name = "${var.project_name}-security-alerts"
 }
@@ -398,3 +400,4 @@ resource "aws_cloudwatch_metric_alarm" "dynamodb_scan_alarm" {
 
   alarm_actions = [aws_sns_topic.security_alerts.arn]
 }
+*/
