@@ -6,6 +6,10 @@ resource "aws_dynamodb_table" "config_table" {
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "slug"
 
+  point_in_time_recovery {
+    enabled = true
+  }
+
   ttl {
     attribute_name = "ttl"
     enabled        = true
@@ -60,7 +64,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "logs:PutLogEvents"
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.project_name}-api:*"
       },
       {
         Action = [
