@@ -11,6 +11,11 @@ const RATE_LIMIT_MAX = 30;               // 30 requests per IP per hour (Wi-Fi /
 const RATE_LIMIT_WINDOW_SECONDS = 3600;  // 1 hour window
 const RATE_LIMIT_PREFIX = 'ratelimit#';
 
+// ── Event Creation Rate Limiting Constants (Security Section 3) ───────────────
+const CREATE_RATE_LIMIT_MAX = 10;               // 10 event creations per IP per hour
+const CREATE_RATE_LIMIT_WINDOW_SECONDS = 3600;  // 1 hour window
+const CREATE_RATE_LIMIT_PREFIX = 'ratelimit_create#';
+
 // ── Brute Force Protection Constants (Section 7) ──────────────────────────────
 const BF_MAX_404_ERRORS = 15;            // 15 missing-slug (404) errors per IP within 60s
 const BF_WINDOW_SECONDS = 60;            // 60-second detection window
@@ -124,10 +129,10 @@ async function record404AndCheckQuarantine(clientIp) {
  * Fail-Open: if any unexpected DB error occurs, logs a warning and returns false (not blocked).
  * @returns {Promise<boolean>} true if rate limit is exceeded (should block with 429)
  */
-async function isRateLimited(clientIp) {
+async function isRateLimited(clientIp, prefix = RATE_LIMIT_PREFIX, maxRequests = RATE_LIMIT_MAX, windowSeconds = RATE_LIMIT_WINDOW_SECONDS) {
     try {
         const nowSec = Math.floor(Date.now() / 1000);
-        const keySlug = `${RATE_LIMIT_PREFIX}${clientIp}`;
+        const keySlug = `${prefix}${clientIp}`;
 
         const res = await dynamo.send(new GetCommand({
             TableName: TABLE_NAME,
@@ -136,7 +141,8 @@ async function isRateLimited(clientIp) {
 
         const existing = res.Item;
         if (existing && typeof existing.ttl === 'number' && nowSec < existing.ttl) {
-            if ((existing.count || 0) >= RATE_LIMIT_MAX) {
+            if ((existing.count || 0) >= maxRequests) {
+                console.warn(`Rate limit exceeded for IP ${clientIp} on prefix ${prefix}`);
                 return true; // Quota exceeded within active window
             }
             await dynamo.send(new PutCommand({
@@ -156,7 +162,7 @@ async function isRateLimited(clientIp) {
             Item: {
                 slug: keySlug,
                 count: 1,
-                ttl: nowSec + RATE_LIMIT_WINDOW_SECONDS
+                ttl: nowSec + windowSeconds
             }
         }));
         return false;
@@ -166,8 +172,17 @@ async function isRateLimited(clientIp) {
     }
 }
 
+async function isCreateRateLimited(clientIp) {
+    return isRateLimited(clientIp, CREATE_RATE_LIMIT_PREFIX, CREATE_RATE_LIMIT_MAX, CREATE_RATE_LIMIT_WINDOW_SECONDS);
+}
+
 function isInternalKey(slug) {
-    return !slug || slug.startsWith(RATE_LIMIT_PREFIX) || slug.startsWith(BF_PREFIX);
+    return (
+        !slug ||
+        slug.startsWith(RATE_LIMIT_PREFIX) ||
+        slug.startsWith(CREATE_RATE_LIMIT_PREFIX) ||
+        slug.startsWith(BF_PREFIX)
+    );
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -272,6 +287,19 @@ exports.handler = async (event) => {
 
     try {
         if (method === 'POST' && path.includes('/api/create')) {
+            const clientIp = getClientIp(event);
+
+            // ── Tier-1 Fast Path: Check in-memory quarantine (0 DB reads) ─────
+            if (isIpQuarantinedInMemory(clientIp)) {
+                return {
+                    statusCode: 403,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'הגישה נחסמה זמנית עקב ניסיונות סריקה מרובים. אנא נסו שוב מאוחר יותר.'
+                    })
+                };
+            }
+
             const body = JSON.parse(event.body || '{}');
             
             // Validate required fields
@@ -309,6 +337,19 @@ exports.handler = async (event) => {
                     body: JSON.stringify({ error: 'לא ניתן ליצור דף תשלום עבור אירוע שכבר עבר. אנא בחרו תאריך עתידי.' })
                 };
             }
+
+            // ── CREATE RATE LIMIT CHECK (after validation so typos don't burn quota) ──
+            if (await isCreateRateLimited(clientIp)) {
+                headers['Retry-After'] = String(CREATE_RATE_LIMIT_WINDOW_SECONDS);
+                return {
+                    statusCode: 429,
+                    headers,
+                    body: JSON.stringify({
+                        error: 'נרשמו יותר מדי ניסיונות יצירת דפים מכתובת זו. אנא נסו שוב מאוחר יותר.'
+                    })
+                };
+            }
+            // ──────────────────────────────────────────────────────────────────────────
 
             // Generate Slug
             function sanitizeToKebabCase(text) {
