@@ -335,3 +335,66 @@ resource "aws_cloudfront_function" "router" {
   publish = true
   code    = file("${path.module}/cloudfront_router.js")
 }
+
+# ----------------------------------------------------
+# Security Monitoring & SNS Alerts (Security Section 6)
+# ----------------------------------------------------
+resource "aws_sns_topic" "security_alerts" {
+  name = "${var.project_name}-security-alerts"
+}
+
+resource "aws_sns_topic_subscription" "security_email" {
+  count     = var.alert_email != "" ? 1 : 0
+  topic_arn = aws_sns_topic.security_alerts.arn
+  protocol  = "email"
+  endpoint  = var.alert_email
+}
+
+resource "aws_cloudwatch_log_metric_filter" "security_blocks" {
+  name           = "${var.project_name}-security-blocks"
+  pattern        = "?\"Quarantined IP\" ?\"Rate limit exceeded\""
+  log_group_name = "/aws/lambda/${aws_lambda_function.api_handler.function_name}"
+
+  metric_transformation {
+    name          = "SecurityBlockCount"
+    namespace     = "Gift4Event/Security"
+    value         = "1"
+    default_value = "0"
+  }
+
+  depends_on = [aws_lambda_function.api_handler]
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_scraping_alarm" {
+  alarm_name          = "${var.project_name}-api-scraping-detected"
+  alarm_description   = "Triggers when an IP is quarantined for 404 brute-forcing or exceeds API rate limits"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "SecurityBlockCount"
+  namespace           = "Gift4Event/Security"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions = [aws_sns_topic.security_alerts.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "dynamodb_scan_alarm" {
+  alarm_name          = "${var.project_name}-dynamodb-bulk-scan-detected"
+  alarm_description   = "Triggers if a bulk Scan operation returns items from Gift4Event-Configurations"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ReturnedItemCount"
+  namespace           = "AWS/DynamoDB"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    TableName = aws_dynamodb_table.config_table.name
+  }
+
+  alarm_actions = [aws_sns_topic.security_alerts.arn]
+}
