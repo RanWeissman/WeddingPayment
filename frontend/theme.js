@@ -3,6 +3,16 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
+                brand: {
+                    primary: '#6D35E8',
+                    deep: '#4F2EB8',
+                    lavender: '#F4EFFF',
+                    border: '#DED3FA',
+                    bg: '#FCFBFF',
+                    text: '#252336',
+                    muted: '#626075',
+                    success: '#138568'
+                },
                 wedding: {
                     gold: '#D4AF37',
                     light: '#FAF9F6',
