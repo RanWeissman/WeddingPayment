@@ -8,7 +8,7 @@ tailwind.config = {
                     deep: '#4F2EB8',
                     lavender: '#F4EFFF',
                     border: '#DED3FA',
-                    bg: '#FCFBFF',
+                    bg: '#FAF9FF',
                     text: '#252336',
                     muted: '#626075',
                     success: '#138568'

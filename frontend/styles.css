@@ -5,7 +5,7 @@
     --color-deep-purple: #4F2EB8;
     --color-light-lavender: #F4EFFF;
     --color-border-lavender: #DED3FA;
-    --color-bg: #FCFBFF;
+    --color-bg: #FAF9FF;
     --color-text: #252336;
     --color-muted-text: #626075;
     --color-success-green: #138568;
@@ -15,10 +15,13 @@
     --radius-lg: 16px;
 }
 
+html,
 body {
     font-family: 'Assistant', sans-serif;
     background-color: var(--color-bg);
+    background-image: radial-gradient(circle at 50% 0%, #F2ECFF 0%, #FAF9FF 62%);
     color: var(--color-text);
+    overflow-x: hidden;
 }
 
 /* Accessible keyboard focus styling */
