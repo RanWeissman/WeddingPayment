@@ -38,7 +38,7 @@ Main heading:
 
 Directly underneath, display only:
 
-**`דף מתנות אישי בחינם`**
+**`דף אישי לקבלת מתנות לחתונות ואירועים`**
 
 Two CTA buttons:
 
