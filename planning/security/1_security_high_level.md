@@ -43,3 +43,18 @@ This document outlines the core security solutions we will implement to harden t
 **What it is:** Requiring an explicit user consent checkbox (`Clickwrap`) before event creation, linked to a comprehensive Terms of Use & Privacy Policy modal (`frontend/terms-modal.js`).
 **Why it's needed:** Protects the site owner from liability for user typos in bank/Bit/PayBox details, clarifies that Gift4Event is a technical display tool (`AS-IS`) rather than a financial intermediary, and fulfills informed-consent requirements under Israeli Privacy Protection Law (Amendment 13).
 **Implementation Approach:** Create `frontend/terms-modal.js` with full legal terms, add the `#terms-consent` checkbox and `#terms-consent-error` alert banner above the submit button in `index.html`, and enforce custom validation in `frontend/app.js`.
+
+---
+
+## Architectural Trade-offs: What We Intentionally Excluded & Why
+
+To preserve the project's lightweight, zero-build Vanilla HTML/JS architecture, the following two controls are intentionally excluded:
+
+### 1. Strict `Content-Security-Policy (CSP)` (Blocking Inline Styles/Scripts)
+**Why it is excluded:**
+* **Architectural Compatibility:** The frontend uses the runtime Tailwind CSS Play CDN (`https://cdn.tailwindcss.com`), which dynamically generates and injects inline `<style>` blocks in the browser DOM, alongside declarative inline event attributes (`onclick="..."`) in the HTML templates. Enforcing a strict CSP that disallows `'unsafe-inline'` would break page styling and UI interactions unless a full Node/CSS build pipeline and JS bundler were introduced.
+* **Low Risk Profile (Stateless & Cookie-Free):** Strict CSP is primarily designed to mitigate session-hijacking and credential theft via Cross-Site Scripting (XSS) in applications that maintain authenticated user sessions or store sensitive tokens in cookies/localStorage. Because Gift4Event is completely **stateless**, sets **zero cookies**, has **no user login accounts**, and enforces **Write-Once immutability** on the backend, the practical security benefit of a strict CSP does not justify the added build complexity.
+
+### 2. Subresource Integrity (`SRI`) on the Tailwind CSS CDN Script
+**Why it is excluded:**
+* While all pinned third-party utility libraries (`qrcode.min.js`, `jsQR.min.js`, `jspdf.umd.min.js`, `html2canvas.min.js`) enforce strict `SHA-384` SRI verification, `https://cdn.tailwindcss.com` is a dynamically served JIT script whose payload changes when upstream updates occur. Applying a static `integrity` hash to a non-pinned dynamic CDN endpoint would cause browsers to block the stylesheet script whenever the CDN updates, breaking the site's layout.

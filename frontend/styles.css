@@ -1,7 +1,33 @@
 /* Shared Stylesheet for Gift4Event (index.html & payment.html) */
 
+:root {
+    --color-primary-purple: #6D35E8;
+    --color-deep-purple: #4F2EB8;
+    --color-light-lavender: #F4EFFF;
+    --color-border-lavender: #DED3FA;
+    --color-bg: #FCFBFF;
+    --color-text: #252336;
+    --color-muted-text: #626075;
+    --color-success-green: #138568;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
+
 body {
     font-family: 'Assistant', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+/* Accessible keyboard focus styling */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+label:focus-visible {
+    outline: 2px solid var(--color-primary-purple);
+    outline-offset: 2px;
 }
 
 /* Custom scrollbar for better UI */
@@ -22,13 +48,49 @@ body {
     background: #a1a1aa;
 }
 
-/* Frosted glass card style (Landing & Generator Page) */
+/* Clean card style with subtle lavender border (Landing & Generator Page) */
 .glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid var(--color-border-lavender);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px -4px rgba(109, 53, 232, 0.06);
+}
+
+/* Brand Buttons & Navigation Tokens */
+.btn-primary-purple {
+    background-color: var(--color-primary-purple);
+    color: #ffffff;
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary-purple:hover {
+    background-color: var(--color-deep-purple);
+}
+
+.btn-secondary-purple {
+    background-color: #ffffff;
+    color: var(--color-primary-purple);
+    border: 1.5px solid var(--color-border-lavender);
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-secondary-purple:hover {
+    background-color: var(--color-light-lavender);
+    border-color: var(--color-primary-purple);
+    color: var(--color-deep-purple);
+}
+
+.nav-link-purple {
+    color: var(--color-muted-text);
+    border-radius: var(--radius-sm);
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-link-purple:hover {
+    color: var(--color-primary-purple);
+    background-color: var(--color-light-lavender);
 }
 
 /* Ambient festive background (Guest Payment Page) */

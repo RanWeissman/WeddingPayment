@@ -51,6 +51,8 @@ function setupQRReader(uploadId, successId, errorId, setLinkCallback) {
 function toggleGeneratorForm() {
     const wrapper = document.getElementById('form-fields-wrapper');
     const chevron = document.getElementById('form-toggle-chevron');
+    const plusIcon = document.getElementById('form-toggle-plus');
+    const toggleBtn = document.getElementById('toggle-form-btn');
     if (!wrapper || !chevron) return;
 
     const isHidden = wrapper.classList.contains('hidden');
@@ -58,13 +60,53 @@ function toggleGeneratorForm() {
     if (isHidden) {
         wrapper.classList.remove('hidden');
         chevron.classList.add('rotate-180');
+        if (plusIcon) plusIcon.classList.add('rotate-45');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.setAttribute('aria-label', 'סגירת טופס יצירת דף מתנה');
+        }
         setTimeout(() => {
             document.getElementById('toggle-form-btn').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     } else {
         wrapper.classList.add('hidden');
         chevron.classList.remove('rotate-180');
+        if (plusIcon) plusIcon.classList.remove('rotate-45');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.setAttribute('aria-label', 'פתיחת טופס יצירת דף מתנה');
+        }
     }
+}
+
+// Open Generator Form (if closed) and smoothly scroll to it from Hero CTA
+function openAndScrollToForm() {
+    const wrapper = document.getElementById('form-fields-wrapper');
+    const chevron = document.getElementById('form-toggle-chevron');
+    const plusIcon = document.getElementById('form-toggle-plus');
+    const toggleBtn = document.getElementById('toggle-form-btn');
+    if (!wrapper) return;
+
+    if (wrapper.classList.contains('hidden')) {
+        wrapper.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+        if (plusIcon) plusIcon.classList.add('rotate-45');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.setAttribute('aria-label', 'סגירת טופס יצירת דף מתנה');
+        }
+    }
+
+    setTimeout(() => {
+        const target = toggleBtn || document.getElementById('generator-form');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        const firstInput = document.getElementById('coupleNames');
+        if (firstInput) {
+            setTimeout(() => firstInput.focus({ preventScroll: true }), 450);
+        }
+    }, 80);
 }
 
 function showCopiedFeedback(el) {
