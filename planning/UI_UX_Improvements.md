@@ -19,12 +19,13 @@ The goal is to create a cleaner, more compact, modern, and professional homepage
 
 ## 2. Header and Navigation
 
-Keep the horizontal navigation bar:
+Keep the horizontal navigation bar focused on the three informational links:
 
 - `למה Gift4Event?`
 - `איך זה עובד?`
-- `דף לדוגמה`
 - `מי אנחנו?`
+
+(The sample page action is presented once as the secondary Hero CTA button `צפייה בדוגמה` to avoid duplication.)
 
 Maintain the clean horizontal pill navigation bar with a thin light-purple border (`#DED3FA`) and subtle separators.
 Reduce vertical spacing between the logo, navigation, and main heading.
