@@ -34,7 +34,7 @@ Reduce vertical spacing between the logo, navigation, and main heading.
 
 Main heading:
 
-**`מתנות לחתונה, בלי עמלות.`**
+**`עמלות? לא בשמחות!`**
 
 Directly underneath, display only:
 
