@@ -1,6 +1,7 @@
-// Printable A4 Wedding Sign (PDF) Template & Generator for Gift4Event
+// Printable A4 Event Sign (PDF) Template & Generator for Gift4Event
 
-function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas) {
+function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas, prefixId) {
+    const resolvedPrefixId = prefixId || `${coupleId}-prefix`;
     const coupleTopStyle = compensateHtml2Canvas
         ? "font-family: 'Frank Ruhl Libre', serif; position: relative; top: -8px;"
         : "font-family: 'Frank Ruhl Libre', serif;";
@@ -22,8 +23,8 @@ function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas) {
         <div class="absolute inset-6 border-2 border-[#D8C5A8]/65 rounded-[28px] pointer-events-none z-10"></div>
         <div class="absolute inset-[30px] border border-[#D8C5A8]/35 rounded-[23px] pointer-events-none z-10"></div>
 
-        <!-- Top Section: Rings & Couple Names -->
-        <div class="relative z-20 flex flex-col items-center text-center mt-6 w-full">
+        <!-- Top Section: Rings & Event Title / Names -->
+        <div class="relative z-20 flex flex-col items-center text-center mt-6 w-full max-w-[460px] px-3">
             <!-- Intertwined Gold Wedding Rings + Heart -->
             <div class="mb-2.5 flex flex-col items-center">
                 <svg class="w-5 h-5 text-[#C69C6D] mb-1" fill="currentColor" viewBox="0 0 24 24">
@@ -47,10 +48,10 @@ function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas) {
                 </svg>
             </div>
 
-            <p class="text-xl font-bold text-[#7A7267] tracking-wide mb-0">
+            <p id="${resolvedPrefixId}" class="text-xl font-bold text-[#7A7267] tracking-wide mb-0.5 max-w-[440px] break-words">
                 החתונה של
             </p>
-            <h1 id="${coupleId}" class="text-[3.75rem] font-bold text-[#1F192E] leading-none mb-7" style="${coupleTopStyle}"></h1>
+            <h1 id="${coupleId}" class="text-[3.75rem] font-bold text-[#1F192E] leading-none mb-7 max-w-[450px] break-words" style="${coupleTopStyle}"></h1>
 
             <!-- Gold Divider with Heart -->
             <div class="flex items-center justify-center gap-4 w-64 mt-1.5">
@@ -99,13 +100,53 @@ const PDF_SIGN_TEMPLATE_HTML = `
     <!-- Hidden PDF Template Wrapper (0x0 overflow-hidden so 595px A4 canvas never causes mobile horizontal scroll) -->
     <div style="position: fixed; top: 0; left: 0; width: 0; height: 0; overflow: hidden; pointer-events: none; z-index: -9999;" aria-hidden="true">
         <div id="pdf-template" class="w-[595px] h-[842px] bg-[#FFFEFB] flex flex-col items-center justify-between px-12 py-11 overflow-hidden relative" dir="rtl" style="font-family: 'Assistant', sans-serif;">
-            ${buildSignInnerHtml('pdf-couple-names', 'pdf-qrcode', 'pdfGoldGrad', true)}
+            ${buildSignInnerHtml('pdf-couple-names', 'pdf-qrcode', 'pdfGoldGrad', true, 'pdf-event-prefix')}
         </div>
     </div>
 `;
 
+/**
+ * Automatically adjusts the font size and spacing of the PDF sign heading
+ * when names are long so text never overflows the gold frame or overlaps.
+ */
+function applyAdaptiveSignTypography(headingEl, namesText) {
+    if (!headingEl) return;
+    const len = String(namesText || '').trim().length;
+
+    if (len <= 14) {
+        headingEl.style.fontSize = '3.75rem';
+        headingEl.style.lineHeight = '1.05';
+        headingEl.style.marginBottom = '1.75rem';
+    } else if (len <= 20) {
+        headingEl.style.fontSize = '3rem';
+        headingEl.style.lineHeight = '1.1';
+        headingEl.style.marginBottom = '1.25rem';
+    } else if (len <= 28) {
+        headingEl.style.fontSize = '2.35rem';
+        headingEl.style.lineHeight = '1.15';
+        headingEl.style.marginBottom = '1rem';
+    } else {
+        headingEl.style.fontSize = '1.85rem';
+        headingEl.style.lineHeight = '1.2';
+        headingEl.style.marginBottom = '0.75rem';
+    }
+}
+
 // Populate both the hidden PDF sign template and the live miniature preview in Card 3
-function updatePdfSignData(shareableUrl, coupleNames) {
+function updatePdfSignData(shareableUrl, coupleNames, eventConfig = {}) {
+    const titleData = (typeof buildEventTitle === 'function')
+        ? buildEventTitle({
+            eventType: eventConfig.eventType || 'wedding',
+            eventSubType: eventConfig.eventSubType || '',
+            customEventName: eventConfig.customEventName || '',
+            coupleNames: coupleNames,
+            useSampleFallback: false
+        })
+        : {
+            prefix: 'החתונה של',
+            names: coupleNames || ''
+        };
+
     const pdfQrContainer = document.getElementById('pdf-qrcode');
     if (pdfQrContainer) {
         pdfQrContainer.innerHTML = '';
@@ -119,9 +160,15 @@ function updatePdfSignData(shareableUrl, coupleNames) {
         });
     }
 
+    const pdfEventPrefix = document.getElementById('pdf-event-prefix');
+    if (pdfEventPrefix) {
+        pdfEventPrefix.innerText = titleData.prefix;
+    }
+
     const pdfCoupleNames = document.getElementById('pdf-couple-names');
     if (pdfCoupleNames) {
-        pdfCoupleNames.innerText = coupleNames;
+        pdfCoupleNames.innerText = titleData.names;
+        applyAdaptiveSignTypography(pdfCoupleNames, titleData.names);
     }
 
     // Also update the live miniature preview in Card 3
@@ -138,9 +185,15 @@ function updatePdfSignData(shareableUrl, coupleNames) {
         });
     }
 
+    const previewEventPrefix = document.getElementById('pdf-preview-event-prefix');
+    if (previewEventPrefix) {
+        previewEventPrefix.innerText = titleData.prefix;
+    }
+
     const previewCoupleNames = document.getElementById('pdf-preview-couple-names');
     if (previewCoupleNames) {
-        previewCoupleNames.innerText = coupleNames;
+        previewCoupleNames.innerText = titleData.names;
+        applyAdaptiveSignTypography(previewCoupleNames, titleData.names);
     }
 }
 
@@ -155,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         miniPreviewHost.setAttribute('dir', 'rtl');
         miniPreviewHost.style.fontFamily = "'Assistant', sans-serif";
         miniPreviewHost.style.transform = 'scale(0.24)';
-        miniPreviewHost.innerHTML = buildSignInnerHtml('pdf-preview-couple-names', 'pdf-preview-qrcode', 'pdfMiniGrad', false);
+        miniPreviewHost.innerHTML = buildSignInnerHtml('pdf-preview-couple-names', 'pdf-preview-qrcode', 'pdfMiniGrad', false, 'pdf-preview-event-prefix');
     }
 
     const downloadPdfBtn = document.getElementById('download-pdf-btn');

@@ -35,8 +35,8 @@
         rel="stylesheet">
 
     <!-- Shared Theme & Styles -->
-    <script src="frontend/theme.js?v=11"></script>
-    <link rel="stylesheet" href="frontend/styles.css?v=12">
+    <script src="frontend/theme.js?v=13"></script>
+    <link rel="stylesheet" href="frontend/styles.css?v=13">
 </head>
 
 <body class="bg-brand-bg text-brand-text min-h-screen w-full max-w-full overflow-x-hidden px-4 py-6 md:px-8 md:py-10 flex flex-col items-center relative">
@@ -412,17 +412,95 @@
                 </h2>
 
                 <div class="space-y-5 sm:space-y-6">
-                    <!-- 1. Couple Names -->
+                    <!-- 1. Event Type Selection + Sub-options -->
+                    <div>
+                        <label class="block text-sm sm:text-[15px] font-semibold text-brand-text mb-2 text-right" for="eventType">
+                            סוג האירוע <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="eventType" dir="rtl"
+                                class="w-full h-[52px] sm:h-[58px] pr-4 pl-10 bg-white border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all text-brand-text text-right appearance-none cursor-pointer">
+                                <option value="wedding" selected>חתונה</option>
+                                <option value="brit_brita">ברית / בריתה</option>
+                                <option value="bar_bat_mitzvah">בר / בת מצווה</option>
+                                <option value="birthday">יום הולדת</option>
+                                <option value="henna">חינה</option>
+                                <option value="other">אחר</option>
+                            </select>
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </span>
+                        </div>
+
+                        <!-- Sub-selection: ברית / בריתה -->
+                        <div id="brit-subtype-wrapper" class="hidden mt-3" role="radiogroup" aria-label="בחירת ברית מילה או בריתה">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="britSubType" value="brit_milah" checked class="sr-only peer">
+                                    <span class="flex items-center justify-center h-[46px] sm:h-[50px] px-4 rounded-xl border border-brand-border bg-white text-brand-text font-semibold text-sm sm:text-[15px] transition-all peer-checked:bg-[#F3ECFF] peer-checked:border-brand-primary peer-checked:text-brand-deep peer-checked:font-bold peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary">
+                                        ברית מילה
+                                    </span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="britSubType" value="brita" class="sr-only peer">
+                                    <span class="flex items-center justify-center h-[46px] sm:h-[50px] px-4 rounded-xl border border-brand-border bg-white text-brand-text font-semibold text-sm sm:text-[15px] transition-all peer-checked:bg-[#F3ECFF] peer-checked:border-brand-primary peer-checked:text-brand-deep peer-checked:font-bold peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary">
+                                        בריתה
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Sub-selection: בר / בת מצווה -->
+                        <div id="mitzvah-subtype-wrapper" class="hidden mt-3" role="radiogroup" aria-label="בחירת בר מצווה או בת מצווה">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="mitzvahSubType" value="bar_mitzvah" checked class="sr-only peer">
+                                    <span class="flex items-center justify-center h-[46px] sm:h-[50px] px-4 rounded-xl border border-brand-border bg-white text-brand-text font-semibold text-sm sm:text-[15px] transition-all peer-checked:bg-[#F3ECFF] peer-checked:border-brand-primary peer-checked:text-brand-deep peer-checked:font-bold peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary">
+                                        בר מצווה
+                                    </span>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="mitzvahSubType" value="bat_mitzvah" class="sr-only peer">
+                                    <span class="flex items-center justify-center h-[46px] sm:h-[50px] px-4 rounded-xl border border-brand-border bg-white text-brand-text font-semibold text-sm sm:text-[15px] transition-all peer-checked:bg-[#F3ECFF] peer-checked:border-brand-primary peer-checked:text-brand-deep peer-checked:font-bold peer-focus-visible:ring-2 peer-focus-visible:ring-brand-primary">
+                                        בת מצווה
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Sub-field: אחר -> שם האירוע -->
+                        <div id="custom-event-name-wrapper" class="hidden mt-3">
+                            <label class="block text-sm sm:text-[15px] font-semibold text-brand-text mb-2 text-right" for="customEventName">
+                                שם האירוע <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="customEventName" dir="rtl" maxlength="15"
+                                class="w-full h-[52px] sm:h-[58px] px-4 bg-white border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all placeholder-gray-400 text-brand-text text-right"
+                                placeholder="לדוגמה: חנוכת בית (עד 15 תווים)">
+                            <div id="customEventName-error" class="hidden mt-2 flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-medium">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span>יש להזין שם אירוע תקין (עד 15 תווים, ללא רווחים בלבד).</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Event Owners / Couple Names -->
                     <div>
                         <label class="block text-sm sm:text-[15px] font-semibold text-brand-text mb-2 text-right" for="coupleNames">
                             שם בעלי האירוע <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="coupleNames" required dir="rtl"
                             class="w-full h-[52px] sm:h-[58px] px-4 bg-white border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all placeholder-gray-400 text-brand-text text-right"
-                            placeholder="לדוגמה: פז וליאור">
-                        <p class="text-[13px] sm:text-[13.5px] text-brand-muted mt-1.5 font-medium leading-relaxed text-right">
-                            השמות שלכם בלבד – בכותרת דף המתנה יופיע: "החתונה של פז וליאור".
-                        </p>
+                            placeholder="לדוגמה: רוני ורן">
+                        <!-- Dynamic Subtle Title Preview -->
+                        <div id="event-title-preview-box" dir="rtl"
+                            class="mt-2.5 bg-[#F6F2FF] border border-[#E4DAFA] rounded-xl px-3.5 py-2.5 text-right transition-all">
+                            <span class="block text-xs font-medium text-[#626075] mb-0.5">כך תופיע הכותרת בדף המתנות:</span>
+                            <p id="event-title-preview-text" class="text-sm sm:text-[15px] font-bold text-[#4F2EB8] break-words">
+                                החתונה של רוני ורן
+                            </p>
+                        </div>
                     </div>
 
                     <!-- 2. Custom Slug in English -->
@@ -952,11 +1030,11 @@
     <div id="modals-root"></div>
 
     <!-- Frontend Scripts -->
-    <script src="frontend/info-modals.js?v=13"></script>
-    <script src="frontend/guide-modals.js?v=14"></script>
+    <script src="frontend/info-modals.js?v=14"></script>
+    <script src="frontend/guide-modals.js?v=15"></script>
     <script src="frontend/terms-modal.js?v=13"></script>
-    <script src="frontend/pdf-sign.js?v=12"></script>
-    <script src="frontend/app.js?v=10"></script>
+    <script src="frontend/pdf-sign.js?v=13"></script>
+    <script src="frontend/app.js?v=11"></script>
 </body>
 
 </html>
