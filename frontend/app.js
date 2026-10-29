@@ -155,12 +155,124 @@ function showCopiedFeedback(el) {
     }, 3000);
 }
 
+function getSelectedEventFormState() {
+    const eventTypeEl = document.getElementById('eventType');
+    const eventType = eventTypeEl ? eventTypeEl.value : 'wedding';
+
+    let eventSubType = '';
+    if (eventType === 'brit_brita') {
+        const checkedBrit = document.querySelector('input[name="britSubType"]:checked');
+        eventSubType = checkedBrit ? checkedBrit.value : 'brit_milah';
+    } else if (eventType === 'bar_bat_mitzvah') {
+        const checkedMitzvah = document.querySelector('input[name="mitzvahSubType"]:checked');
+        eventSubType = checkedMitzvah ? checkedMitzvah.value : 'bar_mitzvah';
+    }
+
+    const customEventNameEl = document.getElementById('customEventName');
+    const rawCustomEventName = (eventType === 'other' && customEventNameEl) ? customEventNameEl.value : '';
+    const customEventName = rawCustomEventName.trim().slice(0, 15);
+
+    const coupleNamesEl = document.getElementById('coupleNames');
+    const coupleNames = coupleNamesEl ? coupleNamesEl.value.trim() : '';
+
+    return {
+        eventType,
+        eventSubType,
+        customEventName,
+        rawCustomEventName,
+        coupleNames
+    };
+}
+
+function updateDynamicTitlePreview() {
+    if (typeof buildEventTitle !== 'function') return;
+    const state = getSelectedEventFormState();
+    const titleData = buildEventTitle({
+        eventType: state.eventType,
+        eventSubType: state.eventSubType,
+        customEventName: state.customEventName,
+        coupleNames: state.coupleNames,
+        useSampleFallback: true
+    });
+
+    const previewTextEl = document.getElementById('event-title-preview-text');
+    if (previewTextEl) {
+        previewTextEl.textContent = titleData.fullTitle;
+    }
+
+    const coupleNamesEl = document.getElementById('coupleNames');
+    if (coupleNamesEl && titleData.inputPlaceholder) {
+        coupleNamesEl.placeholder = titleData.inputPlaceholder;
+    }
+}
+
+function updateEventTypeSubfieldsUI() {
+    const eventTypeEl = document.getElementById('eventType');
+    const eventType = eventTypeEl ? eventTypeEl.value : 'wedding';
+
+    const britWrapper = document.getElementById('brit-subtype-wrapper');
+    const mitzvahWrapper = document.getElementById('mitzvah-subtype-wrapper');
+    const customNameWrapper = document.getElementById('custom-event-name-wrapper');
+    const customNameInput = document.getElementById('customEventName');
+    const customNameError = document.getElementById('customEventName-error');
+
+    if (britWrapper) {
+        britWrapper.classList.toggle('hidden', eventType !== 'brit_brita');
+    }
+    if (mitzvahWrapper) {
+        mitzvahWrapper.classList.toggle('hidden', eventType !== 'bar_bat_mitzvah');
+    }
+    if (customNameWrapper) {
+        const isOther = eventType === 'other';
+        customNameWrapper.classList.toggle('hidden', !isOther);
+        if (customNameInput) {
+            customNameInput.required = isOther;
+        }
+        if (!isOther && customNameError) {
+            customNameError.classList.add('hidden');
+        }
+    }
+
+    updateDynamicTitlePreview();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (!window.location.hash) {
         window.scrollTo(0, 0);
     }
     setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => extractedBitLink1 = val);
     setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => extractedBitLink2 = val);
+
+    // Event Type & Live Title Preview Listeners
+    const eventTypeEl = document.getElementById('eventType');
+    if (eventTypeEl) {
+        eventTypeEl.addEventListener('change', updateEventTypeSubfieldsUI);
+    }
+
+    document.querySelectorAll('input[name="britSubType"], input[name="mitzvahSubType"]').forEach((radio) => {
+        radio.addEventListener('change', updateDynamicTitlePreview);
+    });
+
+    const customEventNameEl = document.getElementById('customEventName');
+    const customEventNameErrorEl = document.getElementById('customEventName-error');
+    if (customEventNameEl) {
+        customEventNameEl.addEventListener('input', () => {
+            if (customEventNameEl.value.length > 15) {
+                customEventNameEl.value = customEventNameEl.value.slice(0, 15);
+            }
+            if (customEventNameEl.value.trim().length > 0 && customEventNameErrorEl) {
+                customEventNameErrorEl.classList.add('hidden');
+            }
+            updateDynamicTitlePreview();
+        });
+    }
+
+    const coupleNamesInputEl = document.getElementById('coupleNames');
+    if (coupleNamesInputEl) {
+        coupleNamesInputEl.addEventListener('input', updateDynamicTitlePreview);
+    }
+
+    updateEventTypeSubfieldsUI();
 
     const termsCheckbox = document.getElementById('terms-consent');
     const termsError = document.getElementById('terms-consent-error');
@@ -195,7 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             submitBtn.disabled = true;
 
-            const coupleNames = document.getElementById('coupleNames').value;
+            const eventState = getSelectedEventFormState();
+            const eventType = eventState.eventType;
+            const eventSubType = eventState.eventSubType;
+            const customEventName = eventState.customEventName;
+            const coupleNames = document.getElementById('coupleNames').value.trim();
             const customSlug = document.getElementById('customSlug').value.trim();
             const wazeLink = document.getElementById('wazeLink') ? document.getElementById('wazeLink').value.trim() : '';
             const name = document.getElementById('name').value;
@@ -203,6 +319,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const branch = document.getElementById('branch').value;
             const account = document.getElementById('account').value;
             const eventDate = document.getElementById('eventDate').value;
+
+            // Client-side validation for "other" customEventName (required, non-whitespace, <= 15 chars)
+            if (eventType === 'other') {
+                if (!customEventName || customEventName.length === 0 || customEventName.length > 15) {
+                    if (customEventNameErrorEl) customEventNameErrorEl.classList.remove('hidden');
+                    if (customEventNameEl) {
+                        customEventNameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        customEventNameEl.focus();
+                    }
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
+                    return;
+                } else if (customEventNameErrorEl) {
+                    customEventNameErrorEl.classList.add('hidden');
+                }
+            }
+
+            // Ensure coupleNames is not whitespace-only
+            if (!coupleNames) {
+                const coupleEl = document.getElementById('coupleNames');
+                if (coupleEl) {
+                    coupleEl.value = '';
+                    coupleEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    coupleEl.focus();
+                }
+                submitBtn.innerHTML = originalBtnContent;
+                submitBtn.disabled = false;
+                return;
+            }
 
             // Client-side past-date validation
             const eventDateError = document.getElementById('eventDate-error');
@@ -235,6 +380,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const payload = {
+                eventType: eventType,
+                eventSubType: eventSubType,
+                customEventName: customEventName,
                 coupleNames: coupleNames,
                 customSlug: customSlug,
                 wazeLink: wazeLink,
@@ -271,6 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Local static-server fallback (when running `python -m http.server` instead of `python local_server.py`)
                     const fallbackSlug = customSlug || ('event-' + Date.now().toString(36));
                     const params = new URLSearchParams();
+                    if (eventType) params.set('eventType', eventType);
+                    if (eventSubType) params.set('eventSubType', eventSubType);
+                    if (customEventName) params.set('customEventName', customEventName);
                     if (coupleNames) params.set('coupleNames', coupleNames);
                     if (name) params.set('name', name);
                     if (bank) params.set('bank', bank);
@@ -331,7 +482,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Populate printable PDF sign template & live miniature preview (defined in frontend/pdf-sign.js)
                 if (typeof updatePdfSignData === 'function') {
-                    updatePdfSignData(finalShareableUrl, coupleNames);
+                    updatePdfSignData(finalShareableUrl, coupleNames, {
+                        eventType: eventType,
+                        eventSubType: eventSubType,
+                        customEventName: customEventName
+                    });
                 }
 
                 setTimeout(() => {

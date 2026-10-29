@@ -87,8 +87,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             // ──────────────────────────────────────────────────────────────
 
-            // Map to expected config structure
+            // Map to expected config structure (default eventType to 'wedding' for backward compatibility)
             config = {
+                eventType: data.eventType || 'wedding',
+                eventSubType: data.eventSubType || '',
+                customEventName: data.customEventName || '',
                 coupleNames: data.coupleNames || '',
                 name: data.bankDetails?.beneficiaryName || '',
                 bank: data.bankDetails?.bankName || '',
@@ -115,6 +118,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Fallback to query parameters for backward compatibility
         const urlParams = new URLSearchParams(window.location.search);
         config = {
+            eventType: urlParams.get('eventType') || 'wedding',
+            eventSubType: urlParams.get('eventSubType') || '',
+            customEventName: urlParams.get('customEventName') || '',
             coupleNames: urlParams.get('coupleNames') || '',
             name: urlParams.get('name') || '',
             bank: urlParams.get('bank') || '',
@@ -132,9 +138,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
+    const paramCoupleNames = config.coupleNames || '';
+    const titleInfo = (typeof buildEventTitle === 'function')
+        ? buildEventTitle({
+            eventType: config.eventType,
+            eventSubType: config.eventSubType,
+            customEventName: config.customEventName,
+            coupleNames: paramCoupleNames,
+            useSampleFallback: !paramCoupleNames
+        })
+        : {
+            prefix: 'החתונה של',
+            names: paramCoupleNames || 'רוני ורן',
+            fullTitle: paramCoupleNames ? `החתונה של ${paramCoupleNames}` : 'החתונה של רוני ורן'
+        };
+
     const rawNameParam = config.name;
-    const pageTitle = (rawNameParam && rawNameParam.trim() !== '')
-        ? `השתתפות בשמחה | ${rawNameParam}`
+    const pageTitleSuffix = paramCoupleNames ? titleInfo.fullTitle : (rawNameParam && rawNameParam.trim() !== '' ? rawNameParam : '');
+    const pageTitle = pageTitleSuffix
+        ? `השתתפות בשמחה | ${pageTitleSuffix}`
         : 'השתתפות בשמחה';
 
     document.title = pageTitle;
@@ -145,7 +167,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const twitterTitle = document.querySelector('meta[name="twitter:title"]');
     if (twitterTitle) twitterTitle.setAttribute('content', pageTitle);
 
-    const paramCoupleNames = config.coupleNames || '';
     const paramName = config.name || 'לא צוין שם';
     const paramBank = config.bank || 'לא צוין בנק';
     const paramBranch = config.branch || '-';
@@ -174,11 +195,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).catch(e => console.error("Telemetry failed silently", e));
     }
 
-    if (paramCoupleNames) {
-        document.getElementById('couple-names').textContent = paramCoupleNames;
-        document.getElementById('footer-couple-names').textContent = paramCoupleNames;
-    } else {
-        document.getElementById('couple-names').textContent = `השנה`;
+    const prefixEl = document.getElementById('event-title-prefix');
+    if (prefixEl) {
+        prefixEl.textContent = titleInfo.prefix;
+    }
+
+    const coupleNamesEl = document.getElementById('couple-names');
+    if (coupleNamesEl) {
+        coupleNamesEl.textContent = titleInfo.names;
+    }
+
+    const footerNamesEl = document.getElementById('footer-couple-names');
+    if (footerNamesEl && paramCoupleNames) {
+        footerNamesEl.textContent = paramCoupleNames;
     }
 
     document.getElementById('display-name').textContent = paramName;

@@ -302,14 +302,71 @@ exports.handler = async (event) => {
 
             const body = JSON.parse(event.body || '{}');
             
-            // Validate required fields
-            if (!body.coupleNames) {
+            // ── Validate Event Type, SubType & Custom Event Name ──────────────
+            const allowedEventTypes = new Set(['wedding', 'brit_brita', 'bar_bat_mitzvah', 'birthday', 'henna', 'other']);
+            const rawEventType = String(body.eventType || 'wedding').trim().toLowerCase();
+            const eventType = rawEventType || 'wedding';
+
+            if (!allowedEventTypes.has(eventType)) {
                 return {
                     statusCode: 400,
                     headers,
-                    body: JSON.stringify({ error: 'coupleNames is required' })
+                    body: JSON.stringify({ error: 'סוג האירוע שנבחר אינו תקין.' })
                 };
             }
+
+            const rawSubType = String(body.eventSubType || '').trim().toLowerCase();
+            let eventSubType = '';
+            if (eventType === 'brit_brita') {
+                if (rawSubType !== 'brit_milah' && rawSubType !== 'brita') {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'יש לבחור תת-סוג אירוע (ברית מילה או בריתה).' })
+                    };
+                }
+                eventSubType = rawSubType;
+            } else if (eventType === 'bar_bat_mitzvah') {
+                if (rawSubType !== 'bar_mitzvah' && rawSubType !== 'bat_mitzvah') {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'יש לבחור תת-סוג אירוע (בר מצווה או בת מצווה).' })
+                    };
+                }
+                eventSubType = rawSubType;
+            }
+
+            const rawCustomEventName = String(body.customEventName || '').trim();
+            let customEventName = '';
+            if (eventType === 'other') {
+                if (!rawCustomEventName) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'שם האירוע הוא שדה חובה כאשר בוחרים "אחר".' })
+                    };
+                }
+                if (rawCustomEventName.length > 15) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'שם האירוע מוגבל ל-15 תווים לכל היותר.' })
+                    };
+                }
+                customEventName = rawCustomEventName;
+            }
+
+            const coupleNames = String(body.coupleNames || '').trim();
+            // Validate required fields
+            if (!coupleNames) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'שם בעלי האירוע הוא שדה חובה.' })
+                };
+            }
+            // ───────────────────────────────────────────────────────────────────
 
             // Validate eventDate — required and must not be in the past
             const eventDateStr = (body.eventDate || '').trim();
@@ -382,7 +439,10 @@ exports.handler = async (event) => {
             // Prepare item
             const item = {
                 slug: slug,
-                coupleNames: body.coupleNames,
+                eventType: eventType,
+                eventSubType: eventSubType,
+                customEventName: customEventName,
+                coupleNames: coupleNames,
                 eventDate: eventDateStr,
                 wazeLink: body.wazeLink || '',
                 bankDetails: bankDetails,
@@ -473,6 +533,9 @@ exports.handler = async (event) => {
             if (isEventExpired(item.eventDate)) {
                 const expiredPayload = {
                     slug: item.slug,
+                    eventType: item.eventType || 'wedding',
+                    eventSubType: item.eventSubType || '',
+                    customEventName: item.customEventName || '',
                     coupleNames: item.coupleNames || '',
                     eventDate: item.eventDate || '',
                     isExpired: true,
@@ -493,6 +556,9 @@ exports.handler = async (event) => {
 
             const returnData = {
                 ...item,
+                eventType: item.eventType || 'wedding',
+                eventSubType: item.eventSubType || '',
+                customEventName: item.customEventName || '',
                 isExpired: false,
                 analyticsUrl: process.env.ANALYTICS_URL || null
             };

@@ -36,7 +36,7 @@ const INFO_MODALS_HTML = `
                         <div>
                             <h4 class="text-lg font-bold text-brand-text mb-1">0% עמלות מצד Gift4Event</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                השימוש באתר חינמי לזוגות ולאורחים. המתנה עוברת ישירות בנתיב התשלום שהאורחים בוחרים, בלי תיווך מצד האתר.
+                                השימוש באתר חינמי לבעלי האירוע ולאורחים. המתנה עוברת ישירות בנתיב התשלום שהאורחים בוחרים, בלי תיווך מצד האתר.
                             </p>
                         </div>
                     </div>
@@ -51,7 +51,7 @@ const INFO_MODALS_HTML = `
                         <div>
                             <h4 class="text-lg font-bold text-brand-text mb-1">העברה בנקאית, Bit ו־PayBox במקום אחד</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                הדף מציג לאורחים העברה בנקאית ישירה עם העתקת פרטים בלחיצה אחת, ובמקביל מאפשר להזין עד שני חשבונות Bit ו־PayBox לחלוקת העברות אוטומטית בין בני הזוג.
+                                הדף מציג לאורחים העברה בנקאית ישירה עם העתקת פרטים בלחיצה אחת, ובמקביל מאפשר להזין עד שני חשבונות Bit ו־PayBox לחלוקת העברות אוטומטית בין בעלי האירוע.
                             </p>
                         </div>
                     </div>
