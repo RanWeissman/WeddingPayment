@@ -1,4 +1,4 @@
-// Step-by-Step Link Extraction Guide Modals for Gift4Event (Bit QR, PayBox Group Link, Waze Location Link)
+// Step-by-Step Link Extraction Guide Modals for Gift4Event (Bit QR, PayBox Group Link, Waze Location Link, Why 2 Codes)
 
 const GUIDE_MODALS_HTML = `
     <!-- Bit Guide Modal -->
@@ -179,6 +179,138 @@ const GUIDE_MODALS_HTML = `
             </div>
         </div>
     </div>
+
+    <!-- Bit Why Two Codes Modal -->
+    <div id="bit-why-two-modal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeBitWhyTwoModal()"></div>
+
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300"
+            id="bit-why-two-content" dir="rtl">
+            <div class="flex items-center justify-between p-5 sm:p-6 border-b border-gray-100 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-indigo-950">למה כדאי להוסיף שני קודי Bit?</h3>
+                </div>
+                <button type="button" onclick="closeBitWhyTwoModal()" aria-label="סגירה"
+                    class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 sm:p-6 overflow-y-auto text-gray-700 space-y-4 text-sm sm:text-base leading-relaxed">
+                <p>
+                    ב-Bit ניתן לקבל עד <strong class="text-gray-900 font-extrabold">25,000 ₪ בשנה ללא עמלה</strong>. מעבר לסכום זה נגבית עמלה של <strong class="text-rose-600 font-bold">0.8%</strong> על הסכום החורג.
+                </p>
+                <p>
+                    הוספת קודים של שני בני הזוג מאפשרת לחלק את המתנות בין שני חשבונות, וכך להימנע מעמלות כל עוד כל אחד לא עבר את התקרה האישית שלו.
+                </p>
+
+                <!-- Short Example Box -->
+                <div class="bg-rose-50/60 border border-rose-200/80 rounded-xl p-4 space-y-2.5">
+                    <p class="font-extrabold text-gray-900 text-sm sm:text-base">
+                        <span class="text-rose-700">40,000 ₪ במתנות:</span>
+                    </p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center justify-between bg-white/80 rounded-lg px-3 py-2 border border-rose-100">
+                            <span class="font-medium text-gray-700">חשבון אחד:</span>
+                            <span class="font-extrabold text-rose-600">120 ₪ עמלה</span>
+                        </li>
+                        <li class="flex items-center justify-between bg-emerald-50/90 rounded-lg px-3 py-2 border border-emerald-200">
+                            <span class="font-semibold text-gray-800">שני חשבונות (20,000 ₪ לכל אחד):</span>
+                            <span class="font-extrabold text-emerald-700">0 ₪ עמלה</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <p class="text-xs text-gray-500 italic">
+                    *בהנחה שלשני החשבונות נותרה תקרה פנויה.
+                </p>
+            </div>
+
+            <div class="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl shrink-0">
+                <button type="button" onclick="closeBitWhyTwoModal()"
+                    class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-sm cursor-pointer">
+                    הבנתי
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PayBox Why Two Codes Modal -->
+    <div id="paybox-why-two-modal"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closePayboxWhyTwoModal()"></div>
+
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300"
+            id="paybox-why-two-content" dir="rtl">
+            <div class="flex items-center justify-between p-5 sm:p-6 border-b border-gray-100 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-indigo-950">למה כדאי להוסיף שני קודי PayBox?</h3>
+                </div>
+                <button type="button" onclick="closePayboxWhyTwoModal()" aria-label="סגירה"
+                    class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 sm:p-6 overflow-y-auto text-gray-700 space-y-4 text-sm sm:text-base leading-relaxed">
+                <p>
+                    ב-PayBox Basic ניתן לקבל עד <strong class="text-gray-900 font-extrabold">50,000 ₪ בשנה ללא עמלת קבלה</strong>.
+                </p>
+                <p>
+                    הוספת קודים של שני בני הזוג מאפשרת לחלק את המתנות בין שני חשבונות ולהגדיל את הסכום הכולל שניתן לקבל במסגרת התקרות האישיות.
+                </p>
+
+                <!-- Short Example Box -->
+                <div class="bg-cyan-50/60 border border-cyan-200/80 rounded-xl p-4 space-y-2.5">
+                    <p class="font-extrabold text-gray-900 text-sm sm:text-base">
+                        <span class="text-cyan-800">80,000 ₪ במתנות:</span>
+                    </p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center justify-between bg-white/80 rounded-lg px-3 py-2 border border-cyan-100">
+                            <span class="font-medium text-gray-700">חשבון אחד:</span>
+                            <span class="font-extrabold text-rose-600">חורג מתקרת Basic</span>
+                        </li>
+                        <li class="flex items-center justify-between bg-emerald-50/90 rounded-lg px-3 py-2 border border-emerald-200">
+                            <span class="font-semibold text-gray-800">שני חשבונות (40,000 ₪ לכל אחד):</span>
+                            <span class="font-extrabold text-emerald-700">במסגרת התקרה של שניהם</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <p class="text-xs text-gray-500 italic">
+                    *בהנחה שלשני החשבונות נותרה תקרה פנויה ובהתאם לתנאי השירות.
+                </p>
+            </div>
+
+            <div class="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl shrink-0">
+                <button type="button" onclick="closePayboxWhyTwoModal()"
+                    class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-sm cursor-pointer">
+                    הבנתי
+                </button>
+            </div>
+        </div>
+    </div>
 `;
 
 // Inject guide modals into #modals-root on DOMContentLoaded
@@ -193,8 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function openBitGuideModal() { openModalById('bit-guide-modal', 'bit-guide-content'); }
 function closeBitGuideModal() { closeModalById('bit-guide-modal', 'bit-guide-content'); }
 
+function openBitWhyTwoModal() { openModalById('bit-why-two-modal', 'bit-why-two-content'); }
+function closeBitWhyTwoModal() { closeModalById('bit-why-two-modal', 'bit-why-two-content'); }
+
 function openPayboxGuideModal() { openModalById('paybox-guide-modal', 'paybox-guide-content'); }
 function closePayboxGuideModal() { closeModalById('paybox-guide-modal', 'paybox-guide-content'); }
+
+function openPayboxWhyTwoModal() { openModalById('paybox-why-two-modal', 'paybox-why-two-content'); }
+function closePayboxWhyTwoModal() { closeModalById('paybox-why-two-modal', 'paybox-why-two-content'); }
 
 function openWazeGuideModal() { openModalById('waze-guide-modal', 'waze-guide-content'); }
 function closeWazeGuideModal() { closeModalById('waze-guide-modal', 'waze-guide-content'); }

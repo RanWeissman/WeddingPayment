@@ -6,8 +6,15 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <title>השתתפות בשמחה</title>
+    <meta name="description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות.">
     <meta property="og:title" content="השתתפות בשמחה">
+    <meta property="og:description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות 💜">
+    <meta property="og:image" content="https://gift4event.com/assets/logo.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="השתתפות בשמחה">
+    <meta name="twitter:description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות 💜">
+    <link rel="icon" href="assets/logo.png" type="image/png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,219 +22,287 @@
     <!-- Google Fonts Optimized for Hebrew -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600&family=Frank+Ruhl+Libre:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap" rel="stylesheet">
     
     <!-- Shared Theme & Styles -->
-    <script src="frontend/theme.js"></script>
-    <link rel="stylesheet" href="frontend/styles.css">
+    <script src="frontend/theme.js?v=11"></script>
+    <link rel="stylesheet" href="frontend/styles.css?v=11">
 </head>
-<body class="payment-body min-h-screen flex items-center justify-center font-sans p-4 relative text-gray-800">
+<body class="bg-brand-bg min-h-screen w-full max-w-full overflow-x-hidden flex items-center justify-center font-sans px-4 py-8 sm:py-12 relative text-brand-text">
     
-    <!-- Decorative Ambient Background Elements -->
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div class="absolute -top-32 -left-32 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-60"></div>
-        <div class="absolute top-1/3 right-0 w-80 h-80 bg-yellow-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 hidden md:block"></div>
-        <div class="absolute -bottom-32 left-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-50"></div>
+    <!-- Ambient Soft Purple & Rose Glows (Matching Homepage Aesthetic) -->
+    <div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute -top-28 left-1/2 -translate-x-1/2 w-[540px] h-[420px] bg-purple-300/30 rounded-full blur-[110px]"></div>
+        <div class="absolute top-1/3 -right-24 w-80 h-80 bg-violet-300/25 rounded-full blur-[95px]"></div>
+        <div class="absolute -bottom-24 -left-20 w-96 h-96 bg-rose-200/30 rounded-full blur-[105px]"></div>
+        <div class="absolute inset-0 opacity-[0.025]"
+            style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%234F2EB8\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+        </div>
     </div>
 
-    <!-- The physical "Card" container -->
-    <div class="relative w-full max-w-lg mt-4 mb-4">
-        <!-- 3D Card Shadow Effect -->
-        <div class="absolute inset-0 bg-gradient-to-tr from-wedding-gold/20 to-yellow-100/50 transform rotate-2 rounded-2xl md:rounded-[2rem] shadow-xl"></div>
-        
-        <!-- Main Card Surface -->
-        <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-6 md:p-9 border border-wedding-gold/20 card-pattern overflow-hidden">
-            
-            <!-- Metallic Corner Decor -->
-            <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-wedding-gold/30 rounded-tl-lg"></div>
-            <div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-wedding-gold/30 rounded-tr-lg"></div>
-            <div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-wedding-gold/30 rounded-bl-lg"></div>
-            <div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-wedding-gold/30 rounded-br-lg"></div>
+    <!-- The physical "Card" container (Keep .relative.w-full.max-w-lg for payment.js selector) -->
+    <div class="relative w-full max-w-lg my-2 animate-fade-in-up">
+        <!-- Satin Ribbons Peeking from Behind Card Sides (assets/ribbon right.png & ribbon left.png) -->
+        <img src="assets/ribbon%20right.png" alt="" aria-hidden="true"
+            class="absolute right-0 top-1/2 -translate-y-[44%] translate-x-[36%] sm:translate-x-[54%] w-28 sm:w-48 md:w-60 h-auto pointer-events-none select-none z-0">
+        <img src="assets/ribbon%20left.png" alt="" aria-hidden="true"
+            class="absolute left-0 top-1/2 -translate-y-[42%] -translate-x-[44%] sm:-translate-x-[64%] w-28 sm:w-48 md:w-60 h-auto pointer-events-none select-none z-0">
 
-            <!-- Card Header -->
-            <div class="text-center mb-6">
-                <h1 id="header-title" class="font-serif text-wedding-dark mb-3 drop-shadow-sm">
-                    <span class="block text-2xl font-bold">החתונה של</span>
-                    <span id="couple-names" class="block text-3xl font-bold mt-1"></span>
-                </h1>
-                
-                <!-- Separator with Heart -->
-                <div class="flex items-center justify-center gap-4">
-                    <div class="h-[1px] w-16 bg-wedding-gold/40"></div>
-                    <svg class="h-5 w-5 text-wedding-gold" fill="currentColor" viewBox="0 0 24 24">
+        <!-- Soft Rotated Backing Card & Ambient Glow (Matches Homepage Sample Card) -->
+        <div class="absolute inset-0 bg-white/85 transform -rotate-2 scale-[0.985] rounded-[2rem] shadow-lg border border-purple-200/70 pointer-events-none z-0"></div>
+        <div class="absolute -inset-3 bg-gradient-to-r from-purple-400/20 via-violet-300/15 to-purple-400/20 rounded-[2.5rem] blur-2xl -z-10 pointer-events-none"></div>
+
+        <!-- Floating Decorative Hearts outside the card -->
+        <svg class="hidden sm:block absolute -left-7 top-12 w-6 h-6 text-purple-400/70 animate-float-slow pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <svg class="hidden sm:block absolute -right-7 bottom-20 w-5 h-5 text-purple-400/65 animate-float-slow pointer-events-none" style="animation-delay: 1.8s;" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        
+        <!-- Main Wedding Card Surface -->
+        <div class="sample-wedding-card relative z-10 rounded-[1.85rem] p-6 sm:p-9 border-[3px] border-white overflow-hidden">
+            
+            <!-- Botanical Floral Corners (Blended seamlessly into the cream card) -->
+            <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true"
+                class="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
+            <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true"
+                class="absolute bottom-0 left-0 w-32 sm:w-44 h-32 sm:h-44 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
+
+            <!-- Delicate Inner Gold Frame Line -->
+            <div class="absolute inset-3.5 sm:inset-4 border border-[#D8C5A8]/40 rounded-[1.35rem] pointer-events-none"></div>
+
+            <!-- Card Header: Rings + Couple Names -->
+            <div class="relative z-10 text-center mb-5 pt-1">
+                <!-- Intertwined Gold Wedding Rings + Little Heart SVG -->
+                <div class="mb-2.5 flex flex-col items-center">
+                    <svg class="w-3.5 h-3.5 text-[#C69C6D] mb-0.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
-                    <div class="h-[1px] w-16 bg-wedding-gold/40"></div>
+                    <svg class="w-16 h-10 sm:w-20 sm:h-11" viewBox="0 0 80 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="payGoldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#E6C687" />
+                                <stop offset="50%" stop-color="#B88644" />
+                                <stop offset="100%" stop-color="#F0D7A3" />
+                            </linearGradient>
+                            <linearGradient id="payGoldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#F0D7A3" />
+                                <stop offset="50%" stop-color="#C5934C" />
+                                <stop offset="100%" stop-color="#9A6B2E" />
+                            </linearGradient>
+                        </defs>
+                        <ellipse cx="30" cy="24" rx="16" ry="13" transform="rotate(-12 30 24)" stroke="url(#payGoldGrad1)" stroke-width="3.5" />
+                        <ellipse cx="49" cy="24" rx="16" ry="13" transform="rotate(10 49 24)" stroke="url(#payGoldGrad2)" stroke-width="3.5" />
+                    </svg>
+                </div>
+
+                <h1 id="header-title" class="text-[#1F192E] mb-3">
+                    <span class="block font-sans text-sm sm:text-base font-bold text-[#7A7267] tracking-wide mb-1">החתונה של</span>
+                    <span id="couple-names" class="block font-serif text-4xl sm:text-[2.75rem] font-bold leading-tight text-[#1F192E]"></span>
+                </h1>
+                
+                <!-- Gold Divider with Heart -->
+                <div class="flex items-center justify-center gap-3.5 max-w-[220px] mx-auto">
+                    <div class="h-px flex-1 bg-[#D5C3AA]"></div>
+                    <svg class="h-4 w-4 text-[#C69C6D] shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <div class="h-px flex-1 bg-[#D5C3AA]"></div>
                 </div>
             </div>
 
             <!-- Thank You Message & Intro -->
-            <div class="text-center px-4 sm:px-8 md:px-10 mb-4 relative z-10 font-sans">
-                <p class="text-xl sm:text-2xl font-semibold text-wedding-dark mb-1.5">
+            <div class="text-center px-3 sm:px-6 mb-6 relative z-10 font-sans">
+                <p class="text-lg sm:text-xl font-bold text-[#251E38] mb-1">
                     אורחים יקרים שלנו,
                 </p>
-
-                <p class="text-[1.05rem] sm:text-lg text-gray-700 leading-relaxed">
-                    שמחים שבאתם לחגוג איתנו
+                <p class="text-sm sm:text-base text-[#544D63] font-medium leading-relaxed">
+                    שמחים שאתם חלק מהיום שלנו ומודים לכם על השותפות בשמחתנו
                 </p>
             </div>
 
             <!-- Payment Selection Buttons -->
-            <div class="relative z-10 flex flex-col gap-3 mb-2">
-                <button id="toggle-bank-btn" class="w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-wedding-gold/10 flex items-center justify-center gap-2.5 border-2 border-wedding-gold/50 hover:border-wedding-gold/80">
-                    <svg class="w-4 h-4 text-wedding-gold shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            <div class="relative z-10 flex flex-col gap-3 mb-3">
+                <!-- Primary Bank Transfer Button (Harmonized Purple Pill Style) -->
+                <button id="toggle-bank-btn"
+                    class="w-full btn-hero-pill font-bold py-3.5 sm:py-4 px-6 rounded-2xl flex items-center justify-center gap-2.5 text-base sm:text-lg cursor-pointer group">
+                    <svg class="w-5 h-5 text-amber-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
                     </svg>
-                    <span class="flex items-center">לחשבון הבנק <span class="text-wedding-gold/90 font-bold pr-1.5">(מועדף <span class="text-red-400">❤️</span>)</span></span>
+                    <span>העברה לחשבון הבנק</span>
+                    <span class="text-xs sm:text-sm bg-white/20 text-white font-extrabold px-2.5 py-0.5 rounded-full border border-white/25 flex items-center gap-1">
+                        <span>מועדף</span>
+                        <span class="text-rose-200">❤️</span>
+                    </span>
                 </button>
+
+                <!-- Bit & PayBox Row / Stack -->
                 <div id="bit-wrapper" class="hidden flex-col w-full">
-                    <button id="bit-pay-btn" class="w-full bg-[#012f38] hover:bg-[#02434f] text-[#00e5ff] font-medium py-3.5 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5 text-[#00e5ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        Bit
+                    <button id="bit-pay-btn"
+                        class="w-full bg-[#062C33] hover:bg-[#093B44] text-[#00E5FF] font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2.5 text-base sm:text-lg cursor-pointer border border-[#00E5FF]/20">
+                        <svg class="w-5 h-5 text-[#00E5FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>שליחת מתנה ב־Bit</span>
                     </button>
                 </div>
+
                 <div id="paybox-wrapper" class="hidden flex-col w-full">
-                    <button id="paybox-pay-btn" class="w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-3.5 px-6 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
+                    <button id="paybox-pay-btn"
+                        class="w-full bg-gradient-to-r from-[#0052D4] to-[#1A6DFF] hover:brightness-105 text-white font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2.5 text-base sm:text-lg cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        PayBox
+                        <span>שליחת מתנה ב־PayBox</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Highlighted Note (Disclaimer) -->
-            <div class="relative z-10 bg-amber-50 border border-amber-200/80 rounded-xl py-2 px-3.5 sm:py-2.5 sm:px-5 mt-4 mb-1 shadow-sm mx-auto w-fit max-w-full">
-                <div class="text-[0.85rem] sm:text-[0.95rem] text-amber-900 font-semibold flex flex-row items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap">
-                    <span class="text-base sm:text-lg leading-none">💡</span> 
-                    <span>100% חינם · ללא עמלות</span>
+            <!-- Highlighted Zero-Fee Note -->
+            <div class="relative z-10 bg-[#F3ECFF]/90 border border-[#D9C8FA] rounded-full py-1.5 px-4 mt-3.5 mb-1 shadow-sm mx-auto w-fit max-w-full">
+                <div class="text-xs sm:text-sm text-[#4A25AA] font-bold flex flex-row items-center justify-center gap-1.5 whitespace-nowrap">
+                    <span class="text-sm leading-none">✨</span>
+                    <span>100% חינם · העברה ישירה ללא עמלות</span>
                 </div>
             </div>
 
-            <!-- Waze Button (Moved Here) -->
-            <div id="waze-btn-container" class="hidden justify-center my-5 relative z-10">
-                <button id="top-waze-btn" class="bg-[#33CCFF] hover:bg-[#2bb8e6] text-white font-bold py-1.5 px-4 rounded-full transition-transform hover:scale-105 shadow-sm border border-white/20 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    <span class="text-sm">Waze</span>
+            <!-- Waze Navigation Button -->
+            <div id="waze-btn-container" class="hidden justify-center my-4 relative z-10">
+                <button id="top-waze-btn"
+                    class="min-h-[44px] bg-white/95 hover:bg-white text-[#1E293B] font-bold py-2 px-5 rounded-full transition-all hover:scale-105 shadow-sm border border-[#CBD5E1] flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="w-6 h-6 rounded-full bg-[#33CCFF] text-white flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </span>
+                    <span class="text-xs sm:text-sm">ניווט לאירוע ב־Waze</span>
                 </button>
             </div>
 
-            <!-- Details Content Container (Hidden by Default) -->
-            <div id="bank-details" class="hidden space-y-4 relative z-10 border-t border-wedding-gold/20 pt-5 mt-3">
-                
+            <!-- Bank Details Content Container (Hidden by Default) -->
+            <div id="bank-details" class="hidden space-y-3 relative z-10 border-t border-[#D5C3AA]/50 pt-5 mt-4 animate-fade-in-up">
+                <p class="text-center text-xs sm:text-sm text-[#5E5A72] font-semibold mb-1">
+                    לחצו על סמל ההעתקה לצד כל פרט להעתקה מהירה:
+                </p>
+
                 <!-- Beneficiary -->
-                <div class="bg-wedding-light/80 p-3.5 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative text-center">
-                    <p class="text-[10px] text-gray-500 tracking-widest mb-1 font-semibold">שם המוטב</p>
+                <div class="bg-white/90 p-3.5 rounded-2xl border border-[#E6DAC8] shadow-sm relative text-center">
+                    <p class="text-[11px] text-[#7A7267] tracking-wider mb-0.5 font-bold">שם המוטב</p>
                     <div class="flex items-center justify-center gap-2">
-                        <p id="display-name" class="font-serif text-2xl text-wedding-dark font-medium italic truncate">טוען...</p>
-                        <button id="copy-name-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק שם מוטב">
-                            <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <p id="display-name" class="font-serif text-xl sm:text-2xl text-[#1F192E] font-bold truncate">טוען...</p>
+                        <button id="copy-name-btn" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-1.5 text-[#6D35E8] bg-[#F3ECFF] hover:bg-[#E5D6FF] rounded-lg transition-colors shrink-0 cursor-pointer" title="העתק שם מוטב">
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Bank Info -->
-                <div class="bg-wedding-light/80 p-3.5 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative text-center">
-                    <p class="text-[10px] text-gray-500 tracking-widest mb-1 font-semibold">שם הבנק</p>
+                <div class="bg-white/90 p-3.5 rounded-2xl border border-[#E6DAC8] shadow-sm relative text-center">
+                    <p class="text-[11px] text-[#7A7267] tracking-wider mb-0.5 font-bold">שם הבנק</p>
                     <div class="flex items-center justify-center gap-2">
-                        <p id="display-bank" class="text-lg text-wedding-dark font-medium truncate">טוען...</p>
-                        <button id="copy-bank-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק שם בנק">
-                            <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <p id="display-bank" class="text-lg text-[#1F192E] font-bold truncate">טוען...</p>
+                        <button id="copy-bank-btn" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-1.5 text-[#6D35E8] bg-[#F3ECFF] hover:bg-[#E5D6FF] rounded-lg transition-colors shrink-0 cursor-pointer" title="העתק שם בנק">
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Branch & Account row -->
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="flex-1 bg-wedding-light/80 p-3.5 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative text-center">
-                        <p class="text-[10px] text-gray-500 tracking-widest mb-1 font-semibold">מספר סניף</p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 bg-white/90 p-3.5 rounded-2xl border border-[#E6DAC8] shadow-sm relative text-center">
+                        <p class="text-[11px] text-[#7A7267] tracking-wider mb-0.5 font-bold">מספר סניף</p>
                         <div class="flex items-center justify-center gap-2">
-                            <p id="display-branch" class="text-lg text-wedding-dark font-semibold font-mono tracking-wider truncate" dir="ltr">---</p>
-                            <button id="copy-branch-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="העתק מספר סניף">
-                                <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <p id="display-branch" class="text-lg text-[#1F192E] font-bold font-mono tracking-wider truncate" dir="ltr">---</p>
+                            <button id="copy-branch-btn" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-1.5 text-[#6D35E8] bg-[#F3ECFF] hover:bg-[#E5D6FF] rounded-lg transition-colors shrink-0 cursor-pointer" title="העתק מספר סניף">
+                                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             </button>
                         </div>
                     </div>
-                    <div class="flex-[2] bg-wedding-light/80 p-3.5 rounded-xl border border-wedding-gold/10 shadow-sm backdrop-blur-sm relative text-center">
-                        <p class="text-[10px] text-gray-500 tracking-widest mb-1 font-semibold">מספר חשבון</p>
+                    <div class="flex-[2] bg-white/90 p-3.5 rounded-2xl border border-[#E6DAC8] shadow-sm relative text-center">
+                        <p class="text-[11px] text-[#7A7267] tracking-wider mb-0.5 font-bold">מספר חשבון</p>
                         <div class="flex items-center justify-center gap-2">
-                        <p id="account-rate-limit-msg" class="hidden text-xs text-red-600 mt-1.5 font-medium"></p>
-                            <p id="display-account" class="text-lg text-wedding-dark font-semibold font-mono tracking-wider truncate" dir="ltr">---</p>
-                            <button id="copy-account-btn" class="p-1.5 text-wedding-gold hover:bg-wedding-gold/10 rounded-md transition-colors shrink-0" title="הצג מספר חשבון" aria-label="הצג מספר חשבון">
-                                <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            <p id="account-rate-limit-msg" class="hidden text-xs text-red-600 mt-1.5 font-medium"></p>
+                            <p id="display-account" class="text-lg text-[#1F192E] font-bold font-mono tracking-wider truncate" dir="ltr">---</p>
+                            <button id="copy-account-btn" class="min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-1.5 text-[#6D35E8] bg-[#F3ECFF] hover:bg-[#E5D6FF] rounded-lg transition-colors shrink-0 cursor-pointer" title="הצג מספר חשבון" aria-label="הצג מספר חשבון">
+                                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             </button>
                         </div>
                     </div>
                 </div>
-                
             </div>
 
-            <!-- Sign-off -->
-            <div class="text-center relative z-10 font-sans mt-5 border-t border-wedding-gold/20 pt-4 pb-1">
-                <p class="text-[1.05rem] sm:text-lg text-wedding-gold font-semibold">
-                    אוהבים
+            <!-- Sign-off & Brand Signature -->
+            <div class="text-center relative z-10 font-sans mt-6 border-t border-[#D5C3AA]/45 pt-4 pb-0.5">
+                <p class="text-sm sm:text-base text-[#9A7142] font-bold">
+                    אוהבים,
                 </p>
-                <p id="footer-couple-names" class="text-lg sm:text-xl text-wedding-dark font-medium mt-0.5"></p>
+                <p id="footer-couple-names" class="font-serif text-xl sm:text-2xl text-[#1F192E] font-bold mt-0.5"></p>
 
-                <!-- Gift4Event Signature (20-25% larger & clearer) -->
-                <div class="mt-4 pt-3 border-t border-wedding-gold/15 flex items-center justify-center">
+                <!-- Gift4Event Signature (Using Official Assets) -->
+                <div class="mt-4 pt-3.5 border-t border-[#D5C3AA]/35 flex items-center justify-center">
                     <a href="/" target="_blank" rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 text-[13.5px] sm:text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                        <img src="assets/logo.png" alt="Gift4Event" class="w-5 h-5 rounded-full object-cover opacity-90 shrink-0">
-                        <span class="font-bold text-[#4F2EB8]">Gift4Event</span>
-                        <span class="text-gray-300" aria-hidden="true">·</span>
-                        <span class="font-medium text-gray-600">עמלות? לא בשמחות!</span>
+                        class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
+                        <span class="inline-flex items-center gap-1" dir="ltr">
+                            <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
+                            <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-6 sm:h-7 w-auto object-contain shrink-0 select-none">
+                        </span>
+                        <span class="text-[#C69C6D]" aria-hidden="true">·</span>
+                        <span class="font-bold text-xs sm:text-sm text-[#4A3E6D]">עמלות? לא בשמחות!</span>
                     </a>
                 </div>
             </div>
 
-
         </div>
     </div>
 
-
-
     <!-- Bit Confirmation Modal -->
-    <div id="bit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
-        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-wedding-gold/20 relative" dir="rtl">
-            <button id="bit-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="bit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#191233]/60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-[#DDD0FA] relative" dir="rtl">
+            <button id="bit-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-purple-50 rounded-full p-1.5 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <div class="text-center mb-8 mt-2">
-                <h3 class="text-xl md:text-2xl font-semibold text-wedding-dark mb-3">שימו לב</h3>
-                <p class="text-lg text-gray-700 font-medium">אנחנו מעדיפים שתבחרו בחשבון הבנק 🙏🏼</p>
+            <div class="text-center mb-7 mt-2">
+                <div class="w-12 h-12 rounded-2xl bg-[#F3ECFF] text-[#6D35E8] flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl md:text-2xl font-extrabold text-[#191233] mb-2">רגע לפני שממשיכים</h3>
+                <p class="text-base sm:text-lg text-[#4E4B66] font-medium">אנחנו מעדיפים שתבחרו בהעברה לחשבון הבנק 🙏🏼</p>
             </div>
-            <div class="flex flex-col md:flex-row gap-4">
-                <button id="modal-bank-btn" class="flex-1 w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center border border-transparent">
-                    לחשבון הבנק
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="modal-bank-btn" class="flex-1 w-full btn-primary-purple font-bold py-3.5 px-5 rounded-xl transition-all shadow-md flex items-center justify-center cursor-pointer">
+                    העברה לבנק (מועדף)
                 </button>
-                <button id="modal-bit-proceed-btn" class="flex-1 w-full bg-[#012f38] hover:bg-[#02434f] text-[#00e5ff] font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center">
-                    Bit
+                <button id="modal-bit-proceed-btn" class="flex-1 w-full bg-[#062C33] hover:bg-[#093B44] text-[#00E5FF] font-bold py-3.5 px-5 rounded-xl transition-all shadow-md flex items-center justify-center cursor-pointer">
+                    המשך ל־Bit
                 </button>
             </div>
         </div>
     </div>
 
     <!-- PayBox Confirmation Modal -->
-    <div id="paybox-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
-        <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-wedding-gold/20 relative" dir="rtl">
-            <button id="paybox-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="paybox-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#191233]/60 backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl transform transition-all border border-[#DDD0FA] relative" dir="rtl">
+            <button id="paybox-modal-close-x" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-purple-50 rounded-full p-1.5 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <div class="text-center mb-8 mt-2">
-                <h3 class="text-xl md:text-2xl font-semibold text-wedding-dark mb-3">שימו לב</h3>
-                <p class="text-lg text-gray-700 font-medium">אנחנו מעדיפים שתבחרו בחשבון הבנק 🙏🏼</p>
+            <div class="text-center mb-7 mt-2">
+                <div class="w-12 h-12 rounded-2xl bg-[#F3ECFF] text-[#6D35E8] flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl md:text-2xl font-extrabold text-[#191233] mb-2">רגע לפני שממשיכים</h3>
+                <p class="text-base sm:text-lg text-[#4E4B66] font-medium">אנחנו מעדיפים שתבחרו בהעברה לחשבון הבנק 🙏🏼</p>
             </div>
-            <div class="flex flex-col md:flex-row gap-4">
-                <button id="pb-modal-bank-btn" class="flex-1 w-full bg-wedding-dark hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center border border-transparent">
-                    לחשבון הבנק
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="pb-modal-bank-btn" class="flex-1 w-full btn-primary-purple font-bold py-3.5 px-5 rounded-xl transition-all shadow-md flex items-center justify-center cursor-pointer">
+                    העברה לבנק (מועדף)
                 </button>
-                <button id="pb-modal-proceed-btn" class="flex-1 w-full bg-[#004fcf] hover:bg-[#003fb3] text-white font-medium py-4 px-6 rounded-xl transition-all shadow-md flex items-center justify-center">
-                    PayBox
+                <button id="pb-modal-proceed-btn" class="flex-1 w-full bg-gradient-to-r from-[#0052D4] to-[#1A6DFF] hover:brightness-105 text-white font-bold py-3.5 px-5 rounded-xl transition-all shadow-md flex items-center justify-center cursor-pointer">
+                    המשך ל־PayBox
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Guest Payment Page Logic -->
-    <script src="frontend/payment.js"></script>
+    <script src="frontend/payment.js?v=4"></script>
 </body>
 </html>

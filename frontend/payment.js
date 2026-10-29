@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderError = (message) => {
         mainCardContainer.innerHTML = `
-            <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-red-200 text-center min-h-[300px] flex flex-col items-center justify-center">
-                <div class="text-red-500 mb-4 bg-red-50 p-4 rounded-full">
+            <div class="sample-wedding-card relative rounded-[1.85rem] p-8 md:p-12 border-[3px] border-white text-center min-h-[320px] flex flex-col items-center justify-center overflow-hidden">
+                <div class="text-red-500 mb-4 bg-red-50/90 p-4 rounded-full border border-red-100">
                     <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">שגיאה</h2>
-                <p class="text-gray-600 font-medium">${message}</p>
+                <h2 class="text-2xl font-extrabold text-[#1F192E] mb-3">שגיאה</h2>
+                <p class="text-[#544D63] font-medium">${message}</p>
             </div>
         `;
     };
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isSlug) {
         // Show loading state
         mainCardContainer.innerHTML = `
-            <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-12 border border-wedding-gold/20 text-center flex flex-col items-center justify-center min-h-[400px]">
-                <div class="w-12 h-12 border-4 border-wedding-gold/30 border-t-wedding-gold rounded-full animate-spin mb-4"></div>
-                <p class="text-gray-600 font-medium text-lg">טוען פרטי אירוע...</p>
+            <div class="sample-wedding-card relative rounded-[1.85rem] p-8 md:p-12 border-[3px] border-white text-center flex flex-col items-center justify-center min-h-[400px] overflow-hidden">
+                <div class="w-12 h-12 border-4 border-purple-200 border-t-[#6D35E8] rounded-full animate-spin mb-4"></div>
+                <p class="text-[#4E4B66] font-semibold text-lg">טוען פרטי אירוע...</p>
             </div>
         `;
 
@@ -46,25 +46,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.isExpired) {
                 const coupleNames = data.coupleNames || '';
                 mainCardContainer.innerHTML = `
-                    <div class="relative bg-white shadow-2xl rounded-2xl md:rounded-[2rem] p-8 md:p-14 border border-pink-100 text-center flex flex-col items-center justify-center min-h-[420px] gap-6">
+                    <div class="sample-wedding-card relative rounded-[1.85rem] p-8 md:p-12 border-[3px] border-white text-center flex flex-col items-center justify-center min-h-[420px] gap-6 overflow-hidden">
+                        <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true"
+                            class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
+                        <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true"
+                            class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
                         <!-- Heart icon -->
-                        <div class="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center">
-                            <span class="text-4xl">💝</span>
+                        <div class="relative z-10 w-16 h-16 rounded-full bg-[#F3ECFF] border border-[#DDD0FA] flex items-center justify-center">
+                            <span class="text-3xl">💝</span>
                         </div>
-                        <div class="space-y-3">
-                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                        <div class="relative z-10 space-y-3">
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-[#1F192E]">
                                 תקופת העברת המתנות הסתיימה
                             </h2>
-                            <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-sm mx-auto">
+                            <p class="text-[#4E4B66] text-base md:text-lg leading-relaxed max-w-sm mx-auto font-medium">
                                 תודה רבה על הרצון לשמח אותנו ולהיות חלק מהשמחה שלנו!
                             </p>
-                            <p class="text-gray-500 text-sm md:text-base">
+                            <p class="text-[#7A7267] text-sm md:text-base">
                                 אפשרות העברת המתנות לאירוע הסתיימה.
                             </p>
                         </div>
-                        <div class="border-t border-gray-100 pt-6 w-full space-y-1">
-                            <p class="text-gray-600 font-semibold">באהבה ובהערכה,</p>
-                            <p class="text-xl font-bold text-rose-600">${coupleNames ? coupleNames : ''} ❤️</p>
+                        <div class="relative z-10 border-t border-[#D5C3AA]/50 pt-5 w-full space-y-1">
+                            <p class="text-[#9A7142] font-bold">באהבה ובהערכה,</p>
+                            <p class="font-serif text-2xl font-bold text-[#1F192E]">${coupleNames ? coupleNames : ''} ❤️</p>
+                            <div class="pt-4 mt-3 border-t border-[#D5C3AA]/35 flex items-center justify-center">
+                                <a href="/" target="_blank" rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
+                                    <span class="inline-flex items-center gap-1" dir="ltr">
+                                        <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
+                                        <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-6 sm:h-7 w-auto object-contain shrink-0 select-none">
+                                    </span>
+                                    <span class="text-[#C69C6D]" aria-hidden="true">·</span>
+                                    <span class="font-bold text-xs sm:text-sm text-[#4A3E6D]">עמלות? לא בשמחות!</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -377,6 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Copy Logic for non-sensitive fields
     const copyFields = ['name', 'bank', 'branch'];
+    const copiedBadgeHTML = '<span class="inline-flex items-center gap-1 text-xs font-extrabold text-emerald-700 px-1 whitespace-nowrap"><span>הועתק!</span><svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></span>';
 
     copyFields.forEach(field => {
         const btn = document.getElementById(`copy-${field}-btn`);
@@ -390,9 +406,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         trackEvent('bank_copy');
                     }
                     navigator.clipboard.writeText(val).then(() => {
+                        if (btn.dataset.copying === 'true') return;
+                        btn.dataset.copying = 'true';
                         const originalHTML = btn.innerHTML;
-                        btn.innerHTML = '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-                        setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+                        btn.innerHTML = copiedBadgeHTML;
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.dataset.copying = 'false';
+                        }, 2000);
                     }).catch(() => {
                         console.error('Failed to copy ' + field);
                     });
@@ -408,11 +429,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isAccountRevealed = !(config.isMasked || (paramAccount && (paramAccount.includes('•') || paramAccount.includes('*'))));
     let unmaskedAccountNumber = isAccountRevealed ? paramAccount : null;
 
-    const iconEye = '<svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>';
-    const iconSpinner = '<svg class="w-5 h-5 animate-spin pointer-events-none text-wedding-gold" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
-    const iconCopy = '<svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
-    const iconCheck = '<svg class="w-5 h-5 text-green-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-    const iconRetry = '<svg class="w-5 h-5 text-amber-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
+    const iconEye = '<svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>';
+    const iconSpinner = '<svg class="w-4 h-4 animate-spin pointer-events-none text-[#6D35E8]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+    const iconCopy = '<svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
+    const iconCheck = copiedBadgeHTML;
+    const iconRetry = '<svg class="w-4 h-4 text-amber-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
 
     function updateAccountBtnUI() {
         if (!accountBtn) return;

@@ -1,5 +1,13 @@
 // Main Generator Form & Export Logic for Gift4Event (index.html)
 
+// Prevent browser from auto-scrolling down on page open/refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+if (!window.location.hash) {
+    window.scrollTo(0, 0);
+}
+
 let extractedBitLink1 = null;
 let extractedBitLink2 = null;
 
@@ -50,6 +58,7 @@ function setupQRReader(uploadId, successId, errorId, setLinkCallback) {
 // Toggle Generator Form Fields
 function toggleGeneratorForm() {
     const wrapper = document.getElementById('form-fields-wrapper');
+    const toggleWrapper = document.getElementById('toggle-form-wrapper');
     const chevron = document.getElementById('form-toggle-chevron');
     const plusIcon = document.getElementById('form-toggle-plus');
     const toggleBtn = document.getElementById('toggle-form-btn');
@@ -58,6 +67,10 @@ function toggleGeneratorForm() {
     const isHidden = wrapper.classList.contains('hidden');
 
     if (isHidden) {
+        if (toggleWrapper) {
+            toggleWrapper.classList.remove('hidden');
+            toggleWrapper.classList.add('flex');
+        }
         wrapper.classList.remove('hidden');
         chevron.classList.add('rotate-180');
         if (plusIcon) plusIcon.classList.add('rotate-45');
@@ -65,11 +78,22 @@ function toggleGeneratorForm() {
             toggleBtn.setAttribute('aria-expanded', 'true');
             toggleBtn.setAttribute('aria-label', 'סגירת טופס יצירת דף מתנה');
         }
-        setTimeout(() => {
-            document.getElementById('toggle-form-btn').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        void wrapper.offsetHeight;
+        requestAnimationFrame(() => {
+            const target = document.getElementById('generator-form') || toggleBtn || wrapper;
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const targetY = Math.max(0, rect.top + scrollTop - 16);
+                window.scrollTo({ top: targetY, behavior: 'smooth' });
+            }
+        });
     } else {
         wrapper.classList.add('hidden');
+        if (toggleWrapper) {
+            toggleWrapper.classList.add('hidden');
+            toggleWrapper.classList.remove('flex');
+        }
         chevron.classList.remove('rotate-180');
         if (plusIcon) plusIcon.classList.remove('rotate-45');
         if (toggleBtn) {
@@ -82,10 +106,17 @@ function toggleGeneratorForm() {
 // Open Generator Form (if closed) and smoothly scroll to it from Hero CTA
 function openAndScrollToForm() {
     const wrapper = document.getElementById('form-fields-wrapper');
+    const toggleWrapper = document.getElementById('toggle-form-wrapper');
     const chevron = document.getElementById('form-toggle-chevron');
     const plusIcon = document.getElementById('form-toggle-plus');
     const toggleBtn = document.getElementById('toggle-form-btn');
+    const formEl = document.getElementById('generator-form');
     if (!wrapper) return;
+
+    if (toggleWrapper) {
+        toggleWrapper.classList.remove('hidden');
+        toggleWrapper.classList.add('flex');
+    }
 
     if (wrapper.classList.contains('hidden')) {
         wrapper.classList.remove('hidden');
@@ -97,16 +128,24 @@ function openAndScrollToForm() {
         }
     }
 
-    setTimeout(() => {
-        const target = toggleBtn || document.getElementById('generator-form');
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        const firstInput = document.getElementById('coupleNames');
-        if (firstInput) {
-            setTimeout(() => firstInput.focus({ preventScroll: true }), 450);
-        }
-    }, 80);
+    // Force layout reflow so browser knows the newly expanded document height
+    void wrapper.offsetHeight;
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            const target = formEl || toggleBtn || wrapper;
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                const targetY = Math.max(0, rect.top + scrollTop - 16);
+                window.scrollTo({ top: targetY, behavior: 'smooth' });
+            }
+            const firstInput = document.getElementById('coupleNames');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus({ preventScroll: true }), 650);
+            }
+        });
+    });
 }
 
 function showCopiedFeedback(el) {
@@ -117,6 +156,9 @@ function showCopiedFeedback(el) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!window.location.hash) {
+        window.scrollTo(0, 0);
+    }
     setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => extractedBitLink1 = val);
     setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => extractedBitLink2 = val);
 
@@ -223,15 +265,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
+                let data;
+                const isLocalhost = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+                if (response.status === 501 && isLocalhost) {
+                    // Local static-server fallback (when running `python -m http.server` instead of `python local_server.py`)
+                    const fallbackSlug = customSlug || ('event-' + Date.now().toString(36));
+                    const params = new URLSearchParams();
+                    if (coupleNames) params.set('coupleNames', coupleNames);
+                    if (name) params.set('name', name);
+                    if (bank) params.set('bank', bank);
+                    if (branch) params.set('branch', branch);
+                    if (account) params.set('account', account);
+                    if (wazeLink) params.set('wazeLink', wazeLink);
+                    if (payload.bitLinks[0]) params.set('bitLink1', payload.bitLinks[0]);
+                    if (payload.bitLinks[1]) params.set('bitLink2', payload.bitLinks[1]);
+                    if (payload.payboxLinks[0]) params.set('payboxLink1', payload.payboxLinks[0]);
+                    if (payload.payboxLinks[1]) params.set('payboxLink2', payload.payboxLinks[1]);
+                    data = {
+                        slug: fallbackSlug,
+                        url: `${window.location.origin}/${fallbackSlug}`,
+                        localPreviewUrl: `/payment.html?${params.toString()}`
+                    };
+                } else if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     if (response.status === 409) {
                         throw new Error('שם הקישור כבר תפוס. אנא בחרו שם אחר.');
                     }
                     throw new Error(errorData.error || 'Failed to create configuration');
+                } else {
+                    data = await response.json();
                 }
-
-                const data = await response.json();
 
                 // Fallback for local testing or edge cases if API doesn't return full URL
                 const origin = window.location.origin === 'null' || window.location.origin === 'file://' ? 'https://gift4event.com' : window.location.origin;
@@ -239,6 +302,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const linkInput = document.getElementById('generated-link');
                 linkInput.value = finalShareableUrl;
+
+                const viewPageBtn = document.getElementById('view-generated-page-btn');
+                if (viewPageBtn) {
+                    viewPageBtn.href = data.localPreviewUrl || (data.slug ? `/${data.slug}` : finalShareableUrl);
+                }
+
+                const whatsappShareBtn = document.getElementById('whatsapp-share-btn');
+                if (whatsappShareBtn) {
+                    const waText = `היי! נשמח לראותכם בשמחתנו 🤍\nלנוחיותכם, הנה הקישור לדף המתנה והניווט לאירוע של ${coupleNames}:\n${finalShareableUrl}`;
+                    whatsappShareBtn.href = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+                }
 
                 const resultBox = document.getElementById('result-container');
                 resultBox.classList.remove('hidden');
@@ -248,20 +322,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 new QRCode(qrContainer, {
                     text: finalShareableUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#1e3a8a",
+                    width: 168,
+                    height: 168,
+                    colorDark: "#191233",
                     colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
                 });
 
-                // Populate printable PDF sign template (defined in frontend/pdf-sign.js)
+                // Populate printable PDF sign template & live miniature preview (defined in frontend/pdf-sign.js)
                 if (typeof updatePdfSignData === 'function') {
                     updatePdfSignData(finalShareableUrl, coupleNames);
                 }
 
                 setTimeout(() => {
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    const rect = resultBox.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                    const targetY = Math.max(0, rect.top + scrollTop - 20);
+                    window.scrollTo({ top: targetY, behavior: 'smooth' });
                 }, 100);
 
             } catch (error) {

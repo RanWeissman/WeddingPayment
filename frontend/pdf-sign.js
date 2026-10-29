@@ -1,40 +1,119 @@
 // Printable A4 Wedding Sign (PDF) Template & Generator for Gift4Event
 
-const PDF_SIGN_TEMPLATE_HTML = `
-    <!-- Hidden PDF Template -->
-    <div id="pdf-template" class="absolute left-[-9999px] top-[-9999px] w-[595px] h-[842px] bg-white flex flex-col items-center justify-between p-12" dir="rtl">
-        <!-- Top Right Flower -->
-        <div class="absolute top-0 right-0 w-64 h-64 z-0">
-            <img src="assets/flower-right-up.jpg" class="w-full h-full object-contain">
+function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas) {
+    const coupleTopStyle = compensateHtml2Canvas
+        ? "font-family: 'Frank Ruhl Libre', serif; position: relative; top: -8px;"
+        : "font-family: 'Frank Ruhl Libre', serif;";
+    const pillSpanStyle = compensateHtml2Canvas ? "position: relative; top: -6px;" : "";
+    const footerOffsetStyle = compensateHtml2Canvas ? "position: relative; top: -4px;" : "";
+
+    return `
+        <!-- Top Right Botanical Flower -->
+        <div class="absolute top-0 right-0 w-64 h-64 z-0 pointer-events-none">
+            <img src="assets/flower-right-up.jpg" class="w-full h-full object-contain mix-blend-multiply opacity-90">
         </div>
         
-        <!-- Bottom Left Flower -->
-        <div class="absolute bottom-0 left-0 w-64 h-64 z-0">
-            <img src="assets/flower-ledt-down.jpg" class="w-full h-full object-contain">
+        <!-- Bottom Left Botanical Flower -->
+        <div class="absolute bottom-0 left-0 w-64 h-64 z-0 pointer-events-none">
+            <img src="assets/flower-ledt-down.jpg" class="w-full h-full object-contain mix-blend-multiply opacity-90">
         </div>
 
-        <div class="flex-1 flex flex-col items-center justify-center gap-12 w-full mt-24 mb-24 relative z-10" style="font-family: 'Varela Round', sans-serif;">
-            <h1 class="text-5xl font-bold text-stone-700">להעברה דיגיטלית</h1>
-            
-            <div class="p-6 bg-white border-2 border-gray-100 rounded-3xl shadow-sm">
-                <div id="pdf-qrcode"></div>
+        <!-- Delicate Inner Gold Frame -->
+        <div class="absolute inset-6 border-2 border-[#D8C5A8]/65 rounded-[28px] pointer-events-none z-10"></div>
+        <div class="absolute inset-[30px] border border-[#D8C5A8]/35 rounded-[23px] pointer-events-none z-10"></div>
+
+        <!-- Top Section: Rings & Couple Names -->
+        <div class="relative z-20 flex flex-col items-center text-center mt-6 w-full">
+            <!-- Intertwined Gold Wedding Rings + Heart -->
+            <div class="mb-2.5 flex flex-col items-center">
+                <svg class="w-5 h-5 text-[#C69C6D] mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <svg class="w-24 h-14" viewBox="0 0 80 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="${gradPrefix}1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#E6C687" />
+                            <stop offset="50%" stop-color="#B88644" />
+                            <stop offset="100%" stop-color="#F0D7A3" />
+                        </linearGradient>
+                        <linearGradient id="${gradPrefix}2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#F0D7A3" />
+                            <stop offset="50%" stop-color="#C5934C" />
+                            <stop offset="100%" stop-color="#9A6B2E" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="30" cy="24" rx="16" ry="13" transform="rotate(-12 30 24)" stroke="url(#${gradPrefix}1)" stroke-width="3.5" />
+                    <ellipse cx="49" cy="24" rx="16" ry="13" transform="rotate(10 49 24)" stroke="url(#${gradPrefix}2)" stroke-width="3.5" />
+                </svg>
             </div>
-            
-            <h2 id="pdf-couple-names" class="text-5xl font-bold text-stone-600"></h2>
+
+            <p class="text-xl font-bold text-[#7A7267] tracking-wide mb-0">
+                החתונה של
+            </p>
+            <h1 id="${coupleId}" class="text-[3.75rem] font-bold text-[#1F192E] leading-none mb-7" style="${coupleTopStyle}"></h1>
+
+            <!-- Gold Divider with Heart -->
+            <div class="flex items-center justify-center gap-4 w-64 mt-1.5">
+                <div class="h-[1.5px] flex-1 bg-[#D5C3AA]"></div>
+                <svg class="w-5 h-5 text-[#C69C6D] shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <div class="h-[1.5px] flex-1 bg-[#D5C3AA]"></div>
+            </div>
+        </div>
+
+        <!-- Middle Section: Call to Action & QR Code -->
+        <div class="relative z-20 flex flex-col items-center text-center my-auto">
+            <h2 class="text-[2.1rem] font-extrabold text-[#1F192E] leading-tight mb-8">
+                סרקו לשליחת מתנה
+            </h2>
+
+            <!-- QR Frame -->
+            <div class="p-6 bg-white border-2 border-[#E2D3BC] rounded-[28px] shadow-md mb-5">
+                <div id="${qrId}"></div>
+            </div>
+
+            <!-- Zero-Fee Pill -->
+            <div class="bg-[#F5F0FF] border border-[#DDD0FA] rounded-full h-[36px] px-7 flex items-center justify-center">
+                <span class="text-sm font-bold text-[#4A25AA] leading-none whitespace-nowrap" style="${pillSpanStyle}">
+                    שליחת מתנה ללא עמלות
+                </span>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Gift4Event Signature (Matches payment.html) -->
+        <div class="relative z-20 flex flex-col items-center text-center w-full mb-3">
+            <div class="pt-3.5 border-t border-[#D5C3AA]/50 w-72 flex items-center justify-center gap-2">
+                <span class="inline-flex items-center gap-1" dir="ltr">
+                    <img src="assets/logo.png" alt="Gift4Event Icon" class="w-6 h-6 object-contain shrink-0">
+                    <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-5 w-auto object-contain shrink-0">
+                </span>
+                <span class="text-[#C69C6D] text-sm leading-none" style="${footerOffsetStyle}">·</span>
+                <span class="font-bold text-xs text-[#4A3E6D] leading-none" style="${footerOffsetStyle}">עמלות? לא בשמחות!</span>
+            </div>
+        </div>
+    `;
+}
+
+const PDF_SIGN_TEMPLATE_HTML = `
+    <!-- Hidden PDF Template Wrapper (0x0 overflow-hidden so 595px A4 canvas never causes mobile horizontal scroll) -->
+    <div style="position: fixed; top: 0; left: 0; width: 0; height: 0; overflow: hidden; pointer-events: none; z-index: -9999;" aria-hidden="true">
+        <div id="pdf-template" class="w-[595px] h-[842px] bg-[#FFFEFB] flex flex-col items-center justify-between px-12 py-11 overflow-hidden relative" dir="rtl" style="font-family: 'Assistant', sans-serif;">
+            ${buildSignInnerHtml('pdf-couple-names', 'pdf-qrcode', 'pdfGoldGrad', true)}
         </div>
     </div>
 `;
 
-// Populate the hidden PDF sign template when a link is generated
+// Populate both the hidden PDF sign template and the live miniature preview in Card 3
 function updatePdfSignData(shareableUrl, coupleNames) {
     const pdfQrContainer = document.getElementById('pdf-qrcode');
     if (pdfQrContainer) {
         pdfQrContainer.innerHTML = '';
         new QRCode(pdfQrContainer, {
             text: shareableUrl,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
+            width: 248,
+            height: 248,
+            colorDark: "#141020",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
@@ -44,11 +123,40 @@ function updatePdfSignData(shareableUrl, coupleNames) {
     if (pdfCoupleNames) {
         pdfCoupleNames.innerText = coupleNames;
     }
+
+    // Also update the live miniature preview in Card 3
+    const previewQrContainer = document.getElementById('pdf-preview-qrcode');
+    if (previewQrContainer) {
+        previewQrContainer.innerHTML = '';
+        new QRCode(previewQrContainer, {
+            text: shareableUrl,
+            width: 248,
+            height: 248,
+            colorDark: "#141020",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    const previewCoupleNames = document.getElementById('pdf-preview-couple-names');
+    if (previewCoupleNames) {
+        previewCoupleNames.innerText = coupleNames;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     // Inject the hidden PDF template into the page
     document.body.insertAdjacentHTML('beforeend', PDF_SIGN_TEMPLATE_HTML);
+
+    // Inject the exact miniature preview into Card 3 (#pdf-sign-mini-preview)
+    const miniPreviewHost = document.getElementById('pdf-sign-mini-preview');
+    if (miniPreviewHost) {
+        miniPreviewHost.className = 'relative w-[595px] h-[842px] bg-[#FFFEFB] flex flex-col items-center justify-between px-12 py-11 overflow-hidden origin-top-right';
+        miniPreviewHost.setAttribute('dir', 'rtl');
+        miniPreviewHost.style.fontFamily = "'Assistant', sans-serif";
+        miniPreviewHost.style.transform = 'scale(0.24)';
+        miniPreviewHost.innerHTML = buildSignInnerHtml('pdf-preview-couple-names', 'pdf-preview-qrcode', 'pdfMiniGrad', false);
+    }
 
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
     if (downloadPdfBtn) {
@@ -62,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = this;
             const originalContent = btn.innerHTML;
             btn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -73,12 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(async () => {
                 try {
                     const canvas = await html2canvas(template, {
-                        scale: 2,
+                        scale: 3,
                         useCORS: true,
-                        backgroundColor: '#ffffff'
+                        backgroundColor: '#FFFEFB'
                     });
 
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
                     const { jsPDF } = window.jspdf;
                     const pdf = new jsPDF('p', 'mm', 'a4');
                     pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
