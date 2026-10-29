@@ -16,9 +16,10 @@
 }
 
 html {
-    scroll-behavior: smooth;
     max-width: 100%;
     overflow-x: hidden;
+    overflow-x: clip;
+    overflow-anchor: none;
 }
 
 body {
@@ -29,6 +30,7 @@ body {
     color: var(--color-text);
     max-width: 100%;
     overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
 }
 

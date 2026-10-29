@@ -1,5 +1,13 @@
 // Main Generator Form & Export Logic for Gift4Event (index.html)
 
+// Prevent browser from auto-scrolling down on page open/refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+if (!window.location.hash) {
+    window.scrollTo(0, 0);
+}
+
 let extractedBitLink1 = null;
 let extractedBitLink2 = null;
 
@@ -148,6 +156,9 @@ function showCopiedFeedback(el) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (!window.location.hash) {
+        window.scrollTo(0, 0);
+    }
     setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => extractedBitLink1 = val);
     setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => extractedBitLink2 = val);
 

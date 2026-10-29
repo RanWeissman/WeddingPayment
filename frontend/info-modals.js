@@ -124,7 +124,7 @@ const INFO_MODALS_HTML = `
             </div>
             <div class="p-6 overflow-y-auto text-brand-muted space-y-6">
                 <p class="text-base md:text-lg leading-relaxed text-brand-text">
-                    בשלושה שלבים פשוטים ומבלי להירשם, תקבלו דף מתנה אישי, ברקוד להזמנה ושלט מעוצב לתלייה באירוע:
+                    בשלושה שלבים פשוטים ומבלי להירשם, תקבלו דף מתנה אישי, קוד QR להזמנה ושלט מעוצב לתלייה באירוע:
                 </p>
 
                 <div class="space-y-4">
@@ -147,7 +147,7 @@ const INFO_MODALS_HTML = `
                             2
                         </div>
                         <div class="space-y-2 flex-1">
-                            <h4 class="font-bold text-lg text-brand-text">מקבלים מיד קישור, ברקוד ושלט להדפסה</h4>
+                            <h4 class="font-bold text-lg text-brand-text">מקבלים מיד קישור, קוד QR ושלט להדפסה</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
                                 בלחיצה על כפתור היצירה המערכת מפיקה עבורכם במקום שלושה תוצרים מוכנים:
                             </p>
@@ -158,7 +158,7 @@ const INFO_MODALS_HTML = `
                                 </li>
                                 <li class="flex items-start gap-2.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2.5 shrink-0"></span>
-                                    <span><strong class="text-brand-text">תמונת ברקוד (QR):</strong> להורדה ושילוב בעיצוב ההזמנה.</span>
+                                    <span><strong class="text-brand-text">קוד QR:</strong> להורדה ושילוב בעיצוב ההזמנה.</span>
                                 </li>
                                 <li class="flex items-start gap-2.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2.5 shrink-0"></span>
@@ -309,7 +309,7 @@ const INFO_MODALS_HTML = `
                         <div>
                             <h4 class="font-bold text-brand-text text-lg mb-1">הצפנת נתונים וחסימת מנועי חיפוש</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                פרטי הבנק נשמרים מוצפנים במסד הנתונים, דפי המתנה מוגדרים כחסומים לאינדוקס במנועי חיפוש, וקיימת הגבלת קצב בקשות להגנה מפני סריקות אוטומטיות.
+                                פרטי הבנק נשמרים מוצפנים במסד הנתונים, דפי המתנה מוגדרים כחסומים לאינדוקס במנועי חיפוש, וקיימת הגבלת קצב בקשות להגנה מפני בוטים.
                             </p>
                         </div>
                     </div>
