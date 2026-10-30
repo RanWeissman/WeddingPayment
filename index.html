@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gift4Event — עמלות? לא בשמחות!</title>
-    <meta name="description" content="דף מתנות אישי לחתונה ולאירועים — העברה בנקאית, Bit ו־PayBox במקום אחד, עם 0% עמלות מצד האתר.">
+    <meta name="description" content="דף מתנות אישי לחתונה ולאירועים — העברה בנקאית, Bit ו־PayBox במקום אחד. 0% עמלות מצד האתר, אבטחה ופרטיות.">
     <meta property="og:title" content="Gift4Event — עמלות? לא בשמחות!">
     <meta property="og:description" content="דף מתנות אישי לחתונה ולאירועים — פשוט ליצור, כיף לשתף. 0% עמלות מצד האתר.">
     <meta property="og:image" content="https://gift4event.com/assets/logo.png">
@@ -14,6 +14,28 @@
     <meta name="twitter:title" content="Gift4Event — עמלות? לא בשמחות!">
     <meta name="twitter:description" content="דף מתנות אישי לחתונה ולאירועים — פשוט ליצור, כיף לשתף. 0% עמלות מצד האתר.">
     <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="preload" as="image" href="assets/logo.png">
+    <link rel="preload" as="image" href="assets/Gift4Event.PNG">
+    <!-- Hebrew optimized fonts (Assistant + Frank Ruhl Libre for sample wedding card) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="frontend/styles.css?v=15">
+    <script>
+        (function () {
+            try {
+                var navEntry = (window.performance && performance.getEntriesByType)
+                    ? performance.getEntriesByType('navigation')[0]
+                    : null;
+                var navType = navEntry ? navEntry.type : 'navigate';
+                if (navType === 'back_forward') return;
+                document.documentElement.classList.add('g4e-splash-active');
+            } catch (e) {
+                document.documentElement.classList.remove('g4e-splash-active');
+            }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
         integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU"
@@ -28,18 +50,78 @@
         integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H"
         crossorigin="anonymous"></script>
 
-    <!-- Hebrew optimized fonts (Assistant + Frank Ruhl Libre for sample wedding card) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Shared Theme & Styles -->
+    <!-- Shared Theme -->
     <script src="frontend/theme.js?v=13"></script>
-    <link rel="stylesheet" href="frontend/styles.css?v=13">
 </head>
 
 <body class="bg-brand-bg text-brand-text min-h-screen w-full max-w-full overflow-x-hidden px-4 py-6 md:px-8 md:py-10 flex flex-col items-center relative">
+
+    <!-- Opening Brand Splash Overlay (Runs on homepage entry & refresh, max 2.5s) -->
+    <div id="g4e-splash-overlay" role="dialog" aria-label="פתיח Gift4Event" aria-modal="true">
+        <div class="g4e-splash-stage">
+            <!-- Peripheral Confetti Particles (Purple, Lilac & Pale Gold — never obscures logo) -->
+            <div class="g4e-splash-confetti" aria-hidden="true">
+                <!-- Left Arc -->
+                <span class="g4e-confetti-piece" style="--sx:-78px;--sy:-22px;--tx:-142px;--ty:-68px;--w:11px;--h:5px;--r:99px;--c:#6D35E8;--rot:-145deg;--d:0.68s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-86px;--sy:-2px;--tx:-164px;--ty:-22px;--w:8px;--h:8px;--r:50%;--c:#E2B857;--rot:110deg;--d:0.70s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-82px;--sy:18px;--tx:-152px;--ty:38px;--w:12px;--h:5px;--r:3px;--c:#A78BFA;--rot:-195deg;--d:0.69s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-66px;--sy:-42px;--tx:-124px;--ty:-98px;--w:7px;--h:7px;--r:2px;--c:#D4AF37;--rot:160deg;--d:0.72s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-90px;--sy:32px;--tx:-172px;--ty:72px;--w:10px;--h:5px;--r:99px;--c:#8B5CF6;--rot:-120deg;--d:0.73s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-74px;--sy:6px;--tx:-134px;--ty:12px;--w:7px;--h:7px;--r:50%;--c:#C4B5FD;--rot:90deg;--d:0.68s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-92px;--sy:-28px;--tx:-178px;--ty:-54px;--w:10px;--h:5px;--r:2px;--c:#E6C687;--rot:-170deg;--d:0.74s"></span>
+                <span class="g4e-confetti-piece" style="--sx:-68px;--sy:40px;--tx:-128px;--ty:88px;--w:8px;--h:8px;--r:2px;--c:#6D35E8;--rot:135deg;--d:0.71s"></span>
+                <!-- Right Arc -->
+                <span class="g4e-confetti-piece" style="--sx:78px;--sy:-22px;--tx:142px;--ty:-66px;--w:11px;--h:5px;--r:99px;--c:#6D35E8;--rot:145deg;--d:0.68s"></span>
+                <span class="g4e-confetti-piece" style="--sx:86px;--sy:-2px;--tx:164px;--ty:-20px;--w:8px;--h:8px;--r:50%;--c:#E2B857;--rot:-115deg;--d:0.70s"></span>
+                <span class="g4e-confetti-piece" style="--sx:82px;--sy:18px;--tx:154px;--ty:40px;--w:12px;--h:5px;--r:3px;--c:#A78BFA;--rot:190deg;--d:0.69s"></span>
+                <span class="g4e-confetti-piece" style="--sx:66px;--sy:-42px;--tx:126px;--ty:-96px;--w:7px;--h:7px;--r:2px;--c:#D4AF37;--rot:-160deg;--d:0.72s"></span>
+                <span class="g4e-confetti-piece" style="--sx:90px;--sy:32px;--tx:174px;--ty:70px;--w:10px;--h:5px;--r:99px;--c:#8B5CF6;--rot:125deg;--d:0.73s"></span>
+                <span class="g4e-confetti-piece" style="--sx:74px;--sy:6px;--tx:136px;--ty:14px;--w:7px;--h:7px;--r:50%;--c:#C4B5FD;--rot:-90deg;--d:0.68s"></span>
+                <span class="g4e-confetti-piece" style="--sx:92px;--sy:-28px;--tx:180px;--ty:-52px;--w:10px;--h:5px;--r:2px;--c:#E6C687;--rot:170deg;--d:0.74s"></span>
+                <span class="g4e-confetti-piece" style="--sx:68px;--sy:40px;--tx:130px;--ty:86px;--w:8px;--h:8px;--r:2px;--c:#6D35E8;--rot:-135deg;--d:0.71s"></span>
+            </div>
+
+            <!-- 1. Centered Gift Icon + Soft Purple Halo + Single Orbit Light Point -->
+            <div class="g4e-splash-icon-wrap">
+                <div class="g4e-splash-halo" aria-hidden="true"></div>
+                <div class="g4e-splash-orbit" aria-hidden="true">
+                    <svg class="g4e-splash-orbit-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="g4eOrbitTrail" x1="60" y1="6" x2="114" y2="60" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#6D35E8" stop-opacity="0.95" />
+                                <stop offset="45%" stop-color="#A855F7" stop-opacity="0.7" />
+                                <stop offset="100%" stop-color="#E6C687" stop-opacity="0" />
+                            </linearGradient>
+                            <radialGradient id="g4eOrbitSpark" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+                                <stop offset="40%" stop-color="#F3E8FF" stop-opacity="0.95" />
+                                <stop offset="70%" stop-color="#7C3AED" stop-opacity="0.85" />
+                                <stop offset="100%" stop-color="#6D35E8" stop-opacity="0" />
+                            </radialGradient>
+                        </defs>
+                        <!-- Luminous Comet Arc -->
+                        <path d="M 60 6 A 54 54 0 0 1 114 60" stroke="url(#g4eOrbitTrail)" stroke-width="3.5" stroke-linecap="round" />
+                        <!-- Glowing Light Point Head at (60, 6) -->
+                        <circle cx="60" cy="6" r="9" fill="url(#g4eOrbitSpark)" />
+                        <circle cx="60" cy="6" r="3.2" fill="#6D35E8" />
+                        <circle cx="60" cy="6" r="1.8" fill="#FFFFFF" />
+                    </svg>
+                </div>
+                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="sync" fetchpriority="high">
+            </div>
+
+            <!-- 2. Original Gift4Event Wordmark + Subtle Shimmer Sweep -->
+            <div class="g4e-splash-wordmark-wrap" dir="ltr">
+                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="sync" fetchpriority="high">
+                <span class="g4e-splash-shimmer" aria-hidden="true"></span>
+            </div>
+
+            <!-- 3. Exact Slogan Below Logo -->
+            <p class="g4e-splash-slogan" dir="rtl">
+                <span>עמלות?</span> <span class="g4e-splash-slogan-accent">לא בשמחות!</span>
+            </p>
+        </div>
+    </div>
 
     <!-- Ambient Soft Purple Glows & Subtle Pattern -->
     <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
@@ -51,7 +133,89 @@
         </div>
     </div>
 
-    <div class="w-full max-w-5xl animate-fade-in-up">
+    <div id="main-page-content" class="w-full max-w-5xl animate-fade-in-up">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var overlay = document.getElementById('g4e-splash-overlay');
+            var mainContent = document.getElementById('main-page-content');
+            var dismissed = false;
+            var fadeTimer = null;
+            var removeTimer = null;
+            var watchdogTimer = null;
+
+            function unlockMainContent() {
+                root.classList.remove('g4e-splash-active');
+                if (mainContent) {
+                    mainContent.removeAttribute('inert');
+                    mainContent.removeAttribute('aria-hidden');
+                }
+            }
+
+            function cleanupOverlay() {
+                unlockMainContent();
+                if (overlay && overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }
+
+            if (!root.classList.contains('g4e-splash-active') || !overlay) {
+                cleanupOverlay();
+                return;
+            }
+
+            if (mainContent) {
+                mainContent.setAttribute('inert', '');
+                mainContent.setAttribute('aria-hidden', 'true');
+            }
+
+            function dismissSplash(immediate) {
+                if (dismissed) return;
+                dismissed = true;
+                clearTimeout(fadeTimer);
+                clearTimeout(removeTimer);
+                clearTimeout(watchdogTimer);
+                window.removeEventListener('keydown', onKeyDown);
+
+                if (immediate) {
+                    cleanupOverlay();
+                    return;
+                }
+
+                overlay.classList.add('g4e-splash-fadeout');
+                unlockMainContent();
+                removeTimer = setTimeout(cleanupOverlay, 380);
+            }
+
+            function onKeyDown(e) {
+                if (e.key === 'Escape') {
+                    dismissSplash(false);
+                }
+            }
+
+            overlay.addEventListener('click', function () { dismissSplash(false); }, { passive: true });
+            overlay.addEventListener('touchstart', function () { dismissSplash(false); }, { passive: true });
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('pageshow', function (e) {
+                if (e.persisted) dismissSplash(true);
+            });
+            window.addEventListener('error', function () {
+                dismissSplash(true);
+            });
+
+            var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var fadeDelay = reducedMotion ? 850 : 2100;
+
+            fadeTimer = setTimeout(function () {
+                dismissSplash(false);
+            }, fadeDelay);
+
+            // Hard fail-safe watchdog so splash can never hang beyond 2.55s
+            watchdogTimer = setTimeout(function () {
+                dismissSplash(true);
+            }, 2550);
+        })();
+    </script>
 
         <!-- Hero & Header Section -->
         <header class="max-w-2xl mx-auto mb-7 md:mb-9 text-center relative">
@@ -83,10 +247,10 @@
                 </button>
             </nav>
 
-            <!-- Top Tagline Badge: "כל השמחה. בלי העמלות. 💜" -->
+            <!-- Top Tagline Badge: "עמלות? לא בשמחות! 💜" -->
             <div class="flex justify-center mb-4">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EFE8FF] border border-[#DDD0FA] shadow-sm">
-                    <span class="text-sm md:text-[0.95rem] font-bold text-[#4A25AA]">כל השמחה. בלי העמלות.</span>
+                    <span class="text-sm md:text-[0.95rem] font-bold text-[#4A25AA]">עמלות? לא בשמחות!</span>
                     <svg class="w-4 h-4 text-[#8B5CF6] shrink-0" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                     </svg>
@@ -260,7 +424,7 @@
                 </div>
             </div>
 
-            <!-- 3 Feature Highlights Row (יצירה בחינם | שיתוף בקלות | פרטיות ושליטה) -->
+            <!-- 3 Feature Highlights Row (יצירה בחינם | שיתוף בקלות | אבטחה ופרטיות) -->
             <div class="grid grid-cols-3 items-start max-w-lg mx-auto mb-7 divide-x divide-x-reverse divide-[#DDD2F5]">
                 <!-- Item 1: יצירה בחינם -->
                 <button type="button" onclick="openAndScrollToForm()"
@@ -1030,7 +1194,7 @@
     <div id="modals-root"></div>
 
     <!-- Frontend Scripts -->
-    <script src="frontend/info-modals.js?v=15"></script>
+    <script src="frontend/info-modals.js?v=18"></script>
     <script src="frontend/guide-modals.js?v=15"></script>
     <script src="frontend/terms-modal.js?v=14"></script>
     <script src="frontend/pdf-sign.js?v=13"></script>
