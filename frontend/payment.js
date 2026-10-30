@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         : `<p class="text-[#9A7142] font-bold text-lg">באהבה ובהערכה ❤️</p>`
                     }
                     <div class="pt-4 mt-3 border-t border-[#D5C3AA]/35 flex items-center justify-center">
-                        <a href="/"
+                        <a href="/" target="_blank" rel="noopener noreferrer"
                             class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
                             <span class="inline-flex items-center gap-1" dir="ltr">
                                 <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
