@@ -56,11 +56,21 @@ resource "aws_iam_role_policy" "analytics_lambda_policy" {
         Action = [
           "s3:PutObject"
         ]
-        Effect   = "Allow"
-        Resource = "${aws_s3_bucket.analytics_logs.arn}/*"
+      Effect   = "Allow"
+      Resource = "${aws_s3_bucket.analytics_logs.arn}/*"
       }
     ]
   })
+}
+
+import {
+  to = aws_cloudwatch_log_group.analytics_lambda_logs
+  id = "/aws/lambda/wedding-payment-analytics"
+}
+
+resource "aws_cloudwatch_log_group" "analytics_lambda_logs" {
+  name              = "/aws/lambda/${var.project_name}-analytics"
+  retention_in_days = 7
 }
 
 resource "aws_lambda_function" "analytics_handler" {

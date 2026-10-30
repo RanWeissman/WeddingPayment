@@ -79,9 +79,9 @@ const INFO_MODALS_HTML = `
                             </svg>
                         </div>
                         <div class="space-y-2">
-                            <h4 class="text-lg font-bold text-brand-text">פרטיות ונעילה אוטומטית לאחר האירוע</h4>
+                            <h4 class="text-lg font-bold text-brand-text">פרטיות ומחיקה אוטומטית לאחר האירוע</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                דף המתנה פתוח להעברות עד שבוע ימים לאחר האירוע, ולאחר מכן ננעל אוטומטית והופך לכרטיס תודה לאורחים. פרטי החשבון מוצפנים במסד הנתונים ומוסתרים ממנועי חיפוש.
+                                דף המתנה פתוח להעברות עד שבוע ימים לאחר האירוע, ולאחר מכן ננעל וכל פרטי האירוע והחשבון נמחקים אוטומטית ממסד הנתונים. במהלך תקופת הפעילות פרטי החשבון מוצפנים ומוסתרים ממנועי חיפוש.
                             </p>
                             <button type="button" onclick="closeAboutModal(); setTimeout(openPrivacyModal, 150);"
                                 class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-primary hover:text-brand-deep underline underline-offset-4 transition-colors pt-0.5">
@@ -174,9 +174,9 @@ const INFO_MODALS_HTML = `
                             3
                         </div>
                         <div class="space-y-2 flex-1">
-                            <h4 class="font-bold text-lg text-brand-text">האורחים בוחרים איך להעביר — והדף ננעל אחרי האירוע</h4>
+                            <h4 class="font-bold text-lg text-brand-text">האורחים בוחרים איך להעביר — והמידע נמחק אחרי האירוע</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                האורחים סורקים את השלט או לוחצים על הקישור, ובוחרים בין העברה בנקאית, Bit או PayBox. שבוע לאחר האירוע פרטי החשבון מוסרים אוטומטית והדף הופך לכרטיס תודה.
+                                האורחים סורקים את השלט או לוחצים על הקישור, ובוחרים בין העברה בנקאית, Bit או PayBox. שבוע לאחר האירוע הדף ננעל ופרטי האירוע והחשבון נמחקים אוטומטית ממסד הנתונים.
                             </p>
                         </div>
                     </div>
@@ -283,9 +283,9 @@ const INFO_MODALS_HTML = `
                             1
                         </div>
                         <div>
-                            <h4 class="font-bold text-brand-text text-lg mb-1">חלון זמנים אוטומטי (נעילה שבוע אחרי האירוע)</h4>
+                            <h4 class="font-bold text-brand-text text-lg mb-1">חלון זמנים ומחיקה אוטומטית (שבוע אחרי האירוע)</h4>
                             <p class="text-base text-brand-muted leading-relaxed">
-                                דף המתנה פתוח להעברות עד שבוע ימים לאחר תאריך האירוע. לאחר מכן, פרטי הבנק והאפליקציות ננעלים ומוסרים מתצוגת הדף, ובמקומם מוצג לאורחים כרטיס תודה.
+                                דף המתנה פתוח להעברות עד שבוע ימים לאחר תאריך האירוע. בתום שבעה ימים ממועד האירוע, הדף ננעל וכל פרטי האירוע, השמות, פרטי הבנק והקישורים נמחקים אוטומטית ולצמיתות ממסד הנתונים.
                             </p>
                         </div>
                     </div>

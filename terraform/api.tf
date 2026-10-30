@@ -7,7 +7,7 @@ resource "aws_dynamodb_table" "config_table" {
   hash_key     = "slug"
 
   point_in_time_recovery {
-    enabled = true
+    enabled = false
   }
 
   ttl {
@@ -69,13 +69,24 @@ resource "aws_iam_role_policy" "lambda_policy" {
       {
         Action = [
           "dynamodb:PutItem",
-          "dynamodb:GetItem"
+          "dynamodb:GetItem",
+          "dynamodb:DeleteItem"
         ]
         Effect   = "Allow"
         Resource = aws_dynamodb_table.config_table.arn
       }
     ]
   })
+}
+
+import {
+  to = aws_cloudwatch_log_group.api_lambda_logs
+  id = "/aws/lambda/wedding-payment-api"
+}
+
+resource "aws_cloudwatch_log_group" "api_lambda_logs" {
+  name              = "/aws/lambda/${var.project_name}-api"
+  retention_in_days = 7
 }
 
 resource "aws_lambda_function" "api_handler" {
