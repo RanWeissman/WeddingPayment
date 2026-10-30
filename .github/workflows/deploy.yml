@@ -98,8 +98,12 @@ jobs:
             --exclude "planning/*" \
             --exclude "analytics_automation/*" \
             --exclude "assets/*" \
+            --exclude "frontend/*" \
             --exclude "*.md" \
-            --cache-control "public, max-age=0, must-revalidate" \
+            --cache-control "public, max-age=300, stale-while-revalidate=86400" \
+            --delete
+          aws s3 sync ./frontend s3://${{ env.S3_BUCKET }}/frontend \
+            --cache-control "public, max-age=86400" \
             --delete
           aws s3 sync ./assets s3://${{ env.S3_BUCKET }}/assets \
             --cache-control "public, max-age=86400" \
