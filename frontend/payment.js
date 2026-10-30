@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-6 sm:h-7 w-auto object-contain shrink-0 select-none">
                             </span>
                             <span class="text-[#C69C6D]" aria-hidden="true">·</span>
-                            <span class="font-bold text-xs sm:text-sm text-[#4A3E6D]">עמלות? לא בשמחות!</span>
+                            <img src="assets/Slogan.png" alt="עמלות? לא בשמחות!" class="h-[15px] sm:h-[17px] w-auto object-contain shrink-0 select-none">
                         </a>
                     </div>
                 </div>

@@ -90,7 +90,7 @@ function buildSignInnerHtml(coupleId, qrId, gradPrefix, compensateHtml2Canvas, p
                     <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-5 w-auto object-contain shrink-0">
                 </span>
                 <span class="text-[#C69C6D] text-sm leading-none" style="${footerOffsetStyle}">·</span>
-                <span class="font-bold text-xs text-[#4A3E6D] leading-none" style="${footerOffsetStyle}">עמלות? לא בשמחות!</span>
+                <img src="assets/Slogan.png" alt="עמלות? לא בשמחות!" class="h-[14px] w-auto object-contain shrink-0">
             </div>
         </div>
     `;
