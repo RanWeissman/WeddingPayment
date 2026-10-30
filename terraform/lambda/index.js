@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
 const crypto = require('crypto');
 
 const client = new DynamoDBClient({});
@@ -257,21 +257,32 @@ function transliterate(text) {
     return result || 'event';
 }
 
+const EVENT_RETENTION_DAYS = 7;
+
+/**
+ * Calculates the exact UTC Unix timestamp (in seconds) when the event expires
+ * and is automatically deleted from DynamoDB (eventDate + 7 days).
+ * @param {string} eventDateStr - ISO date string 'YYYY-MM-DD'
+ * @returns {number|null}
+ */
+function getEventExpiryEpochSeconds(eventDateStr) {
+    if (!eventDateStr) return null;
+    const eventDate = new Date(eventDateStr + 'T00:00:00Z');
+    if (isNaN(eventDate.getTime())) return null;
+    return Math.floor((eventDate.getTime() + EVENT_RETENTION_DAYS * 24 * 60 * 60 * 1000) / 1000);
+}
+
 /**
  * Returns true if the event date + 7 days is in the past (UTC).
  * @param {string} eventDateStr - ISO date string 'YYYY-MM-DD'
  */
 function isEventExpired(eventDateStr) {
-    if (!eventDateStr) return false;
-    const eventDate = new Date(eventDateStr + 'T00:00:00Z');
-    if (isNaN(eventDate.getTime())) return false;
-    const expiry = new Date(eventDate.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return Date.now() > expiry.getTime();
+    const expirySec = getEventExpiryEpochSeconds(eventDateStr);
+    if (expirySec === null) return false;
+    return Math.floor(Date.now() / 1000) >= expirySec;
 }
 
 exports.handler = async (event) => {
-    console.log('Event:', JSON.stringify(event));
-
     const method = event.httpMethod;
     const path = event.resource || event.path;
 
@@ -436,7 +447,8 @@ exports.handler = async (event) => {
             }
             // ───────────────────────────────────────────────────────────────────
 
-            // Prepare item
+            // Prepare item (with DynamoDB TTL for automatic deletion 7 days after eventDate)
+            const eventTtl = getEventExpiryEpochSeconds(eventDateStr);
             const item = {
                 slug: slug,
                 eventType: eventType,
@@ -448,7 +460,8 @@ exports.handler = async (event) => {
                 bankDetails: bankDetails,
                 bitLinks: body.bitLinks || [],
                 payboxLinks: body.payboxLinks || [],
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                ttl: eventTtl
             };
 
             // Save to DynamoDB
@@ -529,15 +542,24 @@ exports.handler = async (event) => {
 
             const item = response.Item;
 
-            // ── TIME WINDOW CHECK ────────────────────────────────────────────────
+            // ── TIME WINDOW CHECK & IMMEDIATE DB DELETION ────────────────────────
             if (isEventExpired(item.eventDate)) {
+                try {
+                    await dynamo.send(new DeleteCommand({
+                        TableName: TABLE_NAME,
+                        Key: { slug: slug }
+                    }));
+                } catch (delErr) {
+                    console.warn('Immediate expired item deletion failed:', delErr.message);
+                }
+
                 const expiredPayload = {
                     slug: item.slug,
-                    eventType: item.eventType || 'wedding',
-                    eventSubType: item.eventSubType || '',
-                    customEventName: item.customEventName || '',
-                    coupleNames: item.coupleNames || '',
-                    eventDate: item.eventDate || '',
+                    eventType: 'wedding',
+                    eventSubType: '',
+                    customEventName: '',
+                    coupleNames: '',
+                    eventDate: '',
                     isExpired: true,
                     bankDetails: null,
                     bitLinks: [],
@@ -562,6 +584,7 @@ exports.handler = async (event) => {
                 isExpired: false,
                 analyticsUrl: process.env.ANALYTICS_URL || null
             };
+            delete returnData.ttl;
 
             // ── Decrypt → then mask accountNumber for the public config response ─
             if (returnData.bankDetails && returnData.bankDetails.accountNumber) {
@@ -651,8 +674,17 @@ exports.handler = async (event) => {
                 };
             }
 
-            // ── TIME WINDOW ENFORCEMENT (server-side, UTC clock) ─────────────────
+            // ── TIME WINDOW ENFORCEMENT & IMMEDIATE DB DELETION (UTC clock) ──────
             if (isEventExpired(response.Item.eventDate)) {
+                try {
+                    await dynamo.send(new DeleteCommand({
+                        TableName: TABLE_NAME,
+                        Key: { slug: slug }
+                    }));
+                } catch (delErr) {
+                    console.warn('Immediate expired item deletion failed:', delErr.message);
+                }
+
                 return {
                     statusCode: 403,
                     headers,

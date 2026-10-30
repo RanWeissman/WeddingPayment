@@ -20,6 +20,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     };
 
+    const renderExpiredCard = (coupleNames = '') => {
+        mainCardContainer.innerHTML = `
+            <div class="sample-wedding-card relative rounded-[1.85rem] p-8 md:p-12 border-[3px] border-white text-center flex flex-col items-center justify-center min-h-[420px] gap-6 overflow-hidden">
+                <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true"
+                    class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
+                <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true"
+                    class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
+                <!-- Heart icon -->
+                <div class="relative z-10 w-16 h-16 rounded-full bg-[#F3ECFF] border border-[#DDD0FA] flex items-center justify-center">
+                    <span class="text-3xl">💝</span>
+                </div>
+                <div class="relative z-10 space-y-3">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-[#1F192E]">
+                        תקופת העברת המתנות הסתיימה
+                    </h2>
+                    <p class="text-[#4E4B66] text-base md:text-lg leading-relaxed max-w-sm mx-auto font-medium">
+                        תודה רבה על הרצון לשמח אותנו ולהיות חלק מהשמחה שלנו!
+                    </p>
+                    <p class="text-[#7A7267] text-sm md:text-base">
+                        אפשרות העברת המתנות לאירוע הסתיימה ופרטי הדף הוסרו לשמירה על הפרטיות.
+                    </p>
+                </div>
+                <div class="relative z-10 border-t border-[#D5C3AA]/50 pt-5 w-full space-y-1">
+                    ${coupleNames
+                        ? `<p class="text-[#9A7142] font-bold">באהבה ובהערכה,</p>
+                           <p class="font-serif text-2xl font-bold text-[#1F192E]">${coupleNames} ❤️</p>`
+                        : `<p class="text-[#9A7142] font-bold text-lg">באהבה ובהערכה ❤️</p>`
+                    }
+                    <div class="pt-4 mt-3 border-t border-[#D5C3AA]/35 flex items-center justify-center">
+                        <a href="/" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
+                            <span class="inline-flex items-center gap-1" dir="ltr">
+                                <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
+                                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-6 sm:h-7 w-auto object-contain shrink-0 select-none">
+                            </span>
+                            <span class="text-[#C69C6D]" aria-hidden="true">·</span>
+                            <span class="font-bold text-xs sm:text-sm text-[#4A3E6D]">עמלות? לא בשמחות!</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
     if (isSlug) {
         // Show loading state
         mainCardContainer.innerHTML = `
@@ -33,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(`/api/config/${path}`, { cache: 'no-store' });
             if (!response.ok) {
                 if (response.status === 404) {
-                    renderError('האירוע לא נמצא. ייתכן שהקישור שגוי או הוסר.');
+                    renderExpiredCard('');
                 } else {
                     renderError('אירעה שגיאה בטעינת פרטי האירוע. אנא נסו שוב מאוחר יותר.');
                 }
@@ -44,45 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // ── TIME WINDOW CHECK ──────────────────────────────────────────
             // Server signals expiry by returning isExpired:true
             if (data.isExpired) {
-                const coupleNames = data.coupleNames || '';
-                mainCardContainer.innerHTML = `
-                    <div class="sample-wedding-card relative rounded-[1.85rem] p-8 md:p-12 border-[3px] border-white text-center flex flex-col items-center justify-center min-h-[420px] gap-6 overflow-hidden">
-                        <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true"
-                            class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
-                        <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true"
-                            class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
-                        <!-- Heart icon -->
-                        <div class="relative z-10 w-16 h-16 rounded-full bg-[#F3ECFF] border border-[#DDD0FA] flex items-center justify-center">
-                            <span class="text-3xl">💝</span>
-                        </div>
-                        <div class="relative z-10 space-y-3">
-                            <h2 class="text-2xl md:text-3xl font-extrabold text-[#1F192E]">
-                                תקופת העברת המתנות הסתיימה
-                            </h2>
-                            <p class="text-[#4E4B66] text-base md:text-lg leading-relaxed max-w-sm mx-auto font-medium">
-                                תודה רבה על הרצון לשמח אותנו ולהיות חלק מהשמחה שלנו!
-                            </p>
-                            <p class="text-[#7A7267] text-sm md:text-base">
-                                אפשרות העברת המתנות לאירוע הסתיימה.
-                            </p>
-                        </div>
-                        <div class="relative z-10 border-t border-[#D5C3AA]/50 pt-5 w-full space-y-1">
-                            <p class="text-[#9A7142] font-bold">באהבה ובהערכה,</p>
-                            <p class="font-serif text-2xl font-bold text-[#1F192E]">${coupleNames ? coupleNames : ''} ❤️</p>
-                            <div class="pt-4 mt-3 border-t border-[#D5C3AA]/35 flex items-center justify-center">
-                                <a href="/" target="_blank" rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
-                                    <span class="inline-flex items-center gap-1" dir="ltr">
-                                        <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
-                                        <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="h-6 sm:h-7 w-auto object-contain shrink-0 select-none">
-                                    </span>
-                                    <span class="text-[#C69C6D]" aria-hidden="true">·</span>
-                                    <span class="font-bold text-xs sm:text-sm text-[#4A3E6D]">עמלות? לא בשמחות!</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                renderExpiredCard(data.coupleNames || '');
                 return; // Stop — do not hydrate the payment form
             }
             // ──────────────────────────────────────────────────────────────
