@@ -15,6 +15,8 @@
     <meta name="twitter:title" content="השתתפות בשמחה">
     <meta name="twitter:description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות 💜">
     <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="preload" as="image" href="assets/logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/Gift4Event.PNG" fetchpriority="high">
     <script>
         (function () {
             var root = document.documentElement;
@@ -116,27 +118,27 @@
         #g4e-splash-overlay.g4e-splash-fadeout{opacity:0;transform:scale(1.015);pointer-events:none}
         .g4e-splash-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:100%;text-align:center}
         .g4e-splash-icon-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:clamp(128px,28vw,168px);height:clamp(128px,28vw,168px);margin-bottom:4px}
-        .g4e-splash-halo{position:absolute;inset:-36%;border-radius:50%;background:radial-gradient(circle,rgba(109,53,232,.28) 0%,rgba(139,92,246,.16) 38%,rgba(230,198,135,.1) 58%,rgba(255,255,255,0) 74%);filter:blur(8px);opacity:0;transform:scale(.45);will-change:transform,opacity;animation:g4eHaloExpand 2.2s cubic-bezier(.16,1,.3,1) 0s 1 forwards;pointer-events:none}
-        .g4e-splash-icon{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.68) translateY(10px);will-change:transform,opacity;animation:g4eIconEnter .55s cubic-bezier(.22,1.25,.36,1) .05s 1 forwards;filter:drop-shadow(0 12px 24px rgba(109,53,232,.18))}
-        .g4e-splash-orbit{position:absolute;inset:-8%;z-index:3;border-radius:50%;opacity:0;transform:rotate(-70deg);will-change:transform,opacity;animation:g4eOrbitOnce .65s cubic-bezier(.42,0,.22,1) .38s 1 forwards;pointer-events:none}
+        .g4e-splash-halo{position:absolute;inset:-36%;border-radius:50%;background:radial-gradient(circle,rgba(109,53,232,.28) 0%,rgba(139,92,246,.16) 38%,rgba(230,198,135,.1) 58%,rgba(255,255,255,0) 74%);filter:blur(8px);opacity:.85;transform:scale(.78);will-change:transform,opacity;animation:g4eHaloExpand 2s cubic-bezier(.16,1,.3,1) 0s 1 forwards;pointer-events:none}
+        .g4e-splash-icon{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;opacity:.9;transform:scale(.82) translateY(4px);will-change:transform,opacity;animation:g4eIconEnter .42s cubic-bezier(.22,1.25,.36,1) 0s 1 forwards;filter:drop-shadow(0 12px 24px rgba(109,53,232,.18))}
+        .g4e-splash-orbit{position:absolute;inset:-8%;z-index:3;border-radius:50%;opacity:0;transform:rotate(-70deg);will-change:transform,opacity;animation:g4eOrbitOnce .6s cubic-bezier(.42,0,.22,1) .14s 1 forwards;pointer-events:none}
         .g4e-splash-orbit-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(109,53,232,.45))}
-        .g4e-splash-wordmark-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;padding:4px 10px;opacity:0;transform:translateY(14px) scale(.97);will-change:transform,opacity;animation:g4eWordmarkReveal .56s cubic-bezier(.16,1,.3,1) .38s 1 forwards}
+        .g4e-splash-wordmark-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;padding:4px 10px;opacity:0;transform:translateY(12px) scale(.97);will-change:transform,opacity;animation:g4eWordmarkReveal .46s cubic-bezier(.16,1,.3,1) .15s 1 forwards}
         .g4e-splash-wordmark{height:clamp(54px,12.5vw,76px);width:auto;max-width:min(84vw,340px);object-fit:contain;display:block}
-        .g4e-splash-shimmer{position:absolute;top:-15%;bottom:-15%;left:0;width:48%;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.68) 45%,rgba(233,213,255,.55) 55%,rgba(255,255,255,0) 100%);mix-blend-mode:screen;transform:translateX(-160%) skewX(-20deg);will-change:transform;animation:g4eShimmerSweep .58s cubic-bezier(.4,0,.2,1) .74s 1 forwards;pointer-events:none}
-        .g4e-splash-slogan{position:relative;z-index:2;margin-top:12px;font-family:'Assistant',sans-serif;font-weight:800;font-size:clamp(1.3rem,4.4vw,1.75rem);line-height:1.25;letter-spacing:-.01em;color:#1E1638;opacity:0;transform:translateY(10px);will-change:transform,opacity;animation:g4eSloganReveal .5s cubic-bezier(.16,1,.3,1) .72s 1 forwards}
+        .g4e-splash-shimmer{position:absolute;top:-15%;bottom:-15%;left:0;width:48%;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.68) 45%,rgba(233,213,255,.55) 55%,rgba(255,255,255,0) 100%);mix-blend-mode:screen;transform:translateX(-160%) skewX(-20deg);will-change:transform;animation:g4eShimmerSweep .52s cubic-bezier(.4,0,.2,1) .42s 1 forwards;pointer-events:none}
+        .g4e-splash-slogan{position:relative;z-index:2;margin-top:12px;font-family:'Assistant',sans-serif;font-weight:800;font-size:clamp(1.3rem,4.4vw,1.75rem);line-height:1.25;letter-spacing:-.01em;color:#1E1638;opacity:0;transform:translateY(8px);will-change:transform,opacity;animation:g4eSloganReveal .44s cubic-bezier(.16,1,.3,1) .38s 1 forwards}
         .g4e-splash-slogan-accent{color:#6D35E8;background:linear-gradient(90deg,#5B21B6 0%,#6D35E8 55%,#8B5CF6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
         .g4e-splash-confetti{position:absolute;inset:0;z-index:1;pointer-events:none}
-        .g4e-confetti-piece{position:absolute;top:46%;left:50%;width:var(--w,8px);height:var(--h,8px);background:var(--c,#6D35E8);border-radius:var(--r,2px);opacity:0;transform:translate3d(0,0,0) scale(.3) rotate(0deg);will-change:transform,opacity;animation:g4eConfettiBurst 1.25s cubic-bezier(.16,1,.3,1) var(--d,.72s) 1 forwards}
-        @keyframes g4eHaloExpand{0%{opacity:0;transform:scale(.45)}28%{opacity:1;transform:scale(1.06)}55%{opacity:.92;transform:scale(1)}100%{opacity:.85;transform:scale(1.03)}}
-        @keyframes g4eIconEnter{0%{opacity:0;transform:scale(.68) translateY(10px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+        .g4e-confetti-piece{position:absolute;top:46%;left:50%;width:var(--w,8px);height:var(--h,8px);background:var(--c,#6D35E8);border-radius:var(--r,2px);opacity:0;transform:translate3d(0,0,0) scale(.3) rotate(0deg);will-change:transform,opacity;animation:g4eConfettiBurst 1.15s cubic-bezier(.16,1,.3,1) calc(var(--d,.72s) - .28s) 1 forwards}
+        @keyframes g4eHaloExpand{0%{opacity:.85;transform:scale(.78)}28%{opacity:1;transform:scale(1.06)}55%{opacity:.92;transform:scale(1)}100%{opacity:.85;transform:scale(1.03)}}
+        @keyframes g4eIconEnter{0%{opacity:.9;transform:scale(.82) translateY(4px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
         @keyframes g4eOrbitOnce{0%{opacity:0;transform:rotate(-70deg) scale(.94)}18%{opacity:1}82%{opacity:1}100%{opacity:0;transform:rotate(290deg) scale(1)}}
-        @keyframes g4eWordmarkReveal{0%{opacity:0;transform:translateY(14px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes g4eWordmarkReveal{0%{opacity:0;transform:translateY(12px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes g4eShimmerSweep{0%{transform:translateX(-160%) skewX(-20deg)}100%{transform:translateX(320%) skewX(-20deg)}}
-        @keyframes g4eSloganReveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes g4eSloganReveal{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
         @keyframes g4eConfettiBurst{0%{opacity:0;transform:translate3d(var(--sx,0px),var(--sy,0px),0) scale(.45) rotate(0deg)}18%{opacity:1;transform:translate3d(calc(var(--tx,140px)*.72),calc(var(--ty,-40px)*.72),0) scale(1.05) rotate(calc(var(--rot,140deg)*.55))}52%{opacity:.92;transform:translate3d(var(--tx,140px),var(--ty,-40px),0) scale(1) rotate(var(--rot,140deg))}100%{opacity:0;transform:translate3d(calc(var(--tx,140px)*1.12),calc(var(--ty,-40px) + 24px),0) scale(.82) rotate(calc(var(--rot,140deg) + 40deg))}}
     </style>
     <link rel="stylesheet" href="frontend/tailwind.min.css?v=1" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="frontend/styles.css?v=18" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="frontend/styles.css?v=19" media="print" onload="this.media='all'">
     <noscript>
         <link rel="stylesheet" href="frontend/tailwind.min.css?v=1">
         <link rel="stylesheet" href="frontend/styles.css?v=18">
@@ -253,9 +255,9 @@
         <div class="sample-wedding-card relative z-10 rounded-[1.85rem] p-6 sm:p-9 border-[3px] border-white overflow-hidden">
             
             <!-- Botanical Floral Corners (Blended seamlessly into the cream card) -->
-            <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true"
+            <img src="assets/flower-right-up.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"
                 class="absolute top-0 right-0 w-32 sm:w-44 h-32 sm:h-44 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
-            <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true"
+            <img src="assets/flower-ledt-down.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async"
                 class="absolute bottom-0 left-0 w-32 sm:w-44 h-32 sm:h-44 object-contain mix-blend-multiply opacity-85 pointer-events-none select-none">
 
             <!-- Delicate Inner Gold Frame Line -->
