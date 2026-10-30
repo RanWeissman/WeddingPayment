@@ -22,6 +22,13 @@
         (function () {
             var root = document.documentElement;
             try {
+                var p = window.location.pathname.replace(/^\/+/, '');
+                if (p && p.indexOf('.') === -1 && p !== 'payment.html' && window.fetch) {
+                    window.__g4eConfigPromise = fetch('/api/config/' + p, { cache: 'no-store' });
+                }
+            } catch (e) {}
+
+            try {
                 var navEntry = (window.performance && performance.getEntriesByType)
                     ? performance.getEntriesByType('navigation')[0]
                     : null;
@@ -34,21 +41,34 @@
             }
 
             var dismissed = false;
+            var started = false;
             var skipAllowed = false;
+            var prepTimer = null;
             var fadeTimer = null;
             var removeTimer = null;
             var skipTimer = null;
             var watchdogTimer = null;
 
-            function unlockMainContent() {
+            function enableStylesheets() {
+                root.classList.add('g4e-splash-prep-bg');
                 var links = document.querySelectorAll('link[rel="stylesheet"]');
                 for (var k = 0; k < links.length; k++) { links[k].media = 'all'; }
-                root.classList.remove('g4e-splash-active');
+            }
+
+            function unlockMainContent() {
+                enableStylesheets();
+                root.classList.remove('g4e-splash-active', 'g4e-splash-go', 'g4e-splash-prep-bg');
                 var mainContent = document.getElementById('main-payment-card');
                 if (mainContent) {
                     mainContent.removeAttribute('inert');
                     mainContent.removeAttribute('aria-hidden');
                 }
+            }
+
+            function warmHomepageCache() {
+                try {
+                    fetch('/', { priority: 'low', credentials: 'same-origin' }).catch(function () {});
+                } catch (e) {}
             }
 
             function cleanupOverlay() {
@@ -57,11 +77,13 @@
                 if (overlay && overlay.parentNode) {
                     overlay.parentNode.removeChild(overlay);
                 }
+                setTimeout(warmHomepageCache, 150);
             }
 
             function dismissSplash(immediate) {
                 if (dismissed) return;
                 dismissed = true;
+                clearTimeout(prepTimer);
                 clearTimeout(fadeTimer);
                 clearTimeout(removeTimer);
                 clearTimeout(skipTimer);
@@ -74,8 +96,14 @@
                     return;
                 }
 
+                enableStylesheets();
                 overlay.classList.add('g4e-splash-fadeout');
-                unlockMainContent();
+                root.classList.remove('g4e-splash-active');
+                var mainContent = document.getElementById('main-payment-card');
+                if (mainContent) {
+                    mainContent.removeAttribute('inert');
+                    mainContent.removeAttribute('aria-hidden');
+                }
                 removeTimer = setTimeout(cleanupOverlay, 360);
             }
 
@@ -90,21 +118,57 @@
                 if (e.persisted) dismissSplash(true);
             });
 
-            // Start the 2.5s timeline on first paint of the splash overlay
-            requestAnimationFrame(function () {
-                var overlay = document.getElementById('g4e-splash-overlay');
-                if (overlay) {
-                    overlay.addEventListener('click', function () {
-                        if (skipAllowed) dismissSplash(false);
-                    }, { passive: true });
-                }
+            function beginTimeline() {
+                if (started || dismissed) return;
+                started = true;
+                root.classList.add('g4e-splash-go');
                 skipTimer = setTimeout(function () {
                     skipAllowed = true;
-                }, 450);
+                }, 400);
                 fadeTimer = setTimeout(function () {
                     dismissSplash(false);
                 }, 2120);
-            });
+            }
+
+            window.__g4eStartSplash = function () {
+                var overlay = document.getElementById('g4e-splash-overlay');
+                if (!overlay || !root.classList.contains('g4e-splash-active')) {
+                    cleanupOverlay();
+                    return;
+                }
+                overlay.addEventListener('click', function () {
+                    if (skipAllowed) dismissSplash(false);
+                }, { passive: true });
+
+                try {
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        enableStylesheets();
+                        root.classList.add('g4e-splash-go');
+                        skipAllowed = true;
+                        fadeTimer = setTimeout(function () { dismissSplash(false); }, 450);
+                        return;
+                    }
+                } catch (e) {}
+
+                var imgs = overlay.querySelectorAll('img');
+                var pending = 0;
+                function checkReady() {
+                    pending--;
+                    if (pending <= 0) beginTimeline();
+                }
+                for (var i = 0; i < imgs.length; i++) {
+                    if (!imgs[i].complete) {
+                        pending++;
+                        imgs[i].addEventListener('load', checkReady, { once: true });
+                        imgs[i].addEventListener('error', checkReady, { once: true });
+                    }
+                }
+                if (pending === 0) {
+                    beginTimeline();
+                } else {
+                    setTimeout(beginTimeline, 300);
+                }
+            };
 
             // Hard fail-safe watchdog so splash can never hang beyond 2.8s
             watchdogTimer = setTimeout(function () {
@@ -113,33 +177,35 @@
         })();
     </script>
     <style>
-        html.g4e-splash-active,html.g4e-splash-active body{overflow:hidden!important}
+        html.g4e-splash-active,html.g4e-splash-active body{overflow:hidden!important;background:#F8F4FF}
+        html.g4e-splash-active:not(.g4e-splash-prep-bg) body>*:not(#g4e-splash-overlay):not(script){display:none!important}
         #g4e-splash-overlay{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 42%,#FFFFFF 0%,#F8F4FF 48%,#EDE3FF 100%);opacity:1;transform:scale(1);transition:opacity .36s cubic-bezier(.4,0,.2,1),transform .36s cubic-bezier(.4,0,.2,1);user-select:none;-webkit-user-select:none;cursor:pointer;overflow:hidden}
-        html.g4e-splash-active #g4e-splash-overlay{display:flex}
+        html.g4e-splash-active #g4e-splash-overlay,#g4e-splash-overlay.g4e-splash-fadeout{display:flex}
         #g4e-splash-overlay.g4e-splash-fadeout{opacity:0;transform:scale(1.015);pointer-events:none}
         .g4e-splash-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:100%;text-align:center}
         .g4e-splash-icon-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:clamp(128px,28vw,168px);height:clamp(128px,28vw,168px);margin-bottom:4px}
-        .g4e-splash-halo{position:absolute;inset:-36%;border-radius:50%;background:radial-gradient(circle,rgba(109,53,232,.28) 0%,rgba(139,92,246,.16) 38%,rgba(230,198,135,.1) 58%,rgba(255,255,255,0) 74%);filter:blur(8px);opacity:.85;transform:scale(.78);will-change:transform,opacity;animation:g4eHaloExpand 2s cubic-bezier(.16,1,.3,1) 0s 1 forwards;pointer-events:none}
-        .g4e-splash-icon{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;opacity:.9;transform:scale(.82) translateY(4px);will-change:transform,opacity;animation:g4eIconEnter .42s cubic-bezier(.22,1.25,.36,1) 0s 1 forwards;filter:drop-shadow(0 12px 24px rgba(109,53,232,.18))}
-        .g4e-splash-orbit{position:absolute;inset:-8%;z-index:3;border-radius:50%;opacity:0;transform:rotate(-70deg);will-change:transform,opacity;animation:g4eOrbitOnce .6s cubic-bezier(.42,0,.22,1) .14s 1 forwards;pointer-events:none}
-        .g4e-splash-orbit-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(109,53,232,.45))}
-        .g4e-splash-wordmark-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;padding:4px 10px;opacity:0;transform:translateY(12px) scale(.97);will-change:transform,opacity;animation:g4eWordmarkReveal .46s cubic-bezier(.16,1,.3,1) .15s 1 forwards}
+        .g4e-splash-halo{position:absolute;inset:-42%;border-radius:50%;background:radial-gradient(circle,rgba(109,53,232,.26) 0%,rgba(139,92,246,.15) 36%,rgba(230,198,135,.09) 56%,rgba(255,255,255,0) 72%);opacity:.85;transform:scale(.82);will-change:transform,opacity;animation:g4eHaloExpand 2s cubic-bezier(.16,1,.3,1) 0s 1 forwards paused;pointer-events:none}
+        .g4e-splash-icon{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;opacity:.92;transform:scale(.86) translateY(3px);will-change:transform,opacity;animation:g4eIconEnter .42s cubic-bezier(.22,1.25,.36,1) 0s 1 forwards paused}
+        .g4e-splash-orbit{position:absolute;inset:-8%;z-index:3;border-radius:50%;opacity:0;transform:rotate(-70deg);will-change:transform,opacity;animation:g4eOrbitOnce .6s cubic-bezier(.42,0,.22,1) .14s 1 forwards paused;pointer-events:none}
+        .g4e-splash-orbit-svg{width:100%;height:100%;overflow:visible}
+        .g4e-splash-wordmark-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;padding:4px 10px;opacity:0;transform:translateY(12px) scale(.97);will-change:transform,opacity;animation:g4eWordmarkReveal .46s cubic-bezier(.16,1,.3,1) .15s 1 forwards paused}
         .g4e-splash-wordmark{height:clamp(54px,12.5vw,76px);width:auto;max-width:min(84vw,340px);object-fit:contain;display:block}
-        .g4e-splash-shimmer{position:absolute;top:-15%;bottom:-15%;left:0;width:48%;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.68) 45%,rgba(233,213,255,.55) 55%,rgba(255,255,255,0) 100%);mix-blend-mode:screen;transform:translateX(-160%) skewX(-20deg);will-change:transform;animation:g4eShimmerSweep .52s cubic-bezier(.4,0,.2,1) .42s 1 forwards;pointer-events:none}
-        .g4e-splash-slogan{position:relative;z-index:2;margin-top:12px;display:inline-flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);will-change:transform,opacity;animation:g4eSloganReveal .44s cubic-bezier(.16,1,.3,1) .38s 1 forwards}
+        .g4e-splash-shimmer{position:absolute;top:-15%;bottom:-15%;left:0;width:48%;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.68) 45%,rgba(233,213,255,.55) 55%,rgba(255,255,255,0) 100%);transform:translateX(-160%) skewX(-20deg);will-change:transform;animation:g4eShimmerSweep .52s cubic-bezier(.4,0,.2,1) .42s 1 forwards paused;pointer-events:none}
+        .g4e-splash-slogan{position:relative;z-index:2;margin-top:12px;display:inline-flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);will-change:transform,opacity;animation:g4eSloganReveal .44s cubic-bezier(.16,1,.3,1) .38s 1 forwards paused}
         .g4e-splash-slogan-img{height:clamp(25px,6.5vw,34px);width:auto;max-width:min(82vw,265px);object-fit:contain;display:block}
         .g4e-splash-confetti{position:absolute;inset:0;z-index:1;pointer-events:none}
-        .g4e-confetti-piece{position:absolute;top:46%;left:50%;width:var(--w,8px);height:var(--h,8px);background:var(--c,#6D35E8);border-radius:var(--r,2px);opacity:0;transform:translate3d(0,0,0) scale(.3) rotate(0deg);will-change:transform,opacity;animation:g4eConfettiBurst 1.15s cubic-bezier(.16,1,.3,1) calc(var(--d,.72s) - .28s) 1 forwards}
-        @keyframes g4eHaloExpand{0%{opacity:.85;transform:scale(.78)}28%{opacity:1;transform:scale(1.06)}55%{opacity:.92;transform:scale(1)}100%{opacity:.85;transform:scale(1.03)}}
-        @keyframes g4eIconEnter{0%{opacity:.9;transform:scale(.82) translateY(4px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+        .g4e-confetti-piece{position:absolute;top:46%;left:50%;width:var(--w,8px);height:var(--h,8px);background:var(--c,#6D35E8);border-radius:var(--r,2px);opacity:0;transform:translate3d(0,0,0) scale(.3) rotate(0deg);will-change:transform,opacity;animation:g4eConfettiBurst 1.15s cubic-bezier(.16,1,.3,1) calc(var(--d,.72s) - .28s) 1 forwards paused}
+        html.g4e-splash-go .g4e-splash-halo,html.g4e-splash-go .g4e-splash-icon,html.g4e-splash-go .g4e-splash-orbit,html.g4e-splash-go .g4e-splash-wordmark-wrap,html.g4e-splash-go .g4e-splash-shimmer,html.g4e-splash-go .g4e-splash-slogan,html.g4e-splash-go .g4e-confetti-piece{animation-play-state:running}
+        @keyframes g4eHaloExpand{0%{opacity:.85;transform:scale(.82)}28%{opacity:1;transform:scale(1.06)}55%{opacity:.92;transform:scale(1)}100%{opacity:.85;transform:scale(1.03)}}
+        @keyframes g4eIconEnter{0%{opacity:.92;transform:scale(.86) translateY(3px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
         @keyframes g4eOrbitOnce{0%{opacity:0;transform:rotate(-70deg) scale(.94)}18%{opacity:1}82%{opacity:1}100%{opacity:0;transform:rotate(290deg) scale(1)}}
         @keyframes g4eWordmarkReveal{0%{opacity:0;transform:translateY(12px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
         @keyframes g4eShimmerSweep{0%{transform:translateX(-160%) skewX(-20deg)}100%{transform:translateX(320%) skewX(-20deg)}}
         @keyframes g4eSloganReveal{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
         @keyframes g4eConfettiBurst{0%{opacity:0;transform:translate3d(var(--sx,0px),var(--sy,0px),0) scale(.45) rotate(0deg)}18%{opacity:1;transform:translate3d(calc(var(--tx,140px)*.72),calc(var(--ty,-40px)*.72),0) scale(1.05) rotate(calc(var(--rot,140deg)*.55))}52%{opacity:.92;transform:translate3d(var(--tx,140px),var(--ty,-40px),0) scale(1) rotate(var(--rot,140deg))}100%{opacity:0;transform:translate3d(calc(var(--tx,140px)*1.12),calc(var(--ty,-40px) + 24px),0) scale(.82) rotate(calc(var(--rot,140deg) + 40deg))}}
     </style>
-    <link rel="stylesheet" href="frontend/tailwind.min.css?v=2" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="frontend/styles.css?v=19" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="frontend/tailwind.min.css?v=2" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
+    <link rel="stylesheet" href="frontend/styles.css?v=19" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
     <noscript>
         <link rel="stylesheet" href="frontend/tailwind.min.css?v=2">
         <link rel="stylesheet" href="frontend/styles.css?v=19">
@@ -206,21 +272,22 @@
                         <circle cx="60" cy="6" r="1.8" fill="#FFFFFF" />
                     </svg>
                 </div>
-                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="async" fetchpriority="high">
+                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" fetchpriority="high">
             </div>
 
             <!-- 2. Original Gift4Event Wordmark + Subtle Shimmer Sweep -->
             <div class="g4e-splash-wordmark-wrap" dir="ltr">
-                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="async" fetchpriority="high">
+                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" fetchpriority="high">
                 <span class="g4e-splash-shimmer" aria-hidden="true"></span>
             </div>
 
             <!-- 3. Exact Slogan Below Logo -->
             <div class="g4e-splash-slogan">
-                <img src="assets/Slogan.png" alt="עמלות? לא בשמחות!" class="g4e-splash-slogan-img" decoding="async" fetchpriority="high">
+                <img src="assets/Slogan.png" alt="עמלות? לא בשמחות!" class="g4e-splash-slogan-img" fetchpriority="high">
             </div>
         </div>
     </div>
+    <script>if(window.__g4eStartSplash)window.__g4eStartSplash();</script>
     
     <!-- Ambient Soft Purple & Rose Glows (Matching Homepage Aesthetic) -->
     <div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
@@ -427,7 +494,7 @@
 
                 <!-- Gift4Event Signature (Using Official Assets) -->
                 <div class="mt-4 pt-3.5 border-t border-[#D5C3AA]/35 flex items-center justify-center">
-                    <a href="/" target="_blank" rel="noopener noreferrer"
+                    <a href="/"
                         class="inline-flex items-center gap-2 hover:opacity-85 transition-opacity">
                         <span class="inline-flex items-center gap-1" dir="ltr">
                             <img src="assets/logo.png" alt="Gift4Event Icon" class="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 select-none">
@@ -495,6 +562,6 @@
     </div>
 
     <!-- Guest Payment Page Logic -->
-    <script defer src="frontend/payment.js?v=7"></script>
+    <script defer src="frontend/payment.js?v=8"></script>
 </body>
 </html>
