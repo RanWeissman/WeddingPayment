@@ -56,6 +56,44 @@ const INFO_MODALS_HTML = `
                         </div>
                     </div>
 
+                    <!-- Savings Illustration Comparison -->
+                    <div class="bg-white p-5 rounded-xl border border-brand-border/80 space-y-3.5">
+                        <div class="text-center">
+                            <h4 class="text-lg font-extrabold text-brand-text">כמה עמלות אפשר לחסוך?</h4>
+                            <p class="text-sm text-brand-muted font-medium mt-0.5">דוגמה לקבלת מתנות בסך 50,000 ₪</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+                            <!-- Card 1: Credit Gift Service (Neutral Gray) -->
+                            <div class="bg-gray-50 border border-gray-200/90 rounded-xl p-4 text-center flex flex-col items-center justify-center space-y-1">
+                                <h5 class="text-sm font-bold text-gray-700">שירות מתנות באשראי</h5>
+                                <p class="text-[28px] sm:text-[30px] font-extrabold text-gray-900 leading-tight pt-0.5">
+                                    1,450 ₪
+                                </p>
+                                <p class="text-xs sm:text-[13px] text-gray-600 font-medium">עמלה לדוגמה של 2.9%</p>
+                            </div>
+
+                            <!-- Card 2: Gift4Event (Light Purple with subtle emphasis) -->
+                            <div class="bg-brand-lavender/70 border border-brand-primary/35 rounded-xl p-4 text-center flex flex-col items-center justify-center space-y-1 shadow-sm">
+                                <h5 class="text-sm font-bold text-brand-deep">Gift4Event</h5>
+                                <p class="text-[28px] sm:text-[30px] font-extrabold text-brand-primary leading-tight pt-0.5">
+                                    0 ₪
+                                </p>
+                                <p class="text-xs sm:text-[13px] text-brand-text font-semibold">עמלה באתר</p>
+                                <p class="text-xs text-brand-muted font-medium">בהעברה בנקאית או ב-Bit בכפוף לתקרות</p>
+                            </div>
+                        </div>
+
+                        <div class="text-center space-y-1.5 pt-1">
+                            <p class="text-base sm:text-lg font-extrabold text-brand-primary">
+                                1,450 ₪ שיכולים להישאר אצלכם!
+                            </p>
+                            <p class="text-[13px] sm:text-[14px] text-gray-600 leading-relaxed">
+                                הדוגמה להמחשה בלבד. ב-Bit ניתן לקבל עד 25,000 ₪ בשנה לחשבון ללא עמלת קבלה. ייתכנו עמלות בנקאיות או עמלות של שירותי התשלום.
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- Feature 3 -->
                     <div class="bg-brand-lavender/40 p-5 rounded-xl border border-brand-border/70 flex items-start gap-4">
                         <div class="w-10 h-10 rounded-xl bg-brand-lavender text-brand-primary flex items-center justify-center shrink-0 mt-0.5">
