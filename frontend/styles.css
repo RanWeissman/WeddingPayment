@@ -113,11 +113,11 @@ label:focus-visible {
     animation: floatSlow 4.5s ease-in-out infinite;
 }
 
-/* Respect user preference for reduced motion */
+/* Respect user preference for reduced motion (excluding brand opening splash) */
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *:not(#g4e-splash-overlay):not(#g4e-splash-overlay *),
+    *:not(#g4e-splash-overlay):not(#g4e-splash-overlay *)::before,
+    *:not(#g4e-splash-overlay):not(#g4e-splash-overlay *)::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -237,8 +237,11 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: scale(0.45);
     will-change: transform, opacity;
-    animation: g4eHaloExpand 2.1s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 forwards;
     pointer-events: none;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-halo {
+    animation: g4eHaloExpand 2.1s cubic-bezier(0.16, 1, 0.3, 1) 0s 1 forwards;
 }
 
 .g4e-splash-icon {
@@ -250,8 +253,11 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: scale(0.68) translateY(10px);
     will-change: transform, opacity;
-    animation: g4eIconEnter 0.52s cubic-bezier(0.22, 1.25, 0.36, 1) 0.02s 1 forwards;
     filter: drop-shadow(0 12px 24px rgba(109, 53, 232, 0.18));
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-icon {
+    animation: g4eIconEnter 0.52s cubic-bezier(0.22, 1.25, 0.36, 1) 0.02s 1 forwards;
 }
 
 /* 2. Single Orbiting Light Point around the Gift Icon (0.35s - 0.95s) */
@@ -263,8 +269,11 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: rotate(-70deg);
     will-change: transform, opacity;
-    animation: g4eOrbitOnce 0.62s cubic-bezier(0.42, 0, 0.22, 1) 0.35s 1 forwards;
     pointer-events: none;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-orbit {
+    animation: g4eOrbitOnce 0.62s cubic-bezier(0.42, 0, 0.22, 1) 0.35s 1 forwards;
 }
 
 .g4e-splash-orbit-svg {
@@ -287,6 +296,9 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: translateY(14px) scale(0.97);
     will-change: transform, opacity;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-wordmark-wrap {
     animation: g4eWordmarkReveal 0.54s cubic-bezier(0.16, 1, 0.3, 1) 0.36s 1 forwards;
 }
 
@@ -314,8 +326,11 @@ html.g4e-splash-active #g4e-splash-overlay {
     mix-blend-mode: screen;
     transform: translateX(-160%) skewX(-20deg);
     will-change: transform;
-    animation: g4eShimmerSweep 0.56s cubic-bezier(0.4, 0, 0.2, 1) 0.72s 1 forwards;
     pointer-events: none;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-shimmer {
+    animation: g4eShimmerSweep 0.56s cubic-bezier(0.4, 0, 0.2, 1) 0.72s 1 forwards;
 }
 
 /* 4. Slogan: "עמלות? לא בשמחות!" (0.7s - 1.3s) */
@@ -332,6 +347,9 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: translateY(10px);
     will-change: transform, opacity;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-splash-slogan {
     animation: g4eSloganReveal 0.48s cubic-bezier(0.16, 1, 0.3, 1) 0.70s 1 forwards;
 }
 
@@ -362,6 +380,9 @@ html.g4e-splash-active #g4e-splash-overlay {
     opacity: 0;
     transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
     will-change: transform, opacity;
+}
+
+#g4e-splash-overlay.g4e-splash-go .g4e-confetti-piece {
     animation: g4eConfettiBurst 1.25s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0.72s) 1 forwards;
 }
 
@@ -463,22 +484,5 @@ html.g4e-splash-active #g4e-splash-overlay {
     100% {
         opacity: 0;
         transform: translate3d(calc(var(--tx, 140px) * 1.12), calc(var(--ty, -40px) + 24px), 0) scale(0.82) rotate(calc(var(--rot, 140deg) + 40deg));
-    }
-}
-
-/* Reduced motion: static presentation & direct transition */
-@media (prefers-reduced-motion: reduce) {
-    .g4e-splash-halo,
-    .g4e-splash-icon,
-    .g4e-splash-wordmark-wrap,
-    .g4e-splash-slogan {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-    }
-    .g4e-splash-orbit,
-    .g4e-splash-shimmer,
-    .g4e-splash-confetti {
-        display: none !important;
     }
 }
