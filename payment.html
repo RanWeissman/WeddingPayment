@@ -15,32 +15,140 @@
     <meta name="twitter:title" content="השתתפות בשמחה">
     <meta name="twitter:description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות 💜">
     <link rel="icon" href="assets/logo.png" type="image/png">
-
-    <!-- Google Fonts Optimized for Hebrew -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="frontend/styles.css?v=16">
     <script>
         (function () {
+            var root = document.documentElement;
             try {
                 var navEntry = (window.performance && performance.getEntriesByType)
                     ? performance.getEntriesByType('navigation')[0]
                     : null;
                 var navType = navEntry ? navEntry.type : 'navigate';
                 if (navType === 'back_forward') return;
-                document.documentElement.classList.add('g4e-splash-active');
+                root.classList.add('g4e-splash-active');
             } catch (e) {
-                document.documentElement.classList.remove('g4e-splash-active');
+                root.classList.remove('g4e-splash-active');
+                return;
             }
+
+            var dismissed = false;
+            var skipAllowed = false;
+            var fadeTimer = null;
+            var removeTimer = null;
+            var skipTimer = null;
+            var watchdogTimer = null;
+
+            function unlockMainContent() {
+                var links = document.querySelectorAll('link[rel="stylesheet"]');
+                for (var k = 0; k < links.length; k++) { links[k].media = 'all'; }
+                root.classList.remove('g4e-splash-active');
+                var mainContent = document.getElementById('main-payment-card');
+                if (mainContent) {
+                    mainContent.removeAttribute('inert');
+                    mainContent.removeAttribute('aria-hidden');
+                }
+            }
+
+            function cleanupOverlay() {
+                unlockMainContent();
+                var overlay = document.getElementById('g4e-splash-overlay');
+                if (overlay && overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }
+
+            function dismissSplash(immediate) {
+                if (dismissed) return;
+                dismissed = true;
+                clearTimeout(fadeTimer);
+                clearTimeout(removeTimer);
+                clearTimeout(skipTimer);
+                clearTimeout(watchdogTimer);
+                window.removeEventListener('keydown', onKeyDown);
+
+                var overlay = document.getElementById('g4e-splash-overlay');
+                if (immediate || !overlay) {
+                    cleanupOverlay();
+                    return;
+                }
+
+                overlay.classList.add('g4e-splash-fadeout');
+                unlockMainContent();
+                removeTimer = setTimeout(cleanupOverlay, 360);
+            }
+
+            function onKeyDown(e) {
+                if (skipAllowed && e.key === 'Escape') {
+                    dismissSplash(false);
+                }
+            }
+
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('pageshow', function (e) {
+                if (e.persisted) dismissSplash(true);
+            });
+
+            // Start the 2.5s timeline on first paint of the splash overlay
+            requestAnimationFrame(function () {
+                var overlay = document.getElementById('g4e-splash-overlay');
+                if (overlay) {
+                    overlay.addEventListener('click', function () {
+                        if (skipAllowed) dismissSplash(false);
+                    }, { passive: true });
+                }
+                skipTimer = setTimeout(function () {
+                    skipAllowed = true;
+                }, 450);
+                fadeTimer = setTimeout(function () {
+                    dismissSplash(false);
+                }, 2120);
+            });
+
+            // Hard fail-safe watchdog so splash can never hang beyond 2.8s
+            watchdogTimer = setTimeout(function () {
+                dismissSplash(true);
+            }, 2800);
         })();
     </script>
+    <style>
+        html.g4e-splash-active,html.g4e-splash-active body{overflow:hidden!important}
+        #g4e-splash-overlay{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 42%,#FFFFFF 0%,#F8F4FF 48%,#EDE3FF 100%);opacity:1;transform:scale(1);transition:opacity .36s cubic-bezier(.4,0,.2,1),transform .36s cubic-bezier(.4,0,.2,1);user-select:none;-webkit-user-select:none;cursor:pointer;overflow:hidden}
+        html.g4e-splash-active #g4e-splash-overlay{display:flex}
+        #g4e-splash-overlay.g4e-splash-fadeout{opacity:0;transform:scale(1.015);pointer-events:none}
+        .g4e-splash-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:100%;text-align:center}
+        .g4e-splash-icon-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:clamp(128px,28vw,168px);height:clamp(128px,28vw,168px);margin-bottom:4px}
+        .g4e-splash-halo{position:absolute;inset:-36%;border-radius:50%;background:radial-gradient(circle,rgba(109,53,232,.28) 0%,rgba(139,92,246,.16) 38%,rgba(230,198,135,.1) 58%,rgba(255,255,255,0) 74%);filter:blur(8px);opacity:0;transform:scale(.45);will-change:transform,opacity;animation:g4eHaloExpand 2.2s cubic-bezier(.16,1,.3,1) 0s 1 forwards;pointer-events:none}
+        .g4e-splash-icon{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(.68) translateY(10px);will-change:transform,opacity;animation:g4eIconEnter .55s cubic-bezier(.22,1.25,.36,1) .05s 1 forwards;filter:drop-shadow(0 12px 24px rgba(109,53,232,.18))}
+        .g4e-splash-orbit{position:absolute;inset:-8%;z-index:3;border-radius:50%;opacity:0;transform:rotate(-70deg);will-change:transform,opacity;animation:g4eOrbitOnce .65s cubic-bezier(.42,0,.22,1) .38s 1 forwards;pointer-events:none}
+        .g4e-splash-orbit-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(109,53,232,.45))}
+        .g4e-splash-wordmark-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px;padding:4px 10px;opacity:0;transform:translateY(14px) scale(.97);will-change:transform,opacity;animation:g4eWordmarkReveal .56s cubic-bezier(.16,1,.3,1) .38s 1 forwards}
+        .g4e-splash-wordmark{height:clamp(54px,12.5vw,76px);width:auto;max-width:min(84vw,340px);object-fit:contain;display:block}
+        .g4e-splash-shimmer{position:absolute;top:-15%;bottom:-15%;left:0;width:48%;background:linear-gradient(105deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.68) 45%,rgba(233,213,255,.55) 55%,rgba(255,255,255,0) 100%);mix-blend-mode:screen;transform:translateX(-160%) skewX(-20deg);will-change:transform;animation:g4eShimmerSweep .58s cubic-bezier(.4,0,.2,1) .74s 1 forwards;pointer-events:none}
+        .g4e-splash-slogan{position:relative;z-index:2;margin-top:12px;font-family:'Assistant',sans-serif;font-weight:800;font-size:clamp(1.3rem,4.4vw,1.75rem);line-height:1.25;letter-spacing:-.01em;color:#1E1638;opacity:0;transform:translateY(10px);will-change:transform,opacity;animation:g4eSloganReveal .5s cubic-bezier(.16,1,.3,1) .72s 1 forwards}
+        .g4e-splash-slogan-accent{color:#6D35E8;background:linear-gradient(90deg,#5B21B6 0%,#6D35E8 55%,#8B5CF6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .g4e-splash-confetti{position:absolute;inset:0;z-index:1;pointer-events:none}
+        .g4e-confetti-piece{position:absolute;top:46%;left:50%;width:var(--w,8px);height:var(--h,8px);background:var(--c,#6D35E8);border-radius:var(--r,2px);opacity:0;transform:translate3d(0,0,0) scale(.3) rotate(0deg);will-change:transform,opacity;animation:g4eConfettiBurst 1.25s cubic-bezier(.16,1,.3,1) var(--d,.72s) 1 forwards}
+        @keyframes g4eHaloExpand{0%{opacity:0;transform:scale(.45)}28%{opacity:1;transform:scale(1.06)}55%{opacity:.92;transform:scale(1)}100%{opacity:.85;transform:scale(1.03)}}
+        @keyframes g4eIconEnter{0%{opacity:0;transform:scale(.68) translateY(10px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+        @keyframes g4eOrbitOnce{0%{opacity:0;transform:rotate(-70deg) scale(.94)}18%{opacity:1}82%{opacity:1}100%{opacity:0;transform:rotate(290deg) scale(1)}}
+        @keyframes g4eWordmarkReveal{0%{opacity:0;transform:translateY(14px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes g4eShimmerSweep{0%{transform:translateX(-160%) skewX(-20deg)}100%{transform:translateX(320%) skewX(-20deg)}}
+        @keyframes g4eSloganReveal{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes g4eConfettiBurst{0%{opacity:0;transform:translate3d(var(--sx,0px),var(--sy,0px),0) scale(.45) rotate(0deg)}18%{opacity:1;transform:translate3d(calc(var(--tx,140px)*.72),calc(var(--ty,-40px)*.72),0) scale(1.05) rotate(calc(var(--rot,140deg)*.55))}52%{opacity:.92;transform:translate3d(var(--tx,140px),var(--ty,-40px),0) scale(1) rotate(var(--rot,140deg))}100%{opacity:0;transform:translate3d(calc(var(--tx,140px)*1.12),calc(var(--ty,-40px) + 24px),0) scale(.82) rotate(calc(var(--rot,140deg) + 40deg))}}
+    </style>
+    <link rel="stylesheet" href="frontend/tailwind.min.css?v=1" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="frontend/styles.css?v=18" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="frontend/tailwind.min.css?v=1">
+        <link rel="stylesheet" href="frontend/styles.css?v=18">
+    </noscript>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Shared Theme -->
-    <script src="frontend/theme.js?v=13"></script>
+    <!-- Google Fonts Optimized for Hebrew (non-blocking) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap" rel="stylesheet">
+    </noscript>
 </head>
 <body class="bg-brand-bg min-h-screen w-full max-w-full overflow-x-hidden flex items-center justify-center font-sans px-4 py-8 sm:py-12 relative text-brand-text">
 
@@ -110,130 +218,6 @@
             </p>
         </div>
     </div>
-    <script>
-        (function () {
-            var root = document.documentElement;
-            var overlay = document.getElementById('g4e-splash-overlay');
-            var dismissed = false;
-            var started = false;
-            var skipAllowed = false;
-            var fadeTimer = null;
-            var removeTimer = null;
-            var skipTimer = null;
-            var watchdogTimer = null;
-
-            function getMainContent() {
-                return document.getElementById('main-payment-card');
-            }
-
-            function unlockMainContent() {
-                root.classList.remove('g4e-splash-active');
-                var mainContent = getMainContent();
-                if (mainContent) {
-                    mainContent.removeAttribute('inert');
-                    mainContent.removeAttribute('aria-hidden');
-                }
-            }
-
-            function cleanupOverlay() {
-                unlockMainContent();
-                if (overlay && overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            }
-
-            if (!root.classList.contains('g4e-splash-active') || !overlay) {
-                cleanupOverlay();
-                return;
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                if (dismissed) return;
-                var mainContent = getMainContent();
-                if (mainContent) {
-                    mainContent.setAttribute('inert', '');
-                    mainContent.setAttribute('aria-hidden', 'true');
-                }
-            });
-
-            function dismissSplash(immediate) {
-                if (dismissed) return;
-                dismissed = true;
-                clearTimeout(fadeTimer);
-                clearTimeout(removeTimer);
-                clearTimeout(skipTimer);
-                clearTimeout(watchdogTimer);
-                window.removeEventListener('keydown', onKeyDown);
-
-                if (immediate) {
-                    cleanupOverlay();
-                    return;
-                }
-
-                overlay.classList.add('g4e-splash-fadeout');
-                unlockMainContent();
-                removeTimer = setTimeout(cleanupOverlay, 380);
-            }
-
-            function onKeyDown(e) {
-                if (skipAllowed && e.key === 'Escape') {
-                    dismissSplash(false);
-                }
-            }
-
-            overlay.addEventListener('click', function () {
-                if (skipAllowed) dismissSplash(false);
-            }, { passive: true });
-            window.addEventListener('keydown', onKeyDown);
-            window.addEventListener('pageshow', function (e) {
-                if (e.persisted) dismissSplash(true);
-            });
-
-            function startAnimationSequence() {
-                if (started || dismissed) return;
-                started = true;
-                requestAnimationFrame(function () {
-                    if (dismissed) return;
-                    overlay.classList.add('g4e-splash-go');
-                    skipTimer = setTimeout(function () {
-                        skipAllowed = true;
-                    }, 450);
-                    fadeTimer = setTimeout(function () {
-                        dismissSplash(false);
-                    }, 2150);
-                });
-            }
-
-            // Wait for both brand images to load (or 550ms max) before starting the 2.5s clock
-            var imgs = overlay.querySelectorAll('img');
-            var pending = imgs.length;
-            if (pending === 0) {
-                startAnimationSequence();
-            } else {
-                var readyFallback = setTimeout(startAnimationSequence, 550);
-                var onImgReady = function () {
-                    pending--;
-                    if (pending <= 0) {
-                        clearTimeout(readyFallback);
-                        startAnimationSequence();
-                    }
-                };
-                for (var i = 0; i < imgs.length; i++) {
-                    if (imgs[i].complete && imgs[i].naturalWidth > 0) {
-                        onImgReady();
-                    } else {
-                        imgs[i].addEventListener('load', onImgReady, { once: true });
-                        imgs[i].addEventListener('error', onImgReady, { once: true });
-                    }
-                }
-            }
-
-            // Hard fail-safe watchdog so splash can never hang
-            watchdogTimer = setTimeout(function () {
-                dismissSplash(true);
-            }, 3400);
-        })();
-    </script>
     
     <!-- Ambient Soft Purple & Rose Glows (Matching Homepage Aesthetic) -->
     <div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
@@ -508,6 +492,6 @@
     </div>
 
     <!-- Guest Payment Page Logic -->
-    <script src="frontend/payment.js?v=6"></script>
+    <script defer src="frontend/payment.js?v=6"></script>
 </body>
 </html>
