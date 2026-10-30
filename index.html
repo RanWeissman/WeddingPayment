@@ -7,12 +7,12 @@
     <title>Gift4Event — עמלות? לא בשמחות!</title>
     <meta name="description" content="דף מתנות אישי לחתונה ולאירועים — העברה בנקאית, Bit ו־PayBox במקום אחד. 0% עמלות מצד האתר, אבטחה ופרטיות.">
     <meta property="og:title" content="Gift4Event — עמלות? לא בשמחות!">
-    <meta property="og:description" content="דף מתנות אישי לחתונה ולאירועים — פשוט ליצור, כיף לשתף. 0% עמלות מצד האתר.">
+    <meta property="og:description" content="דף מתנות אישי לחתונה ולאירועים — משתפים בקלות, חוסכים בעמלות. 0% עמלות מצד האתר.">
     <meta property="og:image" content="https://gift4event.com/assets/logo.png">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Gift4Event — עמלות? לא בשמחות!">
-    <meta name="twitter:description" content="דף מתנות אישי לחתונה ולאירועים — פשוט ליצור, כיף לשתף. 0% עמלות מצד האתר.">
+    <meta name="twitter:description" content="דף מתנות אישי לחתונה ולאירועים — משתפים בקלות, חוסכים בעמלות. 0% עמלות מצד האתר.">
     <link rel="icon" href="assets/logo.png" type="image/png">
     <link rel="preload" as="image" href="assets/logo.png" fetchpriority="high">
     <link rel="preload" as="image" href="assets/Gift4Event.PNG" fetchpriority="high">
@@ -59,7 +59,7 @@
 
             function warmPaymentPageCache() {
                 try {
-                    var urls = ['/roni-and-ran-SABA', '/api/config/roni-and-ran-SABA', 'payment.html', 'frontend/payment.js?v=9'];
+                    var urls = ['/roni-and-ran-SABA', '/api/config/roni-and-ran-SABA', 'payment.html', 'frontend/payment.js?v=10'];
                     for (var i = 0; i < urls.length; i++) {
                         fetch(urls[i], { priority: 'low', credentials: 'same-origin' }).catch(function () {});
                     }
@@ -351,7 +351,7 @@
                 </h1>
                 <p class="text-base sm:text-lg md:text-[1.2rem] font-medium text-[#4E4B66] leading-snug">
                     דף מתנות אישי לחתונה ולאירועים<br>
-                    פשוט ליצור, כיף לשתף.
+                    משתפים בקלות, חוסכים בעמלות.
                 </p>
             </div>
 
@@ -752,12 +752,12 @@
                         </label>
                         <input type="text" id="customSlug" dir="ltr"
                             class="w-full h-[52px] sm:h-[58px] px-4 bg-white border border-brand-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all placeholder-gray-400 text-brand-text text-left"
-                            placeholder="paz and lior"
+                            placeholder="roni and ran"
                             pattern="[A-Za-z0-9 \-]+"
                             title="רק אותיות באנגלית, מספרים, רווחים או מקפים"
                             oninput="this.value = this.value.replace(/[^A-Za-z0-9 \-]/g, '')">
                         <p class="text-[13px] sm:text-[13.5px] text-brand-muted mt-1.5 font-medium leading-relaxed text-right break-words">
-                            אופציונלי. כדי שהקישור ייראה כך: <span dir="ltr" class="inline-block break-all">gift4event.com/paz-and-lior-X3TD</span>
+                            אופציונלי. כדי שהקישור ייראה כך: <span id="custom-slug-preview-text" dir="ltr" class="inline-block break-all">gift4event.com/roni-and-ran-X3TD</span>
                         </p>
                     </div>
 
@@ -1284,11 +1284,12 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H"
         crossorigin="anonymous"></script>
-    <script defer src="frontend/info-modals.js?v=21"></script>
+    <script defer src="frontend/theme.js?v=2"></script>
+    <script defer src="frontend/info-modals.js?v=25"></script>
     <script defer src="frontend/guide-modals.js?v=15"></script>
     <script defer src="frontend/terms-modal.js?v=14"></script>
     <script defer src="frontend/pdf-sign.js?v=14"></script>
-    <script defer src="frontend/app.js?v=11"></script>
+    <script defer src="frontend/app.js?v=12"></script>
 </body>
 
 </html>

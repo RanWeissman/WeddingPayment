@@ -206,6 +206,23 @@ function updateDynamicTitlePreview() {
     }
 }
 
+function updateCustomSlugPreview() {
+    const customSlugEl = document.getElementById('customSlug');
+    const previewEl = document.getElementById('custom-slug-preview-text');
+    if (!previewEl) return;
+
+    const raw = customSlugEl ? customSlugEl.value : '';
+    const formatted = raw
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/[\s-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    const slugPart = formatted || 'roni-and-ran';
+    previewEl.textContent = `gift4event.com/${slugPart}-X3TD`;
+}
+
 function updateEventTypeSubfieldsUI() {
     const eventTypeEl = document.getElementById('eventType');
     const eventType = eventTypeEl ? eventTypeEl.value : 'wedding';
@@ -272,7 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
         coupleNamesInputEl.addEventListener('input', updateDynamicTitlePreview);
     }
 
+    const customSlugInputEl = document.getElementById('customSlug');
+    if (customSlugInputEl) {
+        customSlugInputEl.addEventListener('input', updateCustomSlugPreview);
+    }
+
     updateEventTypeSubfieldsUI();
+    updateCustomSlugPreview();
 
     const termsCheckbox = document.getElementById('terms-consent');
     const termsError = document.getElementById('terms-consent-error');

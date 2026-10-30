@@ -60,7 +60,7 @@ const INFO_MODALS_HTML = `
                     <div class="bg-white p-5 rounded-xl border border-brand-border/80 space-y-3.5">
                         <div class="text-center">
                             <h4 class="text-lg font-extrabold text-brand-text">כמה עמלות אפשר לחסוך?</h4>
-                            <p class="text-sm text-brand-muted font-medium mt-0.5">דוגמה לקבלת מתנות בסך 50,000 ₪</p>
+                            <p class="text-sm text-brand-muted font-medium mt-0.5">דוגמה לקבלת מתנות בסך 100,000 ₪</p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
@@ -68,7 +68,7 @@ const INFO_MODALS_HTML = `
                             <div class="bg-gray-50 border border-gray-200/90 rounded-xl p-4 text-center flex flex-col items-center justify-center space-y-1">
                                 <h5 class="text-sm font-bold text-gray-700">שירות מתנות באשראי</h5>
                                 <p class="text-[28px] sm:text-[30px] font-extrabold text-gray-900 leading-tight pt-0.5">
-                                    1,450 ₪
+                                    2,900 ₪
                                 </p>
                                 <p class="text-xs sm:text-[13px] text-gray-600 font-medium">עמלה לדוגמה של 2.9%</p>
                             </div>
@@ -86,7 +86,7 @@ const INFO_MODALS_HTML = `
 
                         <div class="text-center space-y-1.5 pt-1">
                             <p class="text-base sm:text-lg font-extrabold text-brand-primary">
-                                1,450 ₪ שיכולים להישאר אצלכם!
+                                2,900 ₪ שיכולים להישאר אצלכם!
                             </p>
                             <p class="text-[13px] sm:text-[14px] text-gray-600 leading-relaxed">
                                 הדוגמה להמחשה בלבד. ב-Bit ניתן לקבל עד 25,000 ₪ בשנה לחשבון ללא עמלת קבלה. ייתכנו עמלות בנקאיות או עמלות של שירותי התשלום.
@@ -192,7 +192,7 @@ const INFO_MODALS_HTML = `
                             <ul class="space-y-2 pt-1 text-base text-brand-muted">
                                 <li class="flex items-start gap-2.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2.5 shrink-0"></span>
-                                    <span><strong class="text-brand-text">קישור אישי קצר:</strong> לשליחה לאורחים בוואטסאפ או בהודעות.</span>
+                                    <span><strong class="text-brand-text">קישור אישי:</strong> לשליחה לאורחים בוואטסאפ או בהודעות.</span>
                                 </li>
                                 <li class="flex items-start gap-2.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-brand-primary mt-2.5 shrink-0"></span>
@@ -250,13 +250,13 @@ const INFO_MODALS_HTML = `
             </div>
             <div class="p-6 overflow-y-auto text-brand-muted space-y-5">
                 <p class="text-base md:text-lg leading-relaxed text-brand-text">
-                    הכל התחיל כשחיפשתי דרך לעזור לאחי בניהול האירוע שלו. כמתכנת, הבנתי שאפשר לעקוף את העמלות הגבוהות ואת המגבלות הטכניות של הפלטפורמות הקיימות, וליצור פתרון נקי, הוגן וקהילתי.
+                    הכל התחיל כשחיפשתי דרך לעזור לאחי בניהול האירוע שלו. כמתכנת, הבנתי שאפשר <strong class="font-bold">לחסוך בעמלות מיותרות ולפשט את תהליך קבלת המתנות</strong>, וליצור פתרון פשוט, הוגן וקהילתי שנגיש לכולם.
                 </p>
                 <p class="text-base md:text-lg leading-relaxed">
-                    מהר מאוד הבנתי שהכלי הזה יכול להעניק לעוד המון זוגות ובעלי אירועים את האפשרות לחסוך כסף וליהנות משקט נפשי ביום המאושר שלהם. אני מאמין גדול בשיתוף ידע ובערך של פתרונות חכמים ופשוטים.
+                    מהר מאוד הבנתי שהכלי הזה יכול לעזור לעוד זוגות ובעלי אירועים לחסוך כסף וליהנות משקט נפשי ביום המיוחד שלהם. אני מאמין בשיתוף ידע, בעזרה הדדית ובכוחה של קהילה להפוך רעיון קטן למשהו שמועיל לכולם.
                 </p>
                 <p class="text-base md:text-lg leading-relaxed">
-                    המטרה שלי היא להמשיך ולשפר את המערכת עבורכם. יש לכם הצעת ייעול, פידבק או רעיון לפיצ'ר חדש? אשמח מאוד לשמוע מכם.
+                    המטרה שלי היא להמשיך ולשפר את Gift4Event עבורכם. יש לכם הצעה, פידבק או רעיון לפיצ'ר חדש? אשמח לשמוע!
                 </p>
 
                 <div class="bg-brand-lavender/40 p-5 rounded-xl border border-brand-border/70 text-center space-y-3">
@@ -385,7 +385,7 @@ const INFO_MODALS_HTML = `
                 <p class="text-center text-base md:text-lg leading-relaxed text-brand-text mb-1">בעת יצירת דף מתנה תקבלו עם הפרטים שלכם את התוצרים הבאים:</p>
                 
                 <!-- Button A -->
-                <a href="${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'payment.html?coupleNames=%D7%A8%D7%95%D7%A0%D7%99%20%D7%95%D7%A8%D7%9F&name=%D7%A8%D7%9F&bank=%D7%93%D7%99%D7%A1%D7%A7%D7%95%D7%A0%D7%98&branch=123&account=1234321&bitLink1=https%3A%2F%2Fwww.bitpay.co.il%2Fapp%2Fme%2F19A7E788-9D77-FD32-794B-139ECE79C8EA8BE6&payboxLink1=https%3A%2F%2Flinks.payboxapp.com%2FNkQV1JPWe3b&wazeLink=https%3A%2F%2Fwaze.com%2Ful%2Fhsvbbdsbsk' : '/roni-and-ran-SABA'}"
+                <a href="${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'payment.html?coupleNames=%D7%A8%D7%95%D7%A0%D7%99%20%D7%95%D7%A8%D7%9F&name=%D7%A8%D7%9F&bank=%D7%93%D7%99%D7%A1%D7%A7%D7%95%D7%A0%D7%98&branch=123&account=1234321&bitLink1=https%3A%2F%2Fwww.bitpay.co.il%2Fapp%2Fme%2F19A7E788-9D77-FD32-794B-139ECE79C8EA8BE6&payboxLink1=https%3A%2F%2Flinks.payboxapp.com%2FNkQV1JPWe3b&wazeLink=https%3A%2F%2Fwaze.com%2Ful%2Fhsvbbdsbsk' : '/roni-and-ran-SABA'}" target="_blank" rel="noopener noreferrer"
                     class="w-full btn-primary-purple font-bold py-4 px-6 rounded-xl shadow-sm text-center flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
