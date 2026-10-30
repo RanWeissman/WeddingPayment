@@ -15,14 +15,12 @@
     <meta name="twitter:title" content="השתתפות בשמחה">
     <meta name="twitter:description" content="דף מתנה אישי להשתתפות בשמחה — העברה ישירה ללא עמלות 💜">
     <link rel="icon" href="assets/logo.png" type="image/png">
-    <link rel="preload" as="image" href="assets/logo.png">
-    <link rel="preload" as="image" href="assets/Gift4Event.PNG">
 
     <!-- Google Fonts Optimized for Hebrew -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="frontend/styles.css?v=15">
+    <link rel="stylesheet" href="frontend/styles.css?v=16">
     <script>
         (function () {
             try {
@@ -97,12 +95,12 @@
                         <circle cx="60" cy="6" r="1.8" fill="#FFFFFF" />
                     </svg>
                 </div>
-                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="sync" fetchpriority="high">
+                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="async" fetchpriority="high">
             </div>
 
             <!-- 2. Original Gift4Event Wordmark + Subtle Shimmer Sweep -->
             <div class="g4e-splash-wordmark-wrap" dir="ltr">
-                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="sync" fetchpriority="high">
+                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="async" fetchpriority="high">
                 <span class="g4e-splash-shimmer" aria-hidden="true"></span>
             </div>
 
@@ -117,8 +115,11 @@
             var root = document.documentElement;
             var overlay = document.getElementById('g4e-splash-overlay');
             var dismissed = false;
+            var started = false;
+            var skipAllowed = false;
             var fadeTimer = null;
             var removeTimer = null;
+            var skipTimer = null;
             var watchdogTimer = null;
 
             function getMainContent() {
@@ -160,6 +161,7 @@
                 dismissed = true;
                 clearTimeout(fadeTimer);
                 clearTimeout(removeTimer);
+                clearTimeout(skipTimer);
                 clearTimeout(watchdogTimer);
                 window.removeEventListener('keydown', onKeyDown);
 
@@ -174,32 +176,62 @@
             }
 
             function onKeyDown(e) {
-                if (e.key === 'Escape') {
+                if (skipAllowed && e.key === 'Escape') {
                     dismissSplash(false);
                 }
             }
 
-            overlay.addEventListener('click', function () { dismissSplash(false); }, { passive: true });
-            overlay.addEventListener('touchstart', function () { dismissSplash(false); }, { passive: true });
+            overlay.addEventListener('click', function () {
+                if (skipAllowed) dismissSplash(false);
+            }, { passive: true });
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('pageshow', function (e) {
                 if (e.persisted) dismissSplash(true);
             });
-            window.addEventListener('error', function () {
-                dismissSplash(true);
-            });
 
-            var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var fadeDelay = reducedMotion ? 850 : 2100;
+            function startAnimationSequence() {
+                if (started || dismissed) return;
+                started = true;
+                requestAnimationFrame(function () {
+                    if (dismissed) return;
+                    overlay.classList.add('g4e-splash-go');
+                    skipTimer = setTimeout(function () {
+                        skipAllowed = true;
+                    }, 450);
+                    fadeTimer = setTimeout(function () {
+                        dismissSplash(false);
+                    }, 2150);
+                });
+            }
 
-            fadeTimer = setTimeout(function () {
-                dismissSplash(false);
-            }, fadeDelay);
+            // Wait for both brand images to load (or 550ms max) before starting the 2.5s clock
+            var imgs = overlay.querySelectorAll('img');
+            var pending = imgs.length;
+            if (pending === 0) {
+                startAnimationSequence();
+            } else {
+                var readyFallback = setTimeout(startAnimationSequence, 550);
+                var onImgReady = function () {
+                    pending--;
+                    if (pending <= 0) {
+                        clearTimeout(readyFallback);
+                        startAnimationSequence();
+                    }
+                };
+                for (var i = 0; i < imgs.length; i++) {
+                    if (imgs[i].complete && imgs[i].naturalWidth > 0) {
+                        onImgReady();
+                    } else {
+                        imgs[i].addEventListener('load', onImgReady, { once: true });
+                        imgs[i].addEventListener('error', onImgReady, { once: true });
+                    }
+                }
+            }
 
-            // Hard fail-safe watchdog so splash can never hang beyond 2.55s
+            // Hard fail-safe watchdog so splash can never hang
             watchdogTimer = setTimeout(function () {
                 dismissSplash(true);
-            }, 2550);
+            }, 3400);
         })();
     </script>
     
@@ -216,9 +248,9 @@
     <!-- The physical "Card" container (Keep .relative.w-full.max-w-lg for payment.js selector) -->
     <div id="main-payment-card" class="relative w-full max-w-lg my-2 animate-fade-in-up">
         <!-- Satin Ribbons Peeking from Behind Card Sides (assets/ribbon right.png & ribbon left.png) -->
-        <img src="assets/ribbon%20right.png" alt="" aria-hidden="true"
+        <img src="assets/ribbon%20right.png" alt="" aria-hidden="true" loading="lazy" decoding="async"
             class="absolute right-0 top-1/2 -translate-y-[44%] translate-x-[36%] sm:translate-x-[54%] w-28 sm:w-48 md:w-60 h-auto pointer-events-none select-none z-0">
-        <img src="assets/ribbon%20left.png" alt="" aria-hidden="true"
+        <img src="assets/ribbon%20left.png" alt="" aria-hidden="true" loading="lazy" decoding="async"
             class="absolute left-0 top-1/2 -translate-y-[42%] -translate-x-[44%] sm:-translate-x-[64%] w-28 sm:w-48 md:w-60 h-auto pointer-events-none select-none z-0">
 
         <!-- Soft Rotated Backing Card & Ambient Glow (Matches Homepage Sample Card) -->

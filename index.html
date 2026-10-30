@@ -14,14 +14,12 @@
     <meta name="twitter:title" content="Gift4Event — עמלות? לא בשמחות!">
     <meta name="twitter:description" content="דף מתנות אישי לחתונה ולאירועים — פשוט ליצור, כיף לשתף. 0% עמלות מצד האתר.">
     <link rel="icon" href="assets/logo.png" type="image/png">
-    <link rel="preload" as="image" href="assets/logo.png">
-    <link rel="preload" as="image" href="assets/Gift4Event.PNG">
     <!-- Hebrew optimized fonts (Assistant + Frank Ruhl Libre for sample wedding card) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Frank+Ruhl+Libre:wght@500;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="frontend/styles.css?v=15">
+    <link rel="stylesheet" href="frontend/styles.css?v=16">
     <script>
         (function () {
             try {
@@ -37,21 +35,19 @@
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+    <script src="frontend/theme.js?v=13"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
         integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU"
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"
+    <script defer src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"
         integrity="sha384-hStSInNIZ8ljtOVrmrgf7zdHMapaLBWoSnPTtF0nzsybp4+LuhDz6sHuEVpWIX8o"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
         integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
         integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H"
         crossorigin="anonymous"></script>
-
-    <!-- Shared Theme -->
-    <script src="frontend/theme.js?v=13"></script>
 </head>
 
 <body class="bg-brand-bg text-brand-text min-h-screen w-full max-w-full overflow-x-hidden px-4 py-6 md:px-8 md:py-10 flex flex-col items-center relative">
@@ -107,12 +103,12 @@
                         <circle cx="60" cy="6" r="1.8" fill="#FFFFFF" />
                     </svg>
                 </div>
-                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="sync" fetchpriority="high">
+                <img src="assets/logo.png" alt="Gift4Event Icon" class="g4e-splash-icon" decoding="async" fetchpriority="high">
             </div>
 
             <!-- 2. Original Gift4Event Wordmark + Subtle Shimmer Sweep -->
             <div class="g4e-splash-wordmark-wrap" dir="ltr">
-                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="sync" fetchpriority="high">
+                <img src="assets/Gift4Event.PNG" alt="Gift4Event" class="g4e-splash-wordmark" decoding="async" fetchpriority="high">
                 <span class="g4e-splash-shimmer" aria-hidden="true"></span>
             </div>
 
@@ -140,8 +136,11 @@
             var overlay = document.getElementById('g4e-splash-overlay');
             var mainContent = document.getElementById('main-page-content');
             var dismissed = false;
+            var started = false;
+            var skipAllowed = false;
             var fadeTimer = null;
             var removeTimer = null;
+            var skipTimer = null;
             var watchdogTimer = null;
 
             function unlockMainContent() {
@@ -174,6 +173,7 @@
                 dismissed = true;
                 clearTimeout(fadeTimer);
                 clearTimeout(removeTimer);
+                clearTimeout(skipTimer);
                 clearTimeout(watchdogTimer);
                 window.removeEventListener('keydown', onKeyDown);
 
@@ -188,32 +188,62 @@
             }
 
             function onKeyDown(e) {
-                if (e.key === 'Escape') {
+                if (skipAllowed && e.key === 'Escape') {
                     dismissSplash(false);
                 }
             }
 
-            overlay.addEventListener('click', function () { dismissSplash(false); }, { passive: true });
-            overlay.addEventListener('touchstart', function () { dismissSplash(false); }, { passive: true });
+            overlay.addEventListener('click', function () {
+                if (skipAllowed) dismissSplash(false);
+            }, { passive: true });
             window.addEventListener('keydown', onKeyDown);
             window.addEventListener('pageshow', function (e) {
                 if (e.persisted) dismissSplash(true);
             });
-            window.addEventListener('error', function () {
-                dismissSplash(true);
-            });
 
-            var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var fadeDelay = reducedMotion ? 850 : 2100;
+            function startAnimationSequence() {
+                if (started || dismissed) return;
+                started = true;
+                requestAnimationFrame(function () {
+                    if (dismissed) return;
+                    overlay.classList.add('g4e-splash-go');
+                    skipTimer = setTimeout(function () {
+                        skipAllowed = true;
+                    }, 450);
+                    fadeTimer = setTimeout(function () {
+                        dismissSplash(false);
+                    }, 2150);
+                });
+            }
 
-            fadeTimer = setTimeout(function () {
-                dismissSplash(false);
-            }, fadeDelay);
+            // Wait for both brand images to load (or 550ms max) before starting the 2.5s clock
+            var imgs = overlay.querySelectorAll('img');
+            var pending = imgs.length;
+            if (pending === 0) {
+                startAnimationSequence();
+            } else {
+                var readyFallback = setTimeout(startAnimationSequence, 550);
+                var onImgReady = function () {
+                    pending--;
+                    if (pending <= 0) {
+                        clearTimeout(readyFallback);
+                        startAnimationSequence();
+                    }
+                };
+                for (var i = 0; i < imgs.length; i++) {
+                    if (imgs[i].complete && imgs[i].naturalWidth > 0) {
+                        onImgReady();
+                    } else {
+                        imgs[i].addEventListener('load', onImgReady, { once: true });
+                        imgs[i].addEventListener('error', onImgReady, { once: true });
+                    }
+                }
+            }
 
-            // Hard fail-safe watchdog so splash can never hang beyond 2.55s
+            // Hard fail-safe watchdog so splash can never hang
             watchdogTimer = setTimeout(function () {
                 dismissSplash(true);
-            }, 2550);
+            }, 3400);
         })();
     </script>
 
@@ -294,9 +324,9 @@
             <!-- Interactive Sample Wedding Card Preview (Faithful miniature of payment.html) -->
             <div class="relative max-w-[440px] mx-auto mb-8 px-3 sm:px-0">
                 <!-- Satin Ribbons Peeking from Behind Card Sides (assets/ribbon right.png & ribbon left.png) -->
-                <img src="assets/ribbon%20right.png" alt="" aria-hidden="true"
+                <img src="assets/ribbon%20right.png" alt="" aria-hidden="true" loading="lazy" decoding="async"
                     class="absolute right-0 top-1/2 -translate-y-[44%] translate-x-[36%] sm:translate-x-[54%] w-28 sm:w-48 md:w-56 h-auto pointer-events-none select-none z-0">
-                <img src="assets/ribbon%20left.png" alt="" aria-hidden="true"
+                <img src="assets/ribbon%20left.png" alt="" aria-hidden="true" loading="lazy" decoding="async"
                     class="absolute left-0 top-1/2 -translate-y-[42%] -translate-x-[44%] sm:-translate-x-[64%] w-28 sm:w-48 md:w-56 h-auto pointer-events-none select-none z-0">
 
                 <!-- Soft Decorative Backing Card Layer -->

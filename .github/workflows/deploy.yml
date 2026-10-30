@@ -97,8 +97,12 @@ jobs:
             --exclude "scripts/*" \
             --exclude "planning/*" \
             --exclude "analytics_automation/*" \
+            --exclude "assets/*" \
             --exclude "*.md" \
             --cache-control "public, max-age=0, must-revalidate" \
+            --delete
+          aws s3 sync ./assets s3://${{ env.S3_BUCKET }}/assets \
+            --cache-control "public, max-age=86400" \
             --delete
 
       - name: Invalidate CloudFront Cache
