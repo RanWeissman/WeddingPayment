@@ -257,8 +257,176 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.location.hash) {
         window.scrollTo(0, 0);
     }
-    setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => extractedBitLink1 = val);
-    setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => extractedBitLink2 = val);
+    setupQRReader('bit-qr-upload-1', 'qr-success-msg-1', 'qr-error-msg-1', (val) => {
+        extractedBitLink1 = val;
+        if (val) {
+            const bitErr = document.getElementById('bit-required-error');
+            if (bitErr) bitErr.classList.add('hidden');
+        }
+    });
+    setupQRReader('bit-qr-upload-2', 'qr-success-msg-2', 'qr-error-msg-2', (val) => {
+        extractedBitLink2 = val;
+        if (val) {
+            const bitErr = document.getElementById('bit-required-error');
+            if (bitErr) bitErr.classList.add('hidden');
+        }
+    });
+
+    // ── Transfer Methods Selection & Bank Uncheck Modal Logic ────────────────
+    const enableBankEl = document.getElementById('enable-bank');
+    const enableBitEl = document.getElementById('enable-bit');
+    const enablePayboxEl = document.getElementById('enable-paybox');
+
+    const bankSectionWrapper = document.getElementById('bank-section-wrapper');
+    const bitSectionWrapper = document.getElementById('bit-section-wrapper');
+    const payboxSectionWrapper = document.getElementById('paybox-section-wrapper');
+
+    const transferMethodsErrorEl = document.getElementById('transfer-methods-error');
+    const bitRequiredErrorEl = document.getElementById('bit-required-error');
+    const payboxRequiredErrorEl = document.getElementById('paybox-required-error');
+
+    const bankInputIds = ['name', 'bank', 'branch', 'account'];
+
+    function syncTransferMethodSections() {
+        const bankChecked = enableBankEl ? enableBankEl.checked : true;
+        const bitChecked = enableBitEl ? enableBitEl.checked : false;
+        const payboxChecked = enablePayboxEl ? enablePayboxEl.checked : false;
+
+        if (bankSectionWrapper) {
+            bankSectionWrapper.classList.toggle('hidden', !bankChecked);
+        }
+        bankInputIds.forEach((id) => {
+            const inputEl = document.getElementById(id);
+            if (inputEl) {
+                inputEl.required = bankChecked;
+            }
+        });
+
+        if (bitSectionWrapper) {
+            bitSectionWrapper.classList.toggle('hidden', !bitChecked);
+            if (!bitChecked && bitRequiredErrorEl) {
+                bitRequiredErrorEl.classList.add('hidden');
+            }
+        }
+
+        if (payboxSectionWrapper) {
+            payboxSectionWrapper.classList.toggle('hidden', !payboxChecked);
+            if (!payboxChecked && payboxRequiredErrorEl) {
+                payboxRequiredErrorEl.classList.add('hidden');
+            }
+        }
+
+        if ((bankChecked || bitChecked || payboxChecked) && transferMethodsErrorEl) {
+            transferMethodsErrorEl.classList.add('hidden');
+        }
+    }
+
+    const bankUncheckModal = document.getElementById('bank-uncheck-modal');
+    const bankUncheckCloseX = document.getElementById('bank-uncheck-close-x');
+    const bankUncheckKeepBtn = document.getElementById('bank-uncheck-keep-btn');
+    const bankUncheckConfirmBtn = document.getElementById('bank-uncheck-confirm-btn');
+    const bankUncheckSavingsLink = document.getElementById('bank-uncheck-savings-link');
+
+    function openBankUncheckModal() {
+        if (bankUncheckModal) {
+            bankUncheckModal.classList.remove('hidden');
+        }
+    }
+
+    function closeBankUncheckModal() {
+        if (bankUncheckModal) {
+            bankUncheckModal.classList.add('hidden');
+        }
+    }
+
+    if (enableBankEl) {
+        enableBankEl.addEventListener('change', () => {
+            if (!enableBankEl.checked) {
+                // Keep checked until user explicitly confirms inside the modal
+                enableBankEl.checked = true;
+                openBankUncheckModal();
+            } else {
+                syncTransferMethodSections();
+            }
+        });
+    }
+
+    if (enableBitEl) {
+        enableBitEl.addEventListener('change', syncTransferMethodSections);
+    }
+
+    if (enablePayboxEl) {
+        enablePayboxEl.addEventListener('change', syncTransferMethodSections);
+    }
+
+    if (bankUncheckKeepBtn) {
+        bankUncheckKeepBtn.addEventListener('click', () => {
+            if (enableBankEl) enableBankEl.checked = true;
+            syncTransferMethodSections();
+            closeBankUncheckModal();
+        });
+    }
+
+    if (bankUncheckCloseX) {
+        bankUncheckCloseX.addEventListener('click', () => {
+            if (enableBankEl) enableBankEl.checked = true;
+            syncTransferMethodSections();
+            closeBankUncheckModal();
+        });
+    }
+
+    if (bankUncheckModal) {
+        bankUncheckModal.addEventListener('click', (e) => {
+            if (e.target === bankUncheckModal) {
+                if (enableBankEl) enableBankEl.checked = true;
+                syncTransferMethodSections();
+                closeBankUncheckModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !bankUncheckModal.classList.contains('hidden')) {
+                if (enableBankEl) enableBankEl.checked = true;
+                syncTransferMethodSections();
+                closeBankUncheckModal();
+            }
+        });
+    }
+
+    if (bankUncheckConfirmBtn) {
+        bankUncheckConfirmBtn.addEventListener('click', () => {
+            if (enableBankEl) enableBankEl.checked = false;
+            syncTransferMethodSections();
+            closeBankUncheckModal();
+        });
+    }
+
+    if (bankUncheckSavingsLink) {
+        bankUncheckSavingsLink.addEventListener('click', () => {
+            if (enableBankEl) enableBankEl.checked = true;
+            syncTransferMethodSections();
+            closeBankUncheckModal();
+            if (typeof openAboutSavingsSection === 'function') {
+                setTimeout(openAboutSavingsSection, 120);
+            } else if (typeof openAboutModal === 'function') {
+                setTimeout(openAboutModal, 120);
+            }
+        });
+    }
+
+    ['paybox-link-1', 'paybox-link-2'].forEach((id) => {
+        const pbEl = document.getElementById(id);
+        if (pbEl) {
+            pbEl.addEventListener('input', () => {
+                if (pbEl.value.trim().length > 0 && payboxRequiredErrorEl) {
+                    payboxRequiredErrorEl.classList.add('hidden');
+                }
+            });
+        }
+    });
+
+    syncTransferMethodSections();
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Event Type & Live Title Preview Listeners
     const eventTypeEl = document.getElementById('eventType');
@@ -387,6 +555,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 eventDateError.classList.add('hidden');
             }
 
+            // ── Transfer Methods Validation ──────────────────────────────────
+            const bankChecked = enableBankEl ? enableBankEl.checked : true;
+            const bitChecked = enableBitEl ? enableBitEl.checked : false;
+            const payboxChecked = enablePayboxEl ? enablePayboxEl.checked : false;
+
+            if (!bankChecked && !bitChecked && !payboxChecked) {
+                if (transferMethodsErrorEl) {
+                    transferMethodsErrorEl.classList.remove('hidden');
+                    transferMethodsErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                submitBtn.innerHTML = originalBtnContent;
+                submitBtn.disabled = false;
+                return;
+            } else if (transferMethodsErrorEl) {
+                transferMethodsErrorEl.classList.add('hidden');
+            }
+
+            const trimmedName = name.trim();
+            const trimmedBank = bank.trim();
+            const trimmedBranch = branch.trim();
+            const trimmedAccount = account.trim();
+
+            if (bankChecked) {
+                const bankFieldsToVerify = [
+                    { id: 'name', val: trimmedName },
+                    { id: 'bank', val: trimmedBank },
+                    { id: 'branch', val: trimmedBranch },
+                    { id: 'account', val: trimmedAccount }
+                ];
+                for (const fieldObj of bankFieldsToVerify) {
+                    if (!fieldObj.val) {
+                        const el = document.getElementById(fieldObj.id);
+                        if (el) {
+                            el.value = '';
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            el.focus();
+                        }
+                        submitBtn.innerHTML = originalBtnContent;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                }
+            }
+
+            const payboxLink1Value = document.getElementById('paybox-link-1').value.trim();
+            const payboxLink2Value = document.getElementById('paybox-link-2').value.trim();
+
+            if (bitChecked) {
+                if (!extractedBitLink1 && !extractedBitLink2) {
+                    if (bitRequiredErrorEl) {
+                        bitRequiredErrorEl.classList.remove('hidden');
+                        bitRequiredErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
+                    return;
+                } else if (bitRequiredErrorEl) {
+                    bitRequiredErrorEl.classList.add('hidden');
+                }
+            }
+
+            if (payboxChecked) {
+                if (!payboxLink1Value && !payboxLink2Value) {
+                    if (payboxRequiredErrorEl) {
+                        payboxRequiredErrorEl.classList.remove('hidden');
+                        payboxRequiredErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    const firstPbEl = document.getElementById('paybox-link-1');
+                    if (firstPbEl) firstPbEl.focus({ preventScroll: true });
+                    submitBtn.innerHTML = originalBtnContent;
+                    submitBtn.disabled = false;
+                    return;
+                } else if (payboxRequiredErrorEl) {
+                    payboxRequiredErrorEl.classList.add('hidden');
+                }
+            }
+            // ─────────────────────────────────────────────────────────────────
+
             // Client-side Terms & Privacy Clickwrap consent validation
             if (!termsCheckbox || !termsCheckbox.checked) {
                 if (termsError) termsError.classList.remove('hidden');
@@ -410,24 +656,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 customSlug: customSlug,
                 wazeLink: wazeLink,
                 eventDate: eventDate,
-                bankDetails: {
-                    beneficiaryName: name,
-                    bankName: bank,
-                    branchNumber: branch,
-                    accountNumber: account
-                },
+                bankDetails: bankChecked ? {
+                    beneficiaryName: trimmedName,
+                    bankName: trimmedBank,
+                    branchNumber: trimmedBranch,
+                    accountNumber: trimmedAccount
+                } : null,
                 bitLinks: [],
                 payboxLinks: []
             };
 
-            if (extractedBitLink1) payload.bitLinks.push(extractedBitLink1);
-            if (extractedBitLink2) payload.bitLinks.push(extractedBitLink2);
+            if (bitChecked) {
+                if (extractedBitLink1) payload.bitLinks.push(extractedBitLink1);
+                if (extractedBitLink2) payload.bitLinks.push(extractedBitLink2);
+            }
 
-            const payboxLink1Value = document.getElementById('paybox-link-1').value.trim();
-            if (payboxLink1Value) payload.payboxLinks.push(payboxLink1Value);
-
-            const payboxLink2Value = document.getElementById('paybox-link-2').value.trim();
-            if (payboxLink2Value) payload.payboxLinks.push(payboxLink2Value);
+            if (payboxChecked) {
+                if (payboxLink1Value) payload.payboxLinks.push(payboxLink1Value);
+                if (payboxLink2Value) payload.payboxLinks.push(payboxLink2Value);
+            }
 
             try {
                 const response = await fetch('/api/create', {
@@ -446,10 +693,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (eventSubType) params.set('eventSubType', eventSubType);
                     if (customEventName) params.set('customEventName', customEventName);
                     if (coupleNames) params.set('coupleNames', coupleNames);
-                    if (name) params.set('name', name);
-                    if (bank) params.set('bank', bank);
-                    if (branch) params.set('branch', branch);
-                    if (account) params.set('account', account);
+                    if (payload.bankDetails) {
+                        params.set('name', payload.bankDetails.beneficiaryName);
+                        params.set('bank', payload.bankDetails.bankName);
+                        params.set('branch', payload.bankDetails.branchNumber);
+                        params.set('account', payload.bankDetails.accountNumber);
+                    }
                     if (wazeLink) params.set('wazeLink', wazeLink);
                     if (payload.bitLinks[0]) params.set('bitLink1', payload.bitLinks[0]);
                     if (payload.bitLinks[1]) params.set('bitLink2', payload.bitLinks[1]);
