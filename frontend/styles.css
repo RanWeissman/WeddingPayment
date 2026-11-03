@@ -1,6 +1,9 @@
 /* Shared Stylesheet for Gift4Event (index.html & payment.html) */
 
 :root {
+    color-scheme: only light;
+    forced-color-adjust: none;
+
     --color-primary-purple: #6D35E8;
     --color-deep-purple: #4F2EB8;
     --color-light-lavender: #F4EFFF;
@@ -16,6 +19,8 @@
 }
 
 html {
+    color-scheme: only light;
+    forced-color-adjust: none;
     max-width: 100%;
     overflow-x: hidden;
     overflow-x: clip;
@@ -23,15 +28,28 @@ html {
 }
 
 body {
+    color-scheme: only light;
+    forced-color-adjust: none;
     font-family: 'Assistant', sans-serif;
     background-color: var(--color-bg);
-    background-image: linear-gradient(135deg, #F5F0FF 0%, #F8F5FF 50%, #F3EDFF 100%);
+    background-image:
+        linear-gradient(135deg, #F5F0FF 0%, #F8F5FF 50%, #F3EDFF 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='%23F6F3FF'/%3E%3C/svg%3E");
     background-attachment: fixed;
     color: var(--color-text);
     max-width: 100%;
     overflow-x: hidden;
     overflow-x: clip;
     position: relative;
+}
+
+/* Lock form controls & buttons to light mode across mobile browsers */
+input,
+select,
+textarea,
+button {
+    color-scheme: only light;
+    forced-color-adjust: none;
 }
 
 /* Accessible keyboard focus styling */
@@ -64,7 +82,8 @@ label:focus-visible {
 
 /* Clean card style with subtle lavender border (Landing & Generator Page) */
 .glass-card {
-    background: rgba(255, 255, 255, 0.94);
+    background-color: rgba(255, 255, 255, 0.94);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='%23FFFFFF' fill-opacity='0.94'/%3E%3C/svg%3E");
     border: 1px solid var(--color-border-lavender);
     border-radius: var(--radius-lg);
     box-shadow: 0 4px 20px -4px rgba(109, 53, 232, 0.06);
@@ -99,7 +118,10 @@ label:focus-visible {
 
 /* Wedding Sample Card Surface */
 .sample-wedding-card {
-    background: radial-gradient(circle at 50% 35%, #FFFDF9 0%, #F9F4EB 65%, #F2EADF 100%);
+    background-color: #FAF6EE;
+    background-image:
+        radial-gradient(circle at 50% 35%, #FFFDF9 0%, #F9F4EB 65%, #F2EADF 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='%23FAF6EE'/%3E%3C/svg%3E");
     box-shadow: 0 22px 45px -12px rgba(79, 46, 184, 0.18), 0 4px 16px -2px rgba(44, 62, 80, 0.06);
 }
 
