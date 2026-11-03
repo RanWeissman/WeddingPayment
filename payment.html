@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light only">
+    <meta name="theme-color" content="#F6F3FF">
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <title>השתתפות בשמחה</title>
@@ -177,9 +180,10 @@
         })();
     </script>
     <style>
+        :root,html,body{color-scheme:only light;forced-color-adjust:none}
         html.g4e-splash-active,html.g4e-splash-active body{overflow:hidden!important;background:#F8F4FF}
         html.g4e-splash-active:not(.g4e-splash-prep-bg) body>*:not(#g4e-splash-overlay):not(script){display:none!important}
-        #g4e-splash-overlay{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 42%,#FFFFFF 0%,#F8F4FF 48%,#EDE3FF 100%);opacity:1;transform:scale(1);transition:opacity .36s cubic-bezier(.4,0,.2,1),transform .36s cubic-bezier(.4,0,.2,1);user-select:none;-webkit-user-select:none;cursor:pointer;overflow:hidden}
+        #g4e-splash-overlay{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:24px;background-color:#F8F4FF;background-image:radial-gradient(circle at 50% 42%,#FFFFFF 0%,#F8F4FF 48%,#EDE3FF 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='%23F8F4FF'/%3E%3C/svg%3E");opacity:1;transform:scale(1);transition:opacity .36s cubic-bezier(.4,0,.2,1),transform .36s cubic-bezier(.4,0,.2,1);user-select:none;-webkit-user-select:none;cursor:pointer;overflow:hidden}
         html.g4e-splash-active #g4e-splash-overlay,#g4e-splash-overlay.g4e-splash-fadeout{display:flex}
         #g4e-splash-overlay.g4e-splash-fadeout{opacity:0;transform:scale(1.015);pointer-events:none}
         .g4e-splash-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:100%;text-align:center}
@@ -205,10 +209,10 @@
         @keyframes g4eConfettiBurst{0%{opacity:0;transform:translate3d(var(--sx,0px),var(--sy,0px),0) scale(.45) rotate(0deg)}18%{opacity:1;transform:translate3d(calc(var(--tx,140px)*.72),calc(var(--ty,-40px)*.72),0) scale(1.05) rotate(calc(var(--rot,140deg)*.55))}52%{opacity:.92;transform:translate3d(var(--tx,140px),var(--ty,-40px),0) scale(1) rotate(var(--rot,140deg))}100%{opacity:0;transform:translate3d(calc(var(--tx,140px)*1.12),calc(var(--ty,-40px) + 24px),0) scale(.82) rotate(calc(var(--rot,140deg) + 40deg))}}
     </style>
     <link rel="stylesheet" href="frontend/tailwind.min.css?v=2" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
-    <link rel="stylesheet" href="frontend/styles.css?v=21" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
+    <link rel="stylesheet" href="frontend/styles.css?v=22" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
     <noscript>
         <link rel="stylesheet" href="frontend/tailwind.min.css?v=2">
-        <link rel="stylesheet" href="frontend/styles.css?v=21">
+        <link rel="stylesheet" href="frontend/styles.css?v=22">
     </noscript>
 
     <!-- Google Fonts Optimized for Hebrew (non-blocking) -->
