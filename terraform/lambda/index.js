@@ -406,6 +406,40 @@ exports.handler = async (event) => {
                 };
             }
 
+            // ── Validate Transfer Methods (Bank / Bit / PayBox) ───────────────
+            const rawBank = body.bankDetails && typeof body.bankDetails === 'object' ? body.bankDetails : null;
+            const bName = String(rawBank?.beneficiaryName || '').trim();
+            const bBank = String(rawBank?.bankName || '').trim();
+            const bBranch = String(rawBank?.branchNumber || '').trim();
+            const bAccount = String(rawBank?.accountNumber || '').trim();
+
+            const hasAnyBankField = Boolean(bName || bBank || bBranch || bAccount);
+            const hasFullBank = Boolean(bName && bBank && bBranch && bAccount);
+
+            if (hasAnyBankField && !hasFullBank) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'יש למלא את כל פרטי חשבון הבנק.' })
+                };
+            }
+
+            const cleanBitLinks = Array.isArray(body.bitLinks)
+                ? body.bitLinks.map(l => String(l || '').trim()).filter(Boolean)
+                : [];
+            const cleanPayboxLinks = Array.isArray(body.payboxLinks)
+                ? body.payboxLinks.map(l => String(l || '').trim()).filter(Boolean)
+                : [];
+
+            if (!hasFullBank && cleanBitLinks.length === 0 && cleanPayboxLinks.length === 0) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ error: 'יש להזין לפחות דרך העברה אחת (חשבון בנק, Bit או PayBox).' })
+                };
+            }
+            // ──────────────────────────────────────────────────────────────────
+
             // ── CREATE RATE LIMIT CHECK (after validation so typos don't burn quota) ──
             if (await isCreateRateLimited(clientIp)) {
                 headers['Retry-After'] = String(CREATE_RATE_LIMIT_WINDOW_SECONDS);
@@ -441,9 +475,14 @@ exports.handler = async (event) => {
             const slug = `${baseSlug}-${suffix}`;
 
             // ── Encrypt sensitive bankDetails fields before DB storage ──────────
-            const bankDetails = { ...(body.bankDetails || {}) };
-            if (bankDetails.accountNumber) {
-                bankDetails.accountNumber = encryptField(String(bankDetails.accountNumber));
+            let bankDetails = null;
+            if (hasFullBank) {
+                bankDetails = {
+                    beneficiaryName: bName,
+                    bankName: bBank,
+                    branchNumber: bBranch,
+                    accountNumber: encryptField(String(bAccount))
+                };
             }
             // ───────────────────────────────────────────────────────────────────
 
@@ -458,8 +497,8 @@ exports.handler = async (event) => {
                 eventDate: eventDateStr,
                 wazeLink: body.wazeLink || '',
                 bankDetails: bankDetails,
-                bitLinks: body.bitLinks || [],
-                payboxLinks: body.payboxLinks || [],
+                bitLinks: cleanBitLinks,
+                payboxLinks: cleanPayboxLinks,
                 createdAt: new Date().toISOString(),
                 ttl: eventTtl
             };

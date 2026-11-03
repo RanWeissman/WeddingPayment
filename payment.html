@@ -205,10 +205,10 @@
         @keyframes g4eConfettiBurst{0%{opacity:0;transform:translate3d(var(--sx,0px),var(--sy,0px),0) scale(.45) rotate(0deg)}18%{opacity:1;transform:translate3d(calc(var(--tx,140px)*.72),calc(var(--ty,-40px)*.72),0) scale(1.05) rotate(calc(var(--rot,140deg)*.55))}52%{opacity:.92;transform:translate3d(var(--tx,140px),var(--ty,-40px),0) scale(1) rotate(var(--rot,140deg))}100%{opacity:0;transform:translate3d(calc(var(--tx,140px)*1.12),calc(var(--ty,-40px) + 24px),0) scale(.82) rotate(calc(var(--rot,140deg) + 40deg))}}
     </style>
     <link rel="stylesheet" href="frontend/tailwind.min.css?v=2" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
-    <link rel="stylesheet" href="frontend/styles.css?v=19" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
+    <link rel="stylesheet" href="frontend/styles.css?v=21" media="print" onload="if(!document.documentElement.classList.contains('g4e-splash-active'))this.media='all'">
     <noscript>
         <link rel="stylesheet" href="frontend/tailwind.min.css?v=2">
-        <link rel="stylesheet" href="frontend/styles.css?v=19">
+        <link rel="stylesheet" href="frontend/styles.css?v=21">
     </noscript>
 
     <!-- Google Fonts Optimized for Hebrew (non-blocking) -->
@@ -390,7 +390,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
                     </svg>
                     <span>העברה לחשבון הבנק</span>
-                    <span class="text-xs sm:text-sm bg-white/20 text-white font-extrabold px-2.5 py-0.5 rounded-full border border-white/25 flex items-center gap-1">
+                    <span id="bank-preferred-badge" class="text-xs sm:text-sm bg-white/20 text-white font-extrabold px-2.5 py-0.5 rounded-full border border-white/25 flex items-center gap-1">
                         <span>מועדף</span>
                         <span class="text-rose-200">❤️</span>
                     </span>
@@ -563,6 +563,6 @@
 
     <!-- Guest Payment Page Logic -->
     <script defer src="frontend/theme.js?v=2"></script>
-    <script defer src="frontend/payment.js?v=10"></script>
+    <script defer src="frontend/payment.js?v=11"></script>
 </body>
 </html>

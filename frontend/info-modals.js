@@ -57,7 +57,7 @@ const INFO_MODALS_HTML = `
                     </div>
 
                     <!-- Savings Illustration Comparison -->
-                    <div class="bg-white p-5 rounded-xl border border-brand-border/80 space-y-3.5">
+                    <div id="about-savings-section" class="bg-white p-5 rounded-xl border border-brand-border/80 space-y-3.5 transition-all duration-300">
                         <div class="text-center">
                             <h4 class="text-lg font-extrabold text-brand-text">כמה עמלות אפשר לחסוך?</h4>
                             <p class="text-sm text-brand-muted font-medium mt-0.5">דוגמה לקבלת מתנות בסך 100,000 ₪</p>
@@ -442,6 +442,20 @@ function closeModalById(modalId, contentId) {
 // Public Info Modal Functions
 function openAboutModal() { openModalById('about-modal', 'about-content'); }
 function closeAboutModal() { closeModalById('about-modal', 'about-content'); }
+
+function openAboutSavingsSection() {
+    openAboutModal();
+    setTimeout(() => {
+        const savingsEl = document.getElementById('about-savings-section');
+        if (savingsEl) {
+            savingsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            savingsEl.classList.add('ring-2', 'ring-brand-primary');
+            setTimeout(() => {
+                savingsEl.classList.remove('ring-2', 'ring-brand-primary');
+            }, 2200);
+        }
+    }, 220);
+}
 
 function openHowItWorksModal() { openModalById('how-it-works-modal', 'how-it-works-content'); }
 function closeHowItWorksModal() { closeModalById('how-it-works-modal', 'how-it-works-content'); }

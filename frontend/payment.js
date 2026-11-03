@@ -226,6 +226,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (bitLink2) validBitLinks.push(bitLink2);
     if (!bitLink1 && !bitLink2 && bitLinkOld) validBitLinks.push(bitLinkOld);
 
+    const validPayboxLinks = [];
+    if (payboxLink1) validPayboxLinks.push(payboxLink1);
+    if (payboxLink2) validPayboxLinks.push(payboxLink2);
+    if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
+
+    const hasBankDetails = Boolean(
+        config.name && String(config.name).trim() &&
+        config.bank && String(config.bank).trim() &&
+        config.branch && String(config.branch).trim() &&
+        config.account && String(config.account).trim()
+    );
+    const hasOtherPaymentMethods = validBitLinks.length > 0 || validPayboxLinks.length > 0;
+
+    const toggleBankBtnEl = document.getElementById('toggle-bank-btn');
+    const bankDetailsContainerEl = document.getElementById('bank-details');
+    const bankPreferredBadgeEl = document.getElementById('bank-preferred-badge');
+
+    if (!hasBankDetails) {
+        if (toggleBankBtnEl) toggleBankBtnEl.classList.add('hidden');
+        if (bankDetailsContainerEl) bankDetailsContainerEl.classList.add('hidden');
+    } else if (bankPreferredBadgeEl) {
+        if (hasOtherPaymentMethods) {
+            bankPreferredBadgeEl.classList.remove('hidden');
+            bankPreferredBadgeEl.classList.add('flex');
+        } else {
+            bankPreferredBadgeEl.classList.add('hidden');
+            bankPreferredBadgeEl.classList.remove('flex');
+        }
+    }
+
     // Modal Logic Variables
     const bitModal = document.getElementById('bit-modal');
     const modalBankBtn = document.getElementById('modal-bank-btn');
@@ -238,6 +268,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const openBitModal = (link) => {
+        if (!hasBankDetails) {
+            trackEvent('bit_click');
+            if (link) window.open(link, '_blank');
+            return;
+        }
         nextBitLinkToOpen = link;
         if (bitModal) bitModal.classList.remove('hidden');
     };
@@ -308,11 +343,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    const validPayboxLinks = [];
-    if (payboxLink1) validPayboxLinks.push(payboxLink1);
-    if (payboxLink2) validPayboxLinks.push(payboxLink2);
-    if (!payboxLink1 && !payboxLink2 && payboxLinkOld) validPayboxLinks.push(payboxLinkOld);
-
     // PayBox Modal Logic Variables
     const pbModal = document.getElementById('paybox-modal');
     const pbModalBankBtn = document.getElementById('pb-modal-bank-btn');
@@ -325,6 +355,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const openPbModal = (link) => {
+        if (!hasBankDetails) {
+            trackEvent('paybox_click');
+            if (link) window.open(link, '_blank');
+            return;
+        }
         nextPbLinkToOpen = link;
         if (pbModal) pbModal.classList.remove('hidden');
     };
